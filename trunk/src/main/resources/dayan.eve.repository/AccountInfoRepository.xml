@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.AccountInfoRepository">
+
+    <update id="updateInfo">
+        UPDATE
+        `eve_account_info` a
+        SET
+        <if test="provinceId != null">
+            a.`province_id` = #{provinceId},
+        </if>
+        <if test="subjectType != null">
+            a.`subject_type` = #{subjectType},
+        </if>
+        <if test="score != null">
+            a.`score` = #{score},
+        </if>
+        <if test="rank != null">
+            a.`rank` = #{rank},
+        </if>
+        <if test="role != null">
+            a.`account_role` = #{role},
+        </if>
+        <if test="mobile != null">
+            a.`mobile` = #{mobile},
+        </if>
+        <if test="gender != null">
+            a.`gender` = #{gender},
+        </if>
+        <if test="exp != null">
+            a.exp = #{exp},
+        </if>
+        <if test="level != null">
+            a.level = #{level},
+        </if>
+        <if test="vipLevel != null">
+            a.vip_level = #{vipLevel},
+        </if>
+        <if test="portraitUrl != null">
+            a.portrait_url = #{portraitUrl},
+        </if>
+        <if test="continuousClockTimes != null">
+            a.continuous_clock_times = #{continuousClockTimes},
+        </if>
+        <if test="clockCount != null">
+            a.clock_count = #{clockCount},
+        </if>
+        <if test="lastClockContent != null">
+            a.last_clock_content = #{lastClockContent},
+        </if>
+        <if test="portraitUrl != null">
+            a.portrait_url = #{portraitUrl},
+        </if>
+        <if test="ext != null">
+            <if test="ext.schoolId != null">
+                a.school_id = #{ext.schoolId},
+            </if>
+            <if test="ext.platformId != null">
+                a.platform_id = #{ext.platformId},
+            </if>
+        </if>
+        a.gmt_modify = NOW()
+        WHERE
+        a.account_id = #{accountId}
+    </update>
+
+    <update id="updateShared">
+        UPDATE
+            `eve_account_info` a
+        SET
+            a.`is_shared` = 1
+        WHERE
+            a.account_id = #{accountId}
+    </update>
+
+    <update id="updateBaiduInfo" >
+        UPDATE `eve_account_info` a, `eve_account_baidu` b
+        SET a.portrait_url = CONCAT('http://tb.himg.baidu.com/sys/portrait/item/', b.portrait)
+        WHERE a.account_id = #{id}
+              AND b.id = #{accountBaiduId}
+    </update>
+
+    <update id="updateQQInfo" >
+        UPDATE `eve_account_info` a, `eve_account_qq` b
+        SET a.portrait_url = b.figureurl_qq2
+        WHERE a.account_id = #{id}
+              AND b.id = #{accountQQId}
+    </update>
+
+    <update id="updateVerifyCode">
+        UPDATE
+            `eve_account_info` a
+        SET
+            a.verify_code = #{code},
+            a.verify_date = NOW()
+        WHERE
+            a.account_id = #{accountId}
+    </update>
+
+    <insert id="insertInfo" >
+        INSERT INTO
+            `eve_account_info`
+            (
+                `account_id`,
+                `mobile`,
+                `portrait_url`,
+                `gmt_create`
+            )
+            VALUE
+            (
+                #{accountId},
+                #{mobile},
+                #{portraitUrl},
+                NOW()
+            )
+    </insert>
+
+    <select id="queryInfo" resultType="dayan.eve.model.account.AccountInfo">
+        SELECT
+        a.`id` "infoId",
+        a.`account_id` "accountId",
+        a.`account_role` "role",
+        a.`province_id` "provinceId",
+        a.`mobile`,
+        a.`gender`,
+        a.`portrait_url` "portraitUrl",
+        a.`subject_type` "subjectType",
+        a.`score` ,
+        a.`rank` ,
+        a.`exp` ,
+        a.`level` ,
+        a.`school_id` "ext.schoolId",
+        a.`platform_id` "ext.platformId",
+        d.`name` "ext.schoolName",
+        a.`vip_level` "vipLevel",
+        a.`continuous_clock_times` "continuousClockTimes",
+        a.`clock_count` "clockCount",
+        a.`is_shared` isShared,
+        b.`id`,
+        b.`nickname`,
+        b.`hash_id` hashId,
+        c.`name` "province"
+        FROM
+        `eve_account_info` a
+        LEFT JOIN
+        `eve_account` b
+        ON
+        a.account_id = b.id
+        LEFT JOIN
+        `const_province` c
+        ON
+        a.province_id = c.id
+        LEFT JOIN
+        `cu_school` d
+        ON
+        a.school_id = d.id
+        WHERE 1=1
+        <include refid="where"/>
+        <if test='accountHashId != null '>
+            and b.hash_id = #{accountHashId}
+        </if>
+        <include refid="limit"/>
+    </select>
+
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+
+    <select id="queryOneInfo" resultType="dayan.eve.model.account.AccountInfo">
+        SELECT
+            a.`id`                     "infoId",
+            a.`account_id`             "accountId",
+            a.`province_id`            "provinceId",
+            a.`gender`,
+            a.`portrait_url`           "portraitUrl",
+            a.`subject_type`           "subjectType",
+            a.`score`,
+            a.`rank`,
+            a.`mobile`,
+            b.`nickname`,
+            a.`exp`,
+            a.`level`,
+            a.`vip_level`              "vipLevel",
+            a.`continuous_clock_times` "continuousClockTimes",
+            a.`clock_count`            "clockCount",
+            a.`is_shared`              isShared,
+            a.`school_id`              "ext.schoolId",
+            a.`platform_id`            "ext.platformId",
+            d.`name`                   "ext.schoolName",
+            b.`hash_id`                hashId,
+            c.`name`                   "province"
+        FROM
+            `eve_account_info` a
+            LEFT JOIN
+            `eve_account` b
+                ON
+                    a.account_id = b.id
+            LEFT JOIN
+            `const_province` c
+                ON
+                    a.province_id = c.id
+            LEFT JOIN
+            `cu_school` d
+                ON
+                    a.school_id = d.id
+        WHERE
+            a.account_id = #{accountId}
+    </select>
+
+    <select id="queryCodeByAccountId" resultType="dayan.eve.model.account.AccountInfo">
+        SELECT
+            a.`account_id`  "accountId",
+            a.`verify_code` "code",
+            a.`mobile`,
+            a.`verify_date` "verifyDate"
+        FROM
+            `eve_account_info` a
+        WHERE
+            a.account_id = #{accountId}
+
+    </select>
+
+    <select id="count" resultType="Integer">
+        SELECT
+        COUNT(a.`id`)
+        FROM
+        `eve_account_info` a
+        WHERE 1=1
+        <include refid="where"/>
+    </select>
+
+    <sql id="where">
+        <if test='id != null '>
+            and a.account_id = #{id}
+        </if>
+    </sql>
+
+    <update id="updatePortraitUrl" >
+        UPDATE
+            eve_account_info
+        SET
+            portrait_url = #{portraitUrl},
+            gmt_modify   = NOW()
+        WHERE
+            account_id = #{accountId}
+    </update>
+
+    <update id="updateResume" >
+        UPDATE
+            eve_account_info
+        SET
+            real_name  = #{realname},
+            born_date  = #{bornDate},
+            city       = #{city},
+            height     = #{height},
+            school     = #{school},
+            major      = #{major},
+            qq         = #{qq},
+            email      = #{email},
+            introduce  = #{introduce},
+            gmt_modify = NOW()
+        WHERE
+            account_id = #{accountId}
+    </update>
+
+    <update id="updateContinuousClockTimes" >
+        UPDATE
+        eve_account_info
+        SET
+        continuous_clock_times = 0
+        WHERE 1=1
+        <if test='accountIds != null'>
+            AND account_id NOT IN
+            <foreach item="accountId" index="index" collection="accountIds"
+                     open="(" separator="," close=")">
+                #{accountId}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="query" resultType="dayan.eve.model.account.AccountInfo" >
+        SELECT
+        a.province_id provinceId,
+        a.score,
+        a.subject_type subjectType,
+        a.rank,
+        b.id,
+        b.nickname,
+        b.gmt_create gmtCreate,
+        c.name province
+        FROM
+        eve_account_info a
+        LEFT JOIN
+        eve_account b
+        ON a.account_id = b.id
+        LEFT JOIN
+        const_province c
+        ON a.province_id = c.id
+        WHERE 1=1
+        <include refid="where2"/>
+        <include refid="limit"/>
+    </select>
+
+    <sql id="where2">
+        <if test="provinceId != null">
+            AND a.province_id = #{provinceId}
+        </if>
+        <if test="minScore != null">
+            AND a.score >= #{minScore}
+        </if>
+        <if test="maxScore != null">
+            AND #{maxScore} >= a.score
+        </if>
+        <if test="subjectType != null">
+            AND a.subject_type = #{subjectType}
+        </if>
+        AND b.is_deleted = 0
+        AND b.is_block = 0
+    </sql>
+    <select id="count2" resultType="Integer" >
+        SELECT
+        COUNT(b.id)
+        FROM
+        eve_account_info a
+        LEFT JOIN
+        eve_account b
+        ON a.account_id = b.id
+        LEFT JOIN
+        const_province c
+        ON a.province_id = c.id
+        WHERE 1=1
+        <include refid="where2"/>
+    </select>
+</mapper>

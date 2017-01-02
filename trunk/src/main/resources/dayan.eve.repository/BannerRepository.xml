@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.BannerRepository">
+
+    <insert id="insert" useGeneratedKeys="false" keyProperty="id">
+        INSERT INTO eve_banner (
+            banner_url,
+            type,
+            topic_id,
+            school_id,
+            information_id,
+            android_class_name,
+            ios_class_name,
+            android_params,
+            ios_params,
+            gmt_create
+        ) VALUES
+            (
+                #{banner.bannerUrl},
+                #{banner.type},
+                #{banner.topicId},
+                #{banner.schoolId},
+                #{banner.newsId},
+                #{banner.androidClassName},
+                #{banner.iosClassName},
+                #{androidParams},
+                #{iosParams},
+                NOW()
+            )
+    </insert>
+
+    <select id="query" resultType="dayan.eve.model.Banner">
+        SELECT
+            a.id,
+            a.banner_url,
+            a.type,
+            a.topic_id "topic.id",
+            a.information_id "news.id",
+            a.school_id "school.id",
+            a.android_class_name,
+            a.ios_class_name,
+            a.android_params,
+            a.ios_params
+        FROM
+          eve_banner a
+        WHERE 1=1
+        <include refid="where"/>
+        ORDER BY a.gmt_create DESC
+    </select>
+
+    <sql id="where">
+        <if test="bannerId != null">
+            AND a.id =#{bannerId}
+        </if>
+        AND is_deleted = 0
+    </sql>
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+
+    <update id="delete">
+        UPDATE
+            eve_banner
+        SET
+            is_deleted = 1
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="update">
+        UPDATE
+            eve_banner
+        SET
+            school_id          = #{schoolId},
+            topic_id           = #{topicId},
+            information_id     = #{newsId},
+            type               = #{type},
+            banner_url         = #{bannerUrl},
+            android_class_name = #{androidClassName},
+            android_params     = #{androidParamsStr},
+            ios_class_name     = #{iosClassName},
+            ios_params         = #{iosParamsStr},
+            gmt_modify         = NOW()
+        WHERE
+            id = #{id}
+    </update>
+
+</mapper>

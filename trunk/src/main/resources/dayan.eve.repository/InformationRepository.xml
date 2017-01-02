@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.InformationRepository">
+
+    <sql id="where">
+        <if test="id != null">
+            AND a.id = #{id}
+        </if>
+        AND is_deleted = 0
+    </sql>
+
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+
+    <select id="query" resultType="dayan.eve.model.Information">
+        SELECT
+        a.`id`,
+        a.`logo_url` "logoUrl",
+        a.`url` "url",
+        a.`title`,
+        a.`content`,
+        a.`gmt_create` date
+        FROM
+        `eve_information` a
+        WHERE 1=1
+        <include refid="where"/>
+        ORDER BY id DESC
+        <include refid="limit"/>
+
+    </select>
+
+    <select id="queryNews" resultType="dayan.eve.model.Information">
+        SELECT
+        a.`id`,
+        a.`logo_url` "logoUrl",
+        a.`url` "url",
+        a.`title`,
+        a.`content`,
+        a.`gmt_create` date
+        FROM
+        `eve_information` a
+        WHERE 1=1
+        <include refid="where2"/>
+        <include refid="limit"/>
+
+    </select>
+
+    <sql id="where2">
+        <if test="id != null">
+            AND a.id = #{id}
+        </if>
+        AND is_deleted = 0
+        <if test="isPopular == true">
+            AND a.popularity IS NOT NULL
+            ORDER BY popularity DESC
+        </if>
+        <if test="isPopular == false">
+            ORDER BY gmt_create DESC
+        </if>
+    </sql>
+    <select id="count" resultType="Integer">
+        SELECT count(a.`id`)
+        FROM
+            `eve_information` a
+        WHERE
+            1 = 1
+    </select>
+
+    <select id="countNews" resultType="Integer">
+        SELECT
+        count(a.`id`)
+        FROM
+        `eve_information` a
+        WHERE
+        1=1
+        <include refid="where2"/>
+
+    </select>
+
+    <insert id="insert" >
+        INSERT INTO
+            `eve_information`
+            (
+                logo_url,
+                url,
+                title,
+                content,
+                popularity,
+                gmt_create
+            )
+        VALUES
+            (
+                #{logoUrl},
+                #{url},
+                #{title},
+                #{content},
+                #{popularity},
+                NOW()
+            )
+    </insert>
+
+    <update id="delete" >
+        UPDATE
+            `eve_information`
+        SET
+            is_deleted = 1,
+            gmt_modify = NOW()
+        WHERE
+            id = #{id}
+    </update>
+</mapper>

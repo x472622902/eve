@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.SchoolFollowRepository">
+    <sql id="where">
+        and a.personality_code = #{personalityCode}
+    </sql>
+
+    <insert id="follow" >
+        INSERT INTO
+            `cu_school_follow`
+            (
+                `school_id`,
+                `account_id`,
+                `follow_date`
+            )
+            VALUE
+            (
+                #{schoolId},
+                #{accountId},
+                NOW()
+            )
+    </insert>
+
+    <update id="cancelFollow" >
+        UPDATE
+            `cu_school_follow` a
+        SET
+            a.`is_followed` = 1,
+            a.`cancel_date` = NOW()
+        WHERE
+            a.account_id = #{accountId}
+            AND
+            a.school_id = #{schoolId}
+    </update>
+
+    <update id="refollow" >
+        UPDATE
+            `cu_school_follow` a
+        SET
+            a.`is_followed` = 0,
+            a.`follow_date` = NOW()
+        WHERE
+            a.id = #{id}
+    </update>
+
+    <select id="checkIsFollowed" resultType="Integer">
+        SELECT a.`id`
+        FROM
+            `cu_school_follow` a
+        WHERE
+            a.account_id = #{accountId}
+            AND
+            a.school_id = #{schoolId}
+    </select>
+
+    <select id="querySchools" resultType="dayan.eve.model.School">
+        SELECT
+        a.`school_id` "id",
+        b.`name`,
+        b.`cs`,
+        b.`name`,
+        b.`address`,
+        c.`tags` "tagsValue"
+        FROM
+        `cu_school_follow` a
+        LEFT JOIN
+        `cu_school` b
+        ON
+        a.school_id = b.id
+        LEFT JOIN
+        `cu_school_tag` c
+        ON
+        a.school_id = c.school_id
+        WHERE
+        a.is_followed = 0
+        <if test="schoolId != null">
+            and a.school_id = #{schoolId}
+        </if>
+        <if test="accountId != null">
+            and a.account_id = #{accountId}
+        </if>
+        ORDER BY a.follow_date DESC
+        <include refid="limit"/>
+    </select>
+
+    <select id="queryAccounts" resultType="dayan.eve.model.account.AccountInfo">
+        SELECT
+        a.`id` "infoId",
+        a.`account_id` "accountId",
+        a.`follow_date` "followDate",
+        b.`mobile`,
+        b.`sex`,
+        b.`province_id` "provinceId",
+        b.`portrait_url` "portraitUrl",
+        b.`subject_type` "subjectType",
+        b.`score` ,
+        d.`nickname`,
+        c.`name` "province"
+        FROM
+        `cu_school_follow` a
+        LEFT JOIN
+        `eve_account_info` b
+        ON
+        a.account_id = b.account_id
+        LEFT JOIN
+        `const_province` c
+        ON
+        b.province_id = c.id
+        LEFT JOIN
+        `eve_account` d
+        ON
+        a.account_id = d.id
+        WHERE
+        <!--            a.school_id = #{schoolId}
+                AND-->
+        a.is_followed = 0
+        <if test="accountId != null">
+            and a.account_id = #{accountId}
+        </if>
+        <if test="schoolId != null">
+            and a.school_id = #{schoolId}
+        </if>
+        <include refid="limit"/>
+    </select>
+
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+
+    <select id="queryAccount" resultType="dayan.eve.model.account.AccountInfo">
+        SELECT
+            a.`id`           "infoId",
+            a.`follow_date`  "followDate",
+            b.`mobile`,
+            b.`sex`,
+            b.`province_id`  "provinceId",
+            b.`portrait_url` "portraitUrl",
+            b.`subject_type` "subjectType",
+            b.`score`,
+            d.`nickname`,
+            c.`name`         "province"
+        FROM
+            `cu_school_follow` a
+            JOIN
+            `eve_account_info` b
+                ON
+                    a.account_id = b.account_id
+            JOIN
+            `const_province` c
+                ON
+                    b.province_id = c.id
+            JOIN
+            `eve_account` d
+                ON
+                    a.account_id = d.id
+        WHERE
+            a.account_id = #{accountId}
+    </select>
+
+    <select id="queryAccountIds" resultType="Integer">
+        SELECT a.`account_id`
+        FROM
+            `cu_school_follow` a
+        WHERE
+            a.school_id = #{schoolId}
+            AND
+            a.is_followed = 0
+    </select>
+
+    <select id="countAccount" resultType="Integer">
+        SELECT
+        count(distinct a.account_id)
+        FROM
+        `cu_school_follow` a
+        WHERE
+        a.school_id = #{schoolId}
+        AND
+        a.is_followed = 0
+        <if test="accountId != null">
+            and a.account_id = #{accountId}
+        </if>
+    </select>
+
+    <select id="countSchool" resultType="Integer">
+        SELECT
+        count(distinct a.school_id)
+        FROM
+        `cu_school_follow` a
+        WHERE
+        a.account_id = #{accountId}
+        AND
+        a.is_followed = 0
+        <if test="schoolId != null">
+            and a.school_id = #{schoolId}
+        </if>
+    </select>
+    <select id="querySchoolIds" resultType="Integer">
+        SELECT
+            DISTINCT school_id
+        FROM
+            cu_school_follow
+        ORDER BY school_id
+    </select>
+
+    <sql id="where2">
+        a.school_id = #{schoolId}
+        and b.score > #{minScore}
+        and #{maxScore} > b.score
+        and a.is_followed = 0
+    </sql>
+
+    <select id="queryFollowAccounts" resultType="dayan.eve.model.account.AccountInfo" >
+        SELECT
+        a.account_id accountId,
+        a.follow_date followDate,
+        b.portrait_url portraitUrl
+        FROM
+        cu_school_follow a
+        LEFT JOIN
+        eve_account_info b
+        ON
+        a.account_id = b.account_id
+        WHERE
+        <include refid="where2"/>
+        order by a.follow_date desc
+        limit 5
+    </select>
+
+    <select id="countAccountItem" resultType="Integer" >
+        SELECT
+        count(a.account_id)
+        FROM
+        cu_school_follow a
+        LEFT JOIN
+        eve_account_info b
+        ON
+        a.account_id = b.account_id
+        WHERE
+        <include refid="where2"/>
+    </select>
+
+</mapper>

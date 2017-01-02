@@ -1,0 +1,75 @@
+spring:
+  profiles:
+    active: prod
+  datasource:
+        url: jdbc:mysql://127.0.0.1:3306/eve?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true
+        username: root
+        password:
+        driver-class-name: com.mysql.jdbc.Driver
+        filters: stat
+        maxActive: 20
+        initialSize: 1
+        maxWait: 60000
+        minIdle: 1
+        timeBetweenEvictionRunsMillis: 60000
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: select 1
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        poolPreparedStatements: true
+        maxOpenPreparedStatements: 20
+eve:
+  walle:
+    qaAnswer: http://zs.microyan.com/api/qa/getAnswer
+    qaHint: http://zs.microyan.com/api/eve/inputHint
+    qaGreet: http://zs.microyan.com/api/eve/greeting
+    qaFreq: http://zs.microyan.com/api/qa/getFreq.jsonp
+    csAsk: http://zs.microyan.com/api/qa/askCS.jsonp
+    csClose: http://zs.microyan.com/api/qa/closeCustomService.jsonp
+    csStaff: http://zs.microyan.com/api/eve/cs/csStaff
+    csAllOnline: http://zs.microyan.com/api/eve/cs/allOnline
+    evePlatformId: 861
+    platform: http://zs.microyan.com/api/eve/platform
+    url: http://zs.microyan.com/
+    loginUrl: http://zs.microyan.com/api/eve/login
+    statisUrl: http://zs.microyan.com/api/statis
+    guestbookSendQuestion: http://zs.microyan.com/api/guestbook/appsubmit
+    guestbookGetschool: http://zs.microyan.com/api/guestbook/getschool
+    guestbookPut: http://zs.microyan.com/api/eve/guestbook
+    guestbookGet: http://zs.microyan.com/api/eve/guestbook/school
+    messageHandlerSend: http://zs.microyan.com/api/messagehandler/send
+    answer: http://zs.microyan.com/api/eve/answer
+    freq :  http://zs.microyan.com/api/eve/freqQuestion
+    hot: http://zs.microyan.com/api/eve/hotQuestion
+    visitor: http://zs.microyan.com/api/eve/visitor
+    feedback: http://zs.microyan.com/api/eve/feedback
+    accessToken: http://zs.microyan.com/oauth/token
+  schoolLogoPrefix: http://mo.microyan.com/open/school/badge/
+  image:
+    topicReadUrlPrefix: http://static.eve.microyan.com/topic/
+    topicCreateUrlPrefix: /dydata/site/static.eve.microyan.com/topic/
+    accountPortraitReadUrlPrefix: http://static.eve.microyan.com/account/portrait/
+    accountPortraitCreateUrlPrefix: /dydata/site/static.eve.microyan.com/account/portrait/
+    informationReadUrlPrefix: http://static.eve.microyan.com/information/
+    informationCreateUrlPrefix: /dydata/site/static.eve.microyan.com/information/
+    bannerReadUrlPrefix: http://static.eve.microyan.com/banner/
+    bannerCreateUrlPrefix: /dydata/site/static.eve.microyan.com/banner/
+    adsReadUrlPrefix: http://static.eve.microyan.com/ads/
+    adsCreateUrlPrefix: /dydata/site/static.eve.microyan.com/ads/
+    schoolUrlPrefix: http://static.eve.microyan.com/schoolimage/
+  html:
+    informationReadUrlPrefix: http://static.eve.microyan.com/information/html/
+    informationCreateUrlPrefix: /dydata/site/static.eve.microyan.com/information/html/
+  #image.information.readUrlPrefix: http://localhost:8889/image/information/
+  #image.information.createUrlPrefix: E:/Apache Tomcat 8.0.3/webapps/image/information/
+  #html.information.readUrlPrefix: http://localhost:8889/image/information/html/
+  #html.information.createUrlPrefix: E:/Apache Tomcat 8.0.3/webapps/image/information/html/
+  #image.banner.readUrlPrefix: http://localhost:8889/image/banner/
+  #image.banner.createUrlPrefix: E:/Apache Tomcat 8.0.3/webapps/image/banner/
+  #image.ads.readUrlPrefix: http://localhost:8889/image/ads/
+  #image.ads.createUrlPrefix: E:/Apache Tomcat 8.0.3/webapps/image/ads/
+  courseDetailUrl :  http://eve.microyan.com/app//course/detail
+  testResultDetailUrl :  http://eve.microyan.com/app/course/result
+  alipay:
+    notifyUrlPrefix :  http://eve.microyan.com/api/v20/mobile/course/buy

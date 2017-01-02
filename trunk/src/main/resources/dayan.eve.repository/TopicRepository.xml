@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.TopicRepository">
+
+    <sql id="where">
+        <choose>
+            <when test="id != null">
+                AND a.id = #{id}
+            </when>
+            <otherwise>
+                <choose>
+                    <when test="isMyTopic == null">
+                        <choose>
+                            <when test="topicId != null">
+                                and a.topic_id = #{topicId}
+                                and a.parent_id is null
+                            </when>
+                            <otherwise>
+                                and a.topic_id IS NULL
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <when test="isMyTopic == true">
+                        AND a.topic_id IS NULL
+                        AND a.account_id = #{accountId}
+                    </when>
+                    <otherwise>
+                        AND a.topic_id IS NOT NULL
+                        AND a.account_id = #{accountId}
+                    </otherwise>
+                </choose>
+            </otherwise>
+        </choose>
+        <if test='themeId != null'>
+            AND a.theme_id = #{themeId}
+        </if>
+        <if test='content != null'>
+            AND a.content LIKE CONCAT('%',#{content},'%')
+        </if>
+        <if test='isLive != null and isLive ==true'>
+            AND a.is_live = 1
+        </if>
+        <if test='isLive != null and isLive == false'>
+            AND a.is_live = 0
+        </if>
+        <if test='isPopular != null and isPopular == true'>
+            AND a.like_num != 0
+        </if>
+        AND ( b.is_block = 0 OR a.account_id = #{accountId})
+        AND a.is_deleted = 0
+    </sql>
+
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+
+    <insert id="insertTopic" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO
+            `eve_topic`
+            (
+                `account_id`,
+                `content`,
+                `topic_id`,
+                `school_id`,
+                `theme_id`,
+                `parent_id`,
+                `is_live`,
+                `live_status`,
+                `live_time`,
+                `gmt_create`,
+                `gmt_modify`
+            )
+            VALUE
+            (
+                #{accountId},
+                #{content},
+                #{topicId},
+                #{schoolId},
+                #{theme.id},
+                #{parentId},
+                ${isLive ? 1 : 0 },
+                #{liveStatus},
+                #{liveTime},
+                NOW(),
+                NOW()
+            )
+    </insert>
+
+    <update id="updateReplyCount" >
+        UPDATE
+            `eve_topic` a
+        SET
+            a.`reply_count` = a.`reply_count` + 1,
+            a.gmt_modify    = NOW()
+        WHERE
+            a.`id` = #{topicId}
+    </update>
+
+    <select id="queryTopics" resultType="dayan.eve.model.topic.Topic">
+        SELECT
+        a.`id`,
+        a.`account_id` "accountId",
+        a.`content`,
+        a.`topic_id` "topicId",
+        a.`parent_id` "parentId",
+        a.`school_id` "schoolId",
+        a.`like_num` "likeNum",
+        a.`dislike_num` "dislikeNum",
+        a.`is_pin_top` "isPinTop",
+        a.`is_live` "isLive",
+        a.`live_status` "liveStatus",
+        a.`live_time` "liveTime",
+        a.`reply_count` "replyCount",
+        a.`stamp_url` "stampUrl",
+        b.`nickname` "nickname",
+        b.`hash_id` "accountHashId",
+        c.`subject_type` "subjectType",
+        c.`portrait_url` "portraitUrl",
+        c.`level` "accountLevel",
+        c.`gender` "gender",
+        c.`school_id` "accountExt.schoolId",
+        c.`platform_id` "accountExt.platformId",
+        d.`name` "province",
+        a.`gmt_create` "topicDate",
+        a.`gmt_modify` "modifyDate",
+        e.`name` "theme.name",
+        e.`id` "theme.id",
+        f.`name` "schoolName",
+        g.`name` "accountExt.schoolName"
+        FROM
+        `eve_topic` a
+        LEFT JOIN
+        `eve_account` b
+        ON
+        a.account_id = b.id
+        LEFT JOIN
+        `eve_account_info` c
+        ON
+        c.account_id = a.account_id
+        LEFT JOIN
+        `const_province` d
+        ON
+        c.province_id = d.id
+        LEFT JOIN
+        `eve_topic_theme` e
+        ON
+        a.theme_id = e.id
+        LEFT JOIN
+        `cu_school` f
+        ON
+        a.school_id = f.id
+        LEFT JOIN
+        `cu_school` g
+        ON
+        c.school_id = g.id
+        WHERE 1 = 1
+        <include refid="where"/>
+        <include refid="order"/>
+        <include refid="limit"/>
+    </select>
+
+    <sql id="order">
+        <choose>
+            <when test='isMyTopic == null'>
+                <choose>
+                    <when test='topicId != null '>
+                        ORDER BY a.id ASC
+                    </when>
+                    <when test='isPopular != null and isPopular == true'>
+                        ORDER BY a.is_pin_top DESC,a.like_num DESC,a.gmt_modify DESC
+                    </when>
+                    <when test='isPopular == null or isPopular == false'>
+                        ORDER BY a.is_live_top DESC,a.is_pin_top DESC,a.gmt_modify DESC
+                    </when>
+                </choose>
+            </when>
+            <otherwise>
+                ORDER BY a.gmt_modify DESC
+            </otherwise>
+        </choose>
+    </sql>
+    <select id="countTopic" resultType="Integer">
+        SELECT
+        COUNT(a.`id`)
+        FROM
+        `eve_topic` a
+        LEFT JOIN
+        `eve_account` b
+        ON
+        a.account_id = b.id
+        WHERE
+        1=1
+        <include refid="where"/>
+
+    </select>
+
+    <select id="countReply" resultType="Integer">
+        SELECT a.`reply_count`
+        FROM
+            `eve_topic` a
+            LEFT JOIN
+            `eve_account` b
+                ON
+                    a.account_id = b.id
+        WHERE
+            a.`id` = #{id}
+    </select>
+
+    <select id="countMyTopic" resultType="Integer">
+        SELECT
+        COUNT(a.`id`)
+        FROM
+        `eve_topic` a
+        LEFT JOIN
+        `eve_account` b
+        ON
+        a.account_id = b.id
+        WHERE 1=1
+        <include refid="where"/>
+    </select>
+
+    <select id="countMyReply" resultType="Integer">
+        SELECT
+        COUNT(a.`id`)
+        FROM
+        `eve_topic` a
+        LEFT JOIN
+        `eve_account` b
+        ON
+        a.account_id = b.id
+        WHERE 1=1
+        <include refid="where"/>
+    </select>
+
+    <select id="queryAccountIdByTopicId" resultType="Integer">
+        SELECT a.`account_id`
+        FROM
+            `eve_topic` a
+        WHERE
+            a.id = #{topicId}
+    </select>
+
+    <select id="queryTopicById" resultType="dayan.eve.model.topic.Topic">
+        SELECT a.`content`
+        FROM
+            `eve_topic` a
+        WHERE
+            a.id = #{topicId}
+    </select>
+
+    <select id="queryTopicsByTopic" resultType="dayan.eve.model.topic.Topic">
+        SELECT
+        a.`id`,
+        a.`account_id` "accountId",
+        a.`content`,
+        a.`topic_id` "topicId",
+        a.`stamp_url` "stampUrl",
+        b.`nickname` "nickname",
+        b.`hash_id` "accountHashId",
+        c.`subject_type` "subjectType",
+        c.`portrait_url` "portraitUrl",
+        d.`name` "province",
+        a.`reply_count` "replyCount",
+        a.`gmt_modify` "topicDate"
+        FROM
+        `eve_topic` a
+        LEFT JOIN
+        `eve_account` b
+        ON
+        a.account_id = b.id
+        LEFT JOIN
+        `eve_account_info` c
+        ON
+        c.account_id = a.account_id
+        LEFT JOIN
+        `const_province` d
+        ON
+        c.province_id = d.id
+        WHERE
+        1=1
+        <include refid="whereOfFind"/>
+        <include refid="limit"/>
+    </select>
+
+    <select id="countSearch" resultType="Integer">
+        SELECT
+        count(a.`id`)
+        FROM
+        `eve_topic` a
+        WHERE
+        1=1
+        <include refid="whereOfFind"/>
+    </select>
+
+    <sql id="whereOfFind">
+        <if test='content != null'>
+            AND a.content LIKE CONCAT('%',#{content},'%')
+        </if>
+        <if test='nickname != null'>
+            AND b.nickname LIKE CONCAT('%',#{nickname},'%')
+        </if>
+        and a.is_deleted = 0
+    </sql>
+
+    <update id="deleteTopics" >
+        UPDATE
+        `eve_topic` a
+        SET
+        a.`is_deleted` = 1
+        WHERE
+        1=1
+        <if test='accountId != null'>
+            AND a.account_id = #{accountId}
+        </if>
+        <if test='ids != null'>
+            AND a.id in
+            <foreach item="ids" index="index" collection="ids"
+                     open="(" separator="," close=")">
+                #{ids}
+            </foreach>
+        </if>
+
+    </update>
+
+    <update id="delete" >
+        UPDATE
+            `eve_topic`
+        SET
+            `is_deleted` = 1
+        WHERE
+            id = #{id}
+    </update>
+
+    <select id="countComment" resultType="Integer">
+        SELECT count(id)
+        FROM
+            eve_topic
+        WHERE
+            parent_id = #{id}
+            AND is_deleted = 0
+    </select>
+
+    <update id="updateReplyNum" >
+        UPDATE
+            `eve_topic` a
+        SET
+            a.`reply_count` = a.`reply_count` + #{num},
+            a.gmt_modify    = NOW()
+        WHERE
+            a.id = #{topicId}
+    </update>
+
+    <update id="updateLikeNum" >
+        UPDATE
+            `eve_topic` a
+        SET
+            a.`like_num` = a.`like_num` + #{num}
+        WHERE
+            a.id = #{topicId}
+    </update>
+
+    <select id="queryId" resultType="Integer">
+        SELECT
+        MAX(id)
+        FROM
+        eve_topic
+        WHERE 1=1
+        <if test='accountId != null'>
+            AND account_id = #{accountId}
+        </if>
+        <if test='schoolId != null'>
+            AND school_id = #{schoolId}
+        </if>
+    </select>
+
+    <select id="queryComments" resultType="dayan.eve.model.topic.Topic">
+        SELECT
+            a.id,
+            a.content,
+            a.account_id    accountId,
+            a.gmt_create    topicDate,
+            a.topic_id      topicId,
+            a.parent_id     parentId,
+            b.nickname,
+            c.`school_id`   "accountExt.schoolId",
+            c.`platform_id` "accountExt.platformId",
+            d.`name`        "accountExt.schoolName"
+        FROM
+            eve_topic a
+            LEFT JOIN
+            eve_account b
+                ON
+                    a.account_id = b.id
+            LEFT JOIN
+            eve_account_info c
+                ON
+                    a.account_id = c.account_id
+            LEFT JOIN
+            cu_school d
+                ON
+                    c.school_id = d.id
+        WHERE
+            a.parent_id = #{parentId}
+            AND a.is_deleted = 0
+    </select>
+
+    <select id="queryMyTopic" resultType="dayan.eve.model.topic.Topic">
+        SELECT
+        a.id,
+        a.content,
+        a.gmt_create topicDate,
+        a.gmt_modify modifyDate,
+        a.like_num likeNum,
+        a.dislike_num dislikeNum,
+        a.topic_id topicId,
+        a.`is_live` "isLive",
+        a.`live_status` "liveStatus",
+        a.`live_time` "liveTime",
+        a.reply_count replyCount,
+        a.parent_id parentId,
+        a.stamp_url stampUrl,
+        a.account_id accountId,
+        b.nickname,
+        e.portrait_url portraitUrl,
+        e.`school_id` "accountExt.schoolId",
+        e.`platform_id` "accountExt.platformId",
+        i.`name` "accountExt.schoolName",
+        e.`gender`,
+        e.`level` accountLevel,
+        g.`name` "theme.name",
+        g.`id` "theme.id",
+        c.id "originTopic.id",
+        c.stamp_url "originTopic.stampUrl",
+        c.`is_live` "originTopic.isLive",
+        c.`live_status` "originTopic.liveStatus",
+        c.`live_time` "originTopic.liveTime",
+        c.account_id "originTopic.accountId",
+        c.`content` "originTopic.content",
+        c.`like_num` "originTopic.likeNum",
+        c.`dislike_num` "originTopic.dislikeNum",
+        d.`nickname` "originTopic.nickname",
+        c.`reply_count` "originTopic.replyCount",
+        f.`portrait_url` "originTopic.portraitUrl",
+        f.`gender` "originTopic.gender",
+        f.`level` "originTopic.accountLevel",
+        f.`school_id` "originTopic.accountExt.schoolId",
+        f.`platform_id` "originTopic.accountExt.platformId",
+        j.`name` "originTopic.accountExt.schoolName",
+        h.`name` "originTopic.theme.name",
+        h.`id` "originTopic.theme.id",
+        c.`gmt_create` "originTopic.topicDate",
+        c.`gmt_modify` "originTopic.modifyDate",
+        c.`is_deleted` "originTopic.isDeleted"
+        FROM
+        eve_topic a
+        LEFT JOIN
+        eve_account b
+        ON
+        a.account_id = b.id
+        LEFT JOIN
+        eve_topic c
+        ON
+        a.topic_id = c.id
+        LEFT JOIN
+        eve_account d
+        ON
+        c.account_id = d.id
+        LEFT JOIN
+        eve_account_info e
+        ON
+        a.account_id = e.account_id
+        LEFT JOIN
+        eve_account_info f
+        ON
+        c.account_id = f.account_id
+        LEFT JOIN
+        eve_topic_theme g
+        ON
+        a.theme_id = g.id
+        LEFT JOIN
+        eve_topic_theme h
+        ON
+        c.theme_id = h.id
+        LEFT JOIN
+        cu_school i
+        ON
+        e.school_id = i.id
+        LEFT JOIN
+        cu_school j
+        ON
+        f.school_id = j.id
+        WHERE
+        a.account_id = #{accountId}
+        AND a.is_deleted = 0
+        <if test='isMyTopic != null'>
+            AND (a.topic_id IS NOT NULL or a.parent_id IS NOT NULL)
+        </if>
+        <if test='id != null'>
+            AND a.id = #{id}
+        </if>
+        ORDER BY a.gmt_create DESC
+        <include refid="limit"/>
+    </select>
+
+    <select id="queryAccountByTopic" resultType="dayan.eve.model.account.AccountInfo">
+        SELECT
+        a.id accountId,
+        a.hash_id hashId,
+        a.nickname
+        FROM
+        `eve_topic` b
+        LEFT JOIN
+        `eve_account` a
+        ON
+        b.account_id = a.id
+        WHERE 1=1
+        <if test='parentId != null'>
+            AND b.parent_id = #{parentId}
+        </if>
+        <if test='topicId != null'>
+            AND b.id = #{topicId}
+        </if>
+        <if test='accountId != null'>
+            AND a.id != #{accountId}
+        </if>
+        <if test='nickname != null'>
+            AND a.nickname LIKE CONCAT('%',#{nickname},'%')
+        </if>
+
+        GROUP BY a.id
+        <include refid="limit"/>
+    </select>
+
+    <update id="updateTopic" >
+        UPDATE
+        `eve_topic`
+        SET
+        <if test='isPinTop != null'>
+            <if test='isPinTop == true'>
+                `is_pin_top` = 1
+            </if>
+            <if test='isPinTop == false'>
+                `is_pin_top` = 0
+            </if>
+        </if>
+        <if test='likeUpdateNum != null'>
+            like_num = like_num + #{likeUpdateNum}
+        </if>
+        <if test='dislikeUpdateNum != null'>
+            dislike_num = dislike_num + #{dislikeUpdateNum}
+        </if>
+        <if test='replyUpdateNum != null'>
+            reply_count = reply_count + #{replyUpdateNum},
+            gmt_modify = NOW()
+        </if>
+        <if test='stampUrl != null'>
+            <choose>
+                <when test="stampUrl == 'null' ">
+                    stamp_url = null
+                </when>
+                <otherwise>
+                    stamp_url = #{stampUrl}
+                </otherwise>
+            </choose>
+        </if>
+        <if test='liveStatus != null'>
+            live_status = #{liveStatus},
+            gmt_modify = NOW()
+        </if>
+        WHERE
+        id = #{id}
+    </update>
+
+    <select id="queryAllTopics" resultType="dayan.eve.model.topic.Topic">
+        SELECT
+            id,
+            account_id  accountId,
+            topic_id    topicId,
+            reply_count replyCount,
+            like_num    likeNum
+        FROM
+            eve_topic
+        WHERE
+            is_deleted = 0
+            AND account_id IS NOT NULL
+    </select>
+
+    <select id="queryPosition" resultType="Integer">
+        SELECT COUNT(a.id)
+        FROM
+            eve_topic a
+            LEFT JOIN
+            eve_account b
+                ON
+                    a.account_id = b.id
+        WHERE
+            #{id} >= a.id
+            AND a.topic_id = #{topicId}
+            AND a.parent_id IS NULL
+            AND (b.is_block = 0 OR a.account_id = #{accountId})
+            AND a.is_deleted = 0
+    </select>
+
+</mapper>
