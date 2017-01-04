@@ -101,7 +101,7 @@ public class IndexResource {
     }
 
     @RequestMapping(value = "/updatePassword", method = RequestMethod.POST)
-    public JsonResult updatePassword(@RequestBody Account account, HttpServletRequest request) {
+    public JsonResult updatePassword(@RequestBody Account account) {
         try {
             accountService.updatePassword(account);
             return new JsonResult();

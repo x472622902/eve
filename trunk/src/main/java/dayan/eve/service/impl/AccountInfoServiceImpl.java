@@ -22,7 +22,7 @@ import dayan.eve.model.query.AccountQuery;
 import dayan.eve.model.topic.Topic;
 import dayan.eve.repository.AccountInfoRepository;
 import dayan.eve.repository.AccountRepository;
-import dayan.eve.repository.TopicRepository;
+import dayan.eve.repository.topic.TopicRepository;
 import dayan.eve.service.AccountInfoService;
 import dayan.eve.service.VisitorService;
 import dayan.eve.util.ExpUtil;

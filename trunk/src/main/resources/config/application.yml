@@ -35,7 +35,7 @@ server:
 
 mybatis:
     config-location: classpath:config/mybatis-config.xml
-    mapperLocations: classpath*:dayan.eve.repository/*.xml
+    mapperLocations: classpath*:dayan.eve.repository/*.xml,classpath*:dayan.eve.repository/*/*.xml
     typeAliasesPackage: dayan.eve.model
 eve:
   mo:

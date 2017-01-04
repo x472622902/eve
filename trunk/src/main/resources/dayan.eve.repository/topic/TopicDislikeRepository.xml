@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.topic.TopicDislikeRepository">
+    <insert id="insert">
+        INSERT INTO
+            `eve_topic_dislike`
+            (
+                `account_id`,
+                `topic_id`,
+                `gmt_create`
+            )
+            VALUE
+            (
+                #{accountId},
+                #{topicId},
+                NOW()
+            )
+    </insert>
+
+    <select id="query" resultType="Integer">
+        SELECT a.`topic_id`
+        FROM
+            `eve_topic_dislike` a
+        WHERE
+            a.account_id = #{accountId}
+    </select>
+</mapper>

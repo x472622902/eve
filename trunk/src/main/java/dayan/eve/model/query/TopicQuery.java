@@ -1,9 +1,9 @@
 /**
  * *****************************************************
  * Copyright (C) Dayan techology Co.ltd - All Rights Reserved
- *
+ * <p>
  * This file is part of Dayan techology Co.ltd property.
- *
+ * <p>
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * *****************************************************
@@ -15,7 +15,6 @@ import dayan.eve.model.Pagination;
 import dayan.eve.model.topic.Topic;
 
 /**
- *
  * @author xuesg
  */
 public class TopicQuery extends Pagination {
@@ -27,18 +26,18 @@ public class TopicQuery extends Pagination {
     private Integer parentId;
     private Boolean isMyTopic;
     private Boolean isBlock = false;
-    private Boolean isPopular;
+    private Boolean isPopular = false;
     private Integer num;//用于更新点赞的次数
     private Integer likeUpdateNum;//点赞更新数
     private Integer dislikeUpdateNum;//被踩更新数
     private Integer replyUpdateNum;//回复更新数
-    private Boolean isPinTop;
+    private Boolean isPinTop = false;
     private String nickname;
     private String content;
-    private Boolean isLike;//true是赞，false是踩
+    private Boolean isLike = false;//true是赞，false是踩
     private String stampUrl;//印章
     private Integer themeId;
-    private Boolean isLive;
+    private Boolean isLive = false;
     private Boolean isLiveTop = false;
     private Topic.LiveStatus liveStatus;
     private Integer exAccountId;//不包括的用户id

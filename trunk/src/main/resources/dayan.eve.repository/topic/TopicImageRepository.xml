@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.topic.TopicImageRepository">
+    <insert id="insert">
+        INSERT INTO
+        `eve_topic_image`
+        (
+        `topic_id`,
+        `image_url`,
+        `middle_image_url`,
+        `thumbnail_url`,
+        `gmt_create`
+        )
+        VALUE
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.topicId},
+            #{item.imageUrl},
+            #{item.middleImageUrl},
+            #{item.thumbnailUrl},
+            NOW()
+            )
+        </foreach>
+    </insert>
+
+    <select id="query" resultType="dayan.eve.model.topic.TopicImage">
+        SELECT
+            image_url        imageUrl,
+            middle_image_url middleImageUrl,
+            thumbnail_url    thumbnailUrl
+        FROM
+            eve_topic_image
+        WHERE
+            topic_id = #{topicId}
+            AND is_deleted = 0
+    </select>
+</mapper>

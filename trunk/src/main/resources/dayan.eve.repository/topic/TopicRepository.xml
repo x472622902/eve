@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="dayan.eve.repository.TopicRepository">
+<mapper namespace="dayan.eve.repository.topic.TopicRepository">
 
     <sql id="where">
         <choose>
@@ -92,7 +92,7 @@
             )
     </insert>
 
-    <update id="updateReplyCount" >
+    <update id="updateReplyCount">
         UPDATE
             `eve_topic` a
         SET
@@ -105,25 +105,25 @@
     <select id="queryTopics" resultType="dayan.eve.model.topic.Topic">
         SELECT
         a.`id`,
-        a.`account_id` "accountId",
+        a.`account_id` ,
         a.`content`,
-        a.`topic_id` "topicId",
-        a.`parent_id` "parentId",
-        a.`school_id` "schoolId",
-        a.`like_num` "likeNum",
-        a.`dislike_num` "dislikeNum",
-        a.`is_pin_top` "isPinTop",
-        a.`is_live` "isLive",
-        a.`live_status` "liveStatus",
-        a.`live_time` "liveTime",
-        a.`reply_count` "replyCount",
-        a.`stamp_url` "stampUrl",
-        b.`nickname` "nickname",
+        a.`topic_id` ,
+        a.`parent_id`,
+        a.`school_id` ,
+        a.`like_num`,
+        a.`dislike_num` ,
+        a.`is_pin_top` ,
+        a.`is_live` ,
+        a.`live_status`,
+        a.`live_time` ,
+        a.`reply_count`,
+        a.`stamp_url`,
+        b.`nickname` ,
         b.`hash_id` "accountHashId",
-        c.`subject_type` "subjectType",
-        c.`portrait_url` "portraitUrl",
+        c.`subject_type` ,
+        c.`portrait_url` ,
         c.`level` "accountLevel",
-        c.`gender` "gender",
+        c.`gender` ,
         c.`school_id` "accountExt.schoolId",
         c.`platform_id` "accountExt.platformId",
         d.`name` "province",
@@ -308,7 +308,7 @@
         and a.is_deleted = 0
     </sql>
 
-    <update id="deleteTopics" >
+    <update id="deleteTopics">
         UPDATE
         `eve_topic` a
         SET
@@ -328,7 +328,7 @@
 
     </update>
 
-    <update id="delete" >
+    <update id="delete">
         UPDATE
             `eve_topic`
         SET
@@ -346,7 +346,7 @@
             AND is_deleted = 0
     </select>
 
-    <update id="updateReplyNum" >
+    <update id="updateReplyNum">
         UPDATE
             `eve_topic` a
         SET
@@ -356,7 +356,7 @@
             a.id = #{topicId}
     </update>
 
-    <update id="updateLikeNum" >
+    <update id="updateLikeNum">
         UPDATE
             `eve_topic` a
         SET
@@ -537,7 +537,7 @@
         <include refid="limit"/>
     </select>
 
-    <update id="updateTopic" >
+    <update id="updateTopic">
         UPDATE
         `eve_topic`
         SET

@@ -56,4 +56,57 @@ public final class ErrorCN {
         public static final String ERROR_THREE_TIMES = "邀请码有误（已错误%d次）<br/> 输错5次后，需24小时后才能重新输入";
         public static final String ERROR_FIVE_TIMES = "已累计输错5次<br/>请%s后再输入";
     }
+
+    public final static class Course {
+
+        public final static String CD_KEY_NOT_FOUND = "邀请码不存在";
+        public final static String CD_KEY_NOT_SUIT = "邀请码不匹配";
+        public final static String COURSE_BOUGHT = "课程已购买";
+        public final static String NO_CD_KEY = "请输入邀请码";
+        public final static String COURSE_NOT_BOUGHT = "课程未购买";
+        public final static String LOGIN_OR_CDKEY = "请先登陆或输入邀请码";
+        public final static String TEST_NOT_SELECTED = "请选择测试";
+        public final static String COURSE_NOT_SELECTED = "请选择课程";
+        public final static String ALIPAY_FAIED = "支付失败，请重新支付";
+    }
+
+    public final static class Walle {
+        public final static String NO_PLATFORM_ID = "无平台id";
+        public final static String NO_QUESTIONS = "暂无问答数据";
+        public final static String PLATFORM_NOT_FOUND = "资讯平台不存在";
+    }
+
+    public final static class Topic {
+
+        public final static String IMAGE_ERROR = "图片有问题，请换一张试试";
+        public final static String TOPIC_NOT_SELECTED = "请选择帖子";
+        public final static String NO_CONTENT = "请输入内容";
+        public final static String TEXT_SIZE_LIMIT = "内容不能超过1000字";
+        public final static String TOPIC_NOT_FOUND = "帖子不存在";
+        public final static String THEME_EXISTED = "主题已存在";
+
+    }
+
+    public final static class Clock {
+        public final static String CLOCK_DONE = "今天已签到";
+        public final static String TIME_LIMIT = "签到时间已经过啦";
+    }
+
+    public final static class SMS {
+        public final static String NO_MOBILE = "请输入手机号";
+
+    }
+
+    public final static class School {
+
+        public final static String SCHOOL_NOT_SELECTED = "请选择学校";
+    }
+
+    public final static class Account {
+        public final static String NOT_LOGIN = "未登录";
+        public final static String ACCOUNT_EXIST = "用户已存在";
+        public final static String ACCOUNT_NOT_FOUND = "用户不存在";
+        public final static String VERIFY_CODE_ERROR = "验证码错误";
+        public final static String ACCOUNT_DUPLICATE = "账号重复";
+    }
 }
