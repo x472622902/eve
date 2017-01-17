@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import dayan.common.util.MD5Util;
 import dayan.easemob.entity.EasemobRequest;
 import dayan.eve.exception.ErrorCN;
+import dayan.eve.model.PageResult;
 import dayan.eve.model.Pager;
 import dayan.eve.model.account.AccountInfo;
 import dayan.eve.model.easemob.EasemobType;
@@ -136,67 +137,15 @@ public class TopicServiceImpl implements TopicService {
         }
     }
 
-    /**
-     * 标记该用户已点赞或已踩的帖子
-     */
-    private void setLikeTag(List<Topic> topics, List<Integer> likedTopicIds, List<Integer> dislikedTopicIds) {
-        Map<Integer, Integer> likedTopicMap = new HashMap<>();
-        if (likedTopicIds != null && !likedTopicIds.isEmpty()) {
-            for (Integer topicId : likedTopicIds) {
-                likedTopicMap.put(topicId, topicId);
-            }
-        }
-        Map<Integer, Integer> dislikedTopicMap = new HashMap<>();
-        if (dislikedTopicIds != null && !dislikedTopicIds.isEmpty()) {
-            for (Integer topicId : dislikedTopicIds) {
-                dislikedTopicMap.put(topicId, topicId);
-            }
-        }
-        for (Topic topic : topics) {
-            if (likedTopicMap.containsKey(topic.getId())) {
-                topic.setIsLiked(true);
-            }
-            if (dislikedTopicMap.containsKey(topic.getId())) {
-                topic.setIsDisliked(true);
-            }
-        }
-    }
-
-    private void setComments(List<Topic> topics) {
-        for (Topic topic : topics) {
-            List<Topic> comments = topicRepository.queryComments(topic.getId());
-            if (comments == null || comments.isEmpty()) {
-                comments = Collections.emptyList();
-            }
-            topic.setComments(comments);
-        }
-    }
-
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Override
     public List<Topic> readTopics(TopicQuery query) {
-
-        List<Topic> topics;
-        if (query.isIsMyTopic() != null && !query.isIsMyTopic()) {
-            topics = topicRepository.queryMyTopic(query);
-            setOriginTopic(topics);
-        } else {
-            topics = topicRepository.queryTopics(query);
-        }
-        //配置图片
-        setImages(topics);
+        List<Topic> topics = topicRepository.queryTopics(query);
 
         //配置直播贴
         setLive(topics);
-        //标记该用户点赞过的贴
-        if (query.getAccountId() != null) {
-            List<Integer> likedTopicIds = topicLikeRepository.queryTopicIdsByAccountId(query.getAccountId());
-            List<Integer> dislikedTopicIds = topicDislikeRepository.query(query.getAccountId());
-            setLikeTag(topics, likedTopicIds, dislikedTopicIds);
-        }
-        if (query.getTopicId() != null) {
-            setComments(topics);
-        }
+//        if (query.getTopicId() != null)
+//            setComments(topics);
         return topics;
     }
 
@@ -633,13 +582,9 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public List<TopicTheme> readAllThemes(TopicQuery query) {
-        return topicThemeRepository.queryAll(query);
-    }
-
-    @Override
-    public Pager countThemes(TopicQuery query) {
-        return new Pager(topicThemeRepository.count(), query.getPage(), query.getSize());
+    public PageResult<TopicTheme> readAllThemes(TopicQuery query) {
+        return new PageResult<>(topicThemeRepository.queryAll(query),
+                new Pager(topicThemeRepository.count(), query.getPage(), query.getSize()));
     }
 
     @Override
@@ -654,7 +599,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public void createLiveTopic(Topic topic, MultipartFile[] files, String accountHashId) {
 
-        //根据用户hashid去获取用户的id
+        //根据用户hashId去获取用户的id
         AccountInfo info;
         try {
             info = go4BaseUtil.getAccountDetailByHashId(accountHashId);

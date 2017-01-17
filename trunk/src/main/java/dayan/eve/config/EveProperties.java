@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "eve")
 public class EveProperties {
 
+    private final Swagger swagger = new Swagger();
     private Mo mo = new Mo();
     private Clock clock = new Clock();
     private Walle walle = new Walle();
@@ -21,64 +22,147 @@ public class EveProperties {
         return mo;
     }
 
-    public void setMo(Mo mo) {
-        this.mo = mo;
-    }
 
     public Clock getClock() {
         return clock;
     }
 
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
 
     public Walle getWalle() {
         return walle;
     }
 
-    public void setWalle(Walle walle) {
-        this.walle = walle;
-    }
 
     public Image getImage() {
         return image;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
-    }
 
     public Html getHtml() {
         return html;
     }
 
-    public void setHtml(Html html) {
-        this.html = html;
-    }
 
     public Alipay getAlipay() {
         return alipay;
     }
 
-    public void setAlipay(Alipay alipay) {
-        this.alipay = alipay;
-    }
 
     public School getSchool() {
         return school;
     }
 
-    public void setSchool(School school) {
-        this.school = school;
-    }
 
     public Course getCourse() {
         return course;
     }
 
-    public void setCourse(Course course) {
-        this.course = course;
+
+    public Swagger getSwagger() {
+        return swagger;
+    }
+
+    public static class Swagger {
+
+        private String title = "Hal API";
+
+        private String description = "Hal API documentation";
+
+        private String version = "0.0.1";
+
+        private String termsOfServiceUrl;
+
+        private String contactName;
+
+        private String contactUrl;
+
+        private String contactEmail;
+
+        private String license;
+
+        private String licenseUrl;
+
+        private Boolean enabled;
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public String getTermsOfServiceUrl() {
+            return termsOfServiceUrl;
+        }
+
+        public void setTermsOfServiceUrl(String termsOfServiceUrl) {
+            this.termsOfServiceUrl = termsOfServiceUrl;
+        }
+
+        public String getContactName() {
+            return contactName;
+        }
+
+        public void setContactName(String contactName) {
+            this.contactName = contactName;
+        }
+
+        public String getContactUrl() {
+            return contactUrl;
+        }
+
+        public void setContactUrl(String contactUrl) {
+            this.contactUrl = contactUrl;
+        }
+
+        public String getContactEmail() {
+            return contactEmail;
+        }
+
+        public void setContactEmail(String contactEmail) {
+            this.contactEmail = contactEmail;
+        }
+
+        public String getLicense() {
+            return license;
+        }
+
+        public void setLicense(String license) {
+            this.license = license;
+        }
+
+        public String getLicenseUrl() {
+            return licenseUrl;
+        }
+
+        public void setLicenseUrl(String licenseUrl) {
+            this.licenseUrl = licenseUrl;
+        }
+
+        public Boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(Boolean enabled) {
+            this.enabled = enabled;
+        }
     }
 
     public static class Clock {
@@ -152,6 +236,26 @@ public class EveProperties {
         private String visitor;
         private String feedback;
         private String accessToken;
+        private Integer csOnlineDisplayNum;
+        private Long csOnlineCacheSeconds;
+        private Integer hotQuestionNum;
+        private Integer freqQuestionNum;
+
+        public Integer getHotQuestionNum() {
+            return hotQuestionNum;
+        }
+
+        public void setHotQuestionNum(Integer hotQuestionNum) {
+            this.hotQuestionNum = hotQuestionNum;
+        }
+
+        public Integer getFreqQuestionNum() {
+            return freqQuestionNum;
+        }
+
+        public void setFreqQuestionNum(Integer freqQuestionNum) {
+            this.freqQuestionNum = freqQuestionNum;
+        }
 
         public String getUsername() {
             return username;
@@ -391,6 +495,22 @@ public class EveProperties {
 
         public void setAccessToken(String accessToken) {
             this.accessToken = accessToken;
+        }
+
+        public Integer getCsOnlineDisplayNum() {
+            return csOnlineDisplayNum;
+        }
+
+        public void setCsOnlineDisplayNum(Integer csOnlineDisplayNum) {
+            this.csOnlineDisplayNum = csOnlineDisplayNum;
+        }
+
+        public Long getCsOnlineCacheSeconds() {
+            return csOnlineCacheSeconds;
+        }
+
+        public void setCsOnlineCacheSeconds(Long csOnlineCacheSeconds) {
+            this.csOnlineCacheSeconds = csOnlineCacheSeconds;
         }
     }
 

@@ -64,15 +64,15 @@ public final class ErrorCN {
         public final static String COURSE_BOUGHT = "课程已购买";
         public final static String NO_CD_KEY = "请输入邀请码";
         public final static String COURSE_NOT_BOUGHT = "课程未购买";
-        public final static String LOGIN_OR_CDKEY = "请先登陆或输入邀请码";
+        public final static String LOGIN_OR_INVITED_CODE = "请先登陆或输入邀请码";
         public final static String TEST_NOT_SELECTED = "请选择测试";
         public final static String COURSE_NOT_SELECTED = "请选择课程";
-        public final static String ALIPAY_FAIED = "支付失败，请重新支付";
+        public final static String ALIPAY_FAILED = "支付失败，请重新支付";
     }
 
     public final static class Walle {
         public final static String NO_PLATFORM_ID = "无平台id";
-        public final static String NO_QUESTIONS = "暂无问答数据";
+        public final static String NO_QUESTION_DATA = "暂无问答数据";
         public final static String PLATFORM_NOT_FOUND = "资讯平台不存在";
     }
 

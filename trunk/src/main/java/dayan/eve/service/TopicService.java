@@ -10,6 +10,7 @@
  */
 package dayan.eve.service;
 
+import dayan.eve.model.PageResult;
 import dayan.eve.model.Pager;
 import dayan.eve.model.account.AccountInfo;
 import dayan.eve.model.query.TopicQuery;
@@ -95,7 +96,7 @@ public interface TopicService {
      * @param query
      * @return
      */
-    public List<TopicTheme> readAllThemes(TopicQuery query);
+    public PageResult<TopicTheme> readAllThemes(TopicQuery query);
 
     /**
      * 添加主题
@@ -103,14 +104,6 @@ public interface TopicService {
      * @param theme
      */
     public void addTheme(String theme);
-
-    /**
-     * 统计所有主题个数
-     *
-     * @param query
-     * @return
-     */
-    public Pager countThemes(TopicQuery query);
 
     public void createLiveTopic(Topic topic, MultipartFile[] files, String accounHashId);
 

@@ -60,6 +60,7 @@ public class SchoolIdPlatformIdUtil {
         return schoolIdAndPlatformIdMap;
     }
 
+    // TODO: 1/14/2017 集成redis 
     public void update() {
         try {
             String url = platformUrl + "?access_token=" + walleUtil.getAccessToken();

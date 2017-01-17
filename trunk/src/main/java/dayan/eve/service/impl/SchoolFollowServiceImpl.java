@@ -12,6 +12,7 @@ package dayan.eve.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import dayan.common.util.SchoolPlatformIdEncoder;
+import dayan.eve.config.EveProperties;
 import dayan.eve.model.PageResult;
 import dayan.eve.model.Pager;
 import dayan.eve.model.School;
@@ -26,7 +27,6 @@ import dayan.eve.util.WalleUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,14 +51,18 @@ public class SchoolFollowServiceImpl implements SchoolFollowService {
     @Autowired
     TagUtil tagUtil;
 
-    @Value("${logo.school.url.prefix}")
-    String schoolLogoUrlPrefix;
+    private String schoolLogoUrlPrefix;
+
+    @Autowired
+    public SchoolFollowServiceImpl(EveProperties eveProperties) {
+        this.schoolLogoUrlPrefix = eveProperties.getSchool().getLogoPrefix();
+    }
 
     private static SchoolPlatformIdEncoder encoder = new SchoolPlatformIdEncoder();
 
     List<School> assign(List<School> list) {
         if (list == null || list.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         Map<Integer, Integer> schoolIdPlatformIdMap = schoolIdPlatformIdUtil.getSchoolIdAndPlatformIdMap();
         for (School school : list) {

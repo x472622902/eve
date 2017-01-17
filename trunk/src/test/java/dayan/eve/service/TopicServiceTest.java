@@ -24,8 +24,10 @@ public class TopicServiceTest {
     public void readTopics() throws Exception {
         TopicQuery query = new TopicQuery();
         query.setPage(1);
-        query.setSize(20);
+        query.setSize(1);
         query.setAccountId(1);
+//        query.setIsMyTopic(false);
+        query.setTopicId(1);
         System.out.println(JSON.toJSONString(topicService.readTopics(query), true));
     }
 

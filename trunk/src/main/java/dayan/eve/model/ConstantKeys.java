@@ -26,7 +26,8 @@ public final class ConstantKeys {
     
     public static final String AVATAR_START = "/open/avatar/";
     public static final String AVATAR_END = "/img";
-    
+
+    public static final String EVE_PLATFORM = "小言高考";
 
     public static class Sign {
 

@@ -13,6 +13,7 @@ package dayan.eve.model.topic;
 import dayan.eve.model.account.AccountInfoExt;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -37,9 +38,9 @@ public class Topic {
     private Boolean isDisliked = false;
     private Integer schoolId;
     private String schoolName;
-    private List<String> imageUrls;//图片地址
-    private List<String> thumbnailUrls;//缩略图地址
-    private List<String> middleImageUrls;//缩略图地址
+    private List<String> imageUrls = new LinkedList<>();//大图地址
+    private List<String> thumbnailUrls = new LinkedList<>();//缩略图地址
+    private List<String> middleImageUrls = new LinkedList<>();//中图地址
     private Topic originTopic;//原帖
     private Boolean isPinTop = false;//是否置顶
     private String stampUrl;//印章
@@ -371,4 +372,43 @@ public class Topic {
         this.theme = theme;
     }
 
+    public Boolean getLiked() {
+        return isLiked;
+    }
+
+    public void setLiked(Boolean liked) {
+        isLiked = liked;
+    }
+
+    public Boolean getDisliked() {
+        return isDisliked;
+    }
+
+    public void setDisliked(Boolean disliked) {
+        isDisliked = disliked;
+    }
+
+    public Boolean getPinTop() {
+        return isPinTop;
+    }
+
+    public void setPinTop(Boolean pinTop) {
+        isPinTop = pinTop;
+    }
+
+    public Boolean getDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public Boolean getLive() {
+        return isLive;
+    }
+
+    public void setLive(Boolean live) {
+        isLive = live;
+    }
 }

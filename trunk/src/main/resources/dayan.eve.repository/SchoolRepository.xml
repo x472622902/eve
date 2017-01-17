@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.SchoolRepository">
+    <select id="queryById" resultType="dayan.eve.model.school.RecommendSchool">
+        SELECT
+            a.id            "schoolId",
+            a.name          "schoolName",
+            a.`school_tags` "tags",
+            a.`address`     "address"
+        FROM
+            `cu_school` a
+        WHERE
+            a.id = #{schoolId}
+    </select>
+
+    <select id="queryName" resultType="String">
+        SELECT a.name "schoolName"
+        FROM
+            `cu_school` a
+        WHERE
+            a.id = #{schoolId}
+    </select>
+
+
+    <select id="queryByName" resultType="dayan.eve.model.school.RecommendSchool">
+        SELECT
+            a.`id`          "schoolId",
+            a.name          "schoolName",
+            a.`school_tags` "tags",
+            a.`address`     "address"
+        FROM
+            `cu_school` a
+        WHERE
+            a.name = #{schoolName}
+    </select>
+
+    <select id="queryProfile" resultType="dayan.eve.model.School">
+        SELECT
+            a.id                "id",
+            a.`name`,
+            c.`school_intro`    "intro",
+            a.`found_date`      "foundDate",
+            a.`belong`,
+            a.`student_num`     "studentNum",
+            a.`cae_num`         "caeNum",
+            a.`key_subject_num` "keySubjectNum",
+            a.`school_type`     "type",
+            a.`ddg_num`         "ddgNum",
+            a.`mdg_num`         "mdgNum",
+            a.`address`,
+            a.`cs`,
+            a.`gender_ratio`    "genderRatioStr",
+            a.`student_source`  "studentSourceStr",
+            a.`tuition`,
+            b.`tags`            "tagsValue",
+            a.`employment`
+        FROM
+            `cu_school` a
+            LEFT JOIN
+            `cu_school_intro` c
+                ON
+                    a.`id` = c.`school_id`
+            LEFT JOIN
+            `cu_school_tag` b
+                ON
+                    a.`id` = b.`school_id`
+        WHERE
+            a.id = #{schoolId}
+    </select>
+
+    <select id="queryAdmission" resultType="dayan.eve.model.School">
+        SELECT
+            a.url,
+            a.address,
+            a.`admissions_phone` "admissionsPhone",
+            a.`admissions_url`   "admissionsUrl"
+        FROM
+            `cu_school` a
+        WHERE
+            a.id = #{schoolId}
+    </select>
+
+    <select id="search" resultType="dayan.eve.model.School">
+        SELECT
+            a.`id`,
+            a.`name`,
+            a.`address`,
+            a.`city`,
+            a.`cs`,
+            b.`tags` "tagsValue"
+        FROM
+          `cu_school` a
+        LEFT JOIN
+          `cu_school_tag` b
+        ON
+          a.id = b.school_id
+        WHERE 1 = 1
+        <include refid="where"/>
+        GROUP BY a.id
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </select>
+
+    <select id="count" resultType="java.lang.Integer">
+        SELECT
+          COUNT(a.`id`)
+        FROM
+          `cu_school` a
+            LEFT JOIN `cu_school_tag` b ON a.id = b.school_id
+        WHERE 1 = 1
+
+        <include refid="where"/>
+    </select>
+
+    <sql id="where">
+        <if test='provinceIds != null '>
+            AND a.province_id in
+            <foreach item="provinceIds" index="index" collection="provinceIds"
+                     open="(" separator="," close=")">
+                #{provinceIds}
+            </foreach>
+        </if>
+        <if test='schoolTypes != null '>
+            AND a.school_type in
+            <foreach item="schoolTypes" index="index" collection="schoolTypes"
+                     open="(" separator="," close=")">
+                #{schoolTypes}
+            </foreach>
+        </if>
+        <if test='advisorySchoolIds != null '>
+            AND a.id in
+            <foreach item="advisorySchoolIds" index="index" collection="advisorySchoolIds"
+                     open="(" separator="," close=")">
+                #{advisorySchoolIds}
+            </foreach>
+        </if>
+        <if test='queryStr != null '>
+            AND a.name like CONCAT('%',#{queryStr},'%')
+        </if>
+        <if test='schoolId != null'>
+            AND a.id = #{schoolId}
+        </if>
+        <if test='tagsValue != null'>
+            AND b.tags &amp; #{tagsValue}  = #{tagsValue}
+        </if>
+        <if test='isAdvisory != null'>
+            AND a.is_advisory = #{isAdvisory}
+        </if>
+        <if test='cs != null and cs == true'>
+            AND a.cs = 1
+        </if>
+        AND a.is_deleted = 0
+    </sql>
+
+    <select id="queryAllNames" resultType="String">
+        SELECT
+            DISTINCT a.`name`
+        FROM
+            `cu_school` a
+        WHERE a.is_deleted = 0
+    </select>
+
+    <update id="updateAdvisory">
+        UPDATE
+          `cu_school` a
+        SET
+          is_advisory = 1
+        where
+            a.id in
+            <foreach item="schoolIds" index="index" collection="schoolIds"
+                     open="(" separator="," close=")">
+                #{schoolIds}
+            </foreach>
+    </update>
+
+    <update id="updateCs">
+        UPDATE
+          `cu_school` a
+        SET
+          cs = 1
+        where
+            a.id in
+            <foreach item="schoolIds" index="index" collection="schoolIds"
+                     open="(" separator="," close=")">
+                #{schoolIds}
+            </foreach>
+    </update>
+
+    <update id="clearCs">
+        UPDATE
+            `cu_school` a
+        SET
+            cs = 0
+    </update>
+
+    <update id="cleanAdvisory">
+        UPDATE
+            `cu_school` a
+        SET
+            is_advisory = 0
+    </update>
+
+    <select id="query" resultType="dayan.eve.model.School">
+        SELECT
+            a.id,
+            a.name
+        FROM
+          `cu_school` a
+        WHERE
+          a.is_deleted = 0
+        <if test="schoolId != null">
+            AND a.id = #{schoolId}
+        </if>
+        <if test="schoolName != null">
+            AND a.name = #{schoolName}
+        </if>
+
+    </select>
+</mapper>

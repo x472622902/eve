@@ -1,14 +1,16 @@
 /**
  * *****************************************************
  * Copyright (C) Dayan techology Co.ltd - All Rights Reserved
- *
+ * <p>
  * This file is part of Dayan techology Co.ltd property.
- *
+ * <p>
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * *****************************************************
  */
 package dayan.eve.model;
+
+import dayan.eve.model.account.AccountInfo;
 
 /**
  *
@@ -24,6 +26,18 @@ public class GuestBook {
     private String mobile;
     private String question;
     private String userNumber;
+
+    public GuestBook() {
+    }
+    public GuestBook(AccountInfo accountInfo) {
+        this.mobile = accountInfo.getMobile();
+        this.name=accountInfo.getNickname();
+        this.province= accountInfo.getProvince();
+        if (accountInfo.getScore() != null) {
+            this.score = accountInfo.getScore().toString();
+        }
+        this.subjectType = accountInfo.getSubjectType();
+    }
 
     public int getPlatformId() {
         return platformId;

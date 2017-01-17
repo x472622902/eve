@@ -84,7 +84,7 @@
                 #{schoolId},
                 #{theme.id},
                 #{parentId},
-                ${isLive ? 1 : 0 },
+                #{isLive},
                 #{liveStatus},
                 #{liveTime},
                 NOW(),
@@ -101,68 +101,203 @@
         WHERE
             a.`id` = #{topicId}
     </update>
+    <resultMap id="topicMap" type="dayan.eve.model.topic.Topic">
+        <!--<result column="id" property="id"/>-->
+        <result column="account_id" property="accountId"/>
+        <result column="content" property="content"/>
+        <result column="topic_id" property="topicId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="school_id" property="schoolId"/>
+        <result column="like_num" property="likeNum"/>
+        <result column="dislike_num" property="dislikeNum"/>
+        <result column="is_pin_top" property="isPinTop"/>
+        <result column="is_live" property="isLive"/>
+        <result column="live_status" property="liveStatus"/>
+        <result column="live_time" property="liveTime"/>
+        <result column="reply_count" property="replyCount"/>
+        <result column="stamp_url" property="stampUrl"/>
+        <result column="nickname" property="nickname"/>
+        <result column="accountHashId" property="accountHashId"/>
+        <result column="subject_type" property="subjectType"/>
+        <result column="portrait_url" property="portraitUrl"/>
+        <result column="accountLevel" property="accountLevel"/>
+        <result column="gender" property="gender"/>
+        <result column="school_id" property="accountExt.schoolId"/>
+        <result column="platform_id" property="accountExt.platformId"/>
+        <result column="accountExtSchoolName" property="accountExt.schoolName"/>
+        <result column="province" property="province"/>
+        <result column="topicDate" property="topicDate"/>
+        <result column="modifyDate" property="modifyDate"/>
+        <result column="themeName" property="theme.name"/>
+        <result column="themeId" property="theme.id"/>
+        <result column="schoolName" property="schoolName"/>
+        <result column="isLiked" property="isLiked"/>
+        <result column="isDisliked" property="isDisliked"/>
+        <result column="originTopic.id" property="originTopic.id"/>
+        <result column="originTopic.stampUrl" property="originTopic.stampUrl"/>
+        <result column="originTopic.isLive" property="originTopic.isLive"/>
+        <result column="originTopic.liveStatus" property="originTopic.liveStatus"/>
+        <result column="originTopic.accountId" property="originTopic.accountId"/>
+        <result column="originTopic.content" property="originTopic.content"/>
+        <result column="originTopic.likeNum" property="originTopic.likeNum"/>
+        <result column="originTopic.dislikeNum" property="originTopic.dislikeNum"/>
+        <result column="originTopic.topicDate" property="originTopic.topicDate"/>
+        <result column="originTopic.modifyDate" property="originTopic.modifyDate"/>
+        <result column="originTopic.isDeleted" property="originTopic.isDeleted"/>
+        <result column="originTopic.replyCount" property="originTopic.replyCount"/>
+        <result column="originTopic.nickname" property="originTopic.nickname"/>
+        <result column="originTopic.portraitUrl" property="originTopic.portraitUrl"/>
+        <result column="originTopic.gender" property="originTopic.gender"/>
+        <result column="originTopic.accountLevel" property="originTopic.accountLevel"/>
+        <result column="originTopic.accountExt.schoolId" property="originTopic.accountExt.schoolId"/>
+        <result column="originTopic.accountExt.platformId" property="originTopic.accountExt.platformId"/>
+        <result column="originTopic.accountExt.schoolName" property="originTopic.accountExt.schoolName"/>
+        <result column="originTopic.theme.name" property="originTopic.theme.name"/>
+        <result column="originTopic.theme.id" property="originTopic.theme.id"/>
+        <collection property="thumbnailUrls" ofType="String">
+            <result column="thumbnail_url"/>
+        </collection>
+        <collection property="middleImageUrls" ofType="String">
+            <result column="middle_image_url"/>
+        </collection>
+        <collection property="imageUrls" ofType="String">
+            <result column="middle_image_url"/>
+        </collection>
+        <collection property="comments"  ofType="dayan.eve.model.topic.Topic">
+            <result column="comment.id" property="id"/>
+            <result column="comment.content" property="content"/>
+            <result column="comment.accountId" property="accountId"/>
+            <result column="comment.topicDate" property="topicDate"/>
+            <result column="comment.topicId" property="topicId"/>
+            <result column="comment.parentId" property="parentId"/>
+            <result column="comment.nickname" property="nickname"/>
+        </collection>
+    </resultMap>
 
-    <select id="queryTopics" resultType="dayan.eve.model.topic.Topic">
+    <select id="queryTopics" resultMap="topicMap">
         SELECT
-        a.`id`,
-        a.`account_id` ,
-        a.`content`,
-        a.`topic_id` ,
-        a.`parent_id`,
-        a.`school_id` ,
-        a.`like_num`,
-        a.`dislike_num` ,
-        a.`is_pin_top` ,
-        a.`is_live` ,
-        a.`live_status`,
-        a.`live_time` ,
-        a.`reply_count`,
-        a.`stamp_url`,
-        b.`nickname` ,
-        b.`hash_id` "accountHashId",
+        z.`id`,
+        z.`account_id` ,
+        z.`content`,
+        z.`topic_id` ,
+        z.`parent_id`,
+        z.`school_id` ,
+        z.`like_num`,
+        z.`dislike_num` ,
+        z.`is_pin_top` ,
+        z.`is_live` ,
+        z.`live_status`,
+        z.`live_time` ,
+        z.`reply_count`,
+        z.`stamp_url`,
+        z.`nickname` ,
+        z.`hash_id` "accountHashId",
         c.`subject_type` ,
         c.`portrait_url` ,
         c.`level` "accountLevel",
         c.`gender` ,
-        c.`school_id` "accountExt.schoolId",
-        c.`platform_id` "accountExt.platformId",
+        c.`school_id` ,
+        c.`platform_id`,
         d.`name` "province",
-        a.`gmt_create` "topicDate",
-        a.`gmt_modify` "modifyDate",
-        e.`name` "theme.name",
-        e.`id` "theme.id",
-        f.`name` "schoolName",
-        g.`name` "accountExt.schoolName"
-        FROM
-        `eve_topic` a
-        LEFT JOIN
-        `eve_account` b
-        ON
-        a.account_id = b.id
-        LEFT JOIN
-        `eve_account_info` c
-        ON
-        c.account_id = a.account_id
-        LEFT JOIN
-        `const_province` d
-        ON
-        c.province_id = d.id
-        LEFT JOIN
-        `eve_topic_theme` e
-        ON
-        a.theme_id = e.id
-        LEFT JOIN
-        `cu_school` f
-        ON
-        a.school_id = f.id
-        LEFT JOIN
-        `cu_school` g
-        ON
-        c.school_id = g.id
-        WHERE 1 = 1
-        <include refid="where"/>
-        <include refid="order"/>
-        <include refid="limit"/>
+        z.`gmt_create` "topicDate",
+        z.`gmt_modify` "modifyDate",
+        e.`name` "themeName",
+        e.`id` "themeId",
+        h.thumbnail_url,
+        h.middle_image_url,
+        h.middle_image_url
+        <if test="isMyTopic != null and isMyTopic == false">
+            ,
+            i.id "originTopic.d",
+            i.stamp_url "originTopic.stampUrl",
+            i.`is_live` "originTopic.isLive",
+            i.`live_status` "originTopic.liveStatus",
+            i.`live_time` "originTopic.liveTime",
+            i.account_id "originTopic.accountId",
+            i.`content` "originTopic.content",
+            i.`like_num` "originTopic.likeNum",
+            i.`dislike_num` "originTopic.dislikeNum",
+            i.`gmt_create` "originTopic.topicDate",
+            i.`gmt_modify` "originTopic.modifyDate",
+            i.`is_deleted` "originTopic.isDeleted",
+            i.`reply_count` "originTopic.replyCount",
+            j.`nickname` "originTopic.nickname",
+            k.`portrait_url` "originTopic.portraitUrl",
+            k.`gender` "originTopic.gender",
+            k.`level` "originTopic.accountLevel",
+            l.`name` "originTopic.theme.name",
+        </if>
+        <if test="topicId != null">
+            ,
+            o.id "comment.id",
+            o.content "comment.content",
+            o.account_id    "comment.accountId",
+            o.gmt_create    "comment.topicDate",
+            o.topic_id      "comment.topicId",
+            o.parent_id     "comment.parentId",
+            p.nickname "comment.nickname"
+        </if>
+        <if test="accountId != null">
+            ,
+            EXISTS (
+                SELECT id
+                FROM eve_topic_like
+                WHERE topic_id =z.id
+                AND account_id = #{accountId}
+                AND is_deleted = 0
+            ) AS "isLiked",
+            EXISTS (
+                SELECT id
+                FROM eve_topic_dislike
+                WHERE topic_id =z.id
+                AND account_id = #{accountId}
+                AND is_deleted = 0
+            ) AS "isDisliked"
+        </if>
+        FROM(
+            SELECT
+                a.`id`,
+                a.`account_id` ,
+                a.`content`,
+                a.`topic_id` ,
+                a.`parent_id`,
+                a.`theme_id`,
+                a.`school_id` ,
+                a.`like_num`,
+                a.`dislike_num` ,
+                a.`is_pin_top` ,
+                a.`is_live` ,
+                a.`live_status`,
+                a.`live_time` ,
+                a.`reply_count`,
+                a.`stamp_url`,
+                b.`nickname` ,
+                b.`hash_id`,
+                a.`gmt_create`,
+                a.`gmt_modify`
+            FROM
+            `eve_topic` a
+            LEFT JOIN `eve_account` b ON a.account_id = b.id
+            WHERE 1 = 1
+            <include refid="where"/>
+            <include refid="order"/>
+            <include refid="limit"/>
+        ) as z
+        LEFT JOIN `eve_account_info` c ON c.account_id = z.account_id
+        LEFT JOIN `const_province` d ON c.province_id = d.id
+        LEFT JOIN `eve_topic_theme` e ON z.theme_id = e.id
+        LEFT JOIN eve_topic_image h on z.id = h.topic_id
+        <if test="isMyTopic != null and isMyTopic == false">
+            LEFT JOIN eve_topic i ON z.topic_id = i.id AND i.is_deleted = 0
+            LEFT JOIN eve_account j ON i.account_id = j.id
+            LEFT JOIN eve_account_info k ON i.account_id = k.account_id
+            LEFT JOIN eve_topic_theme l ON i.theme_id = l.id
+        </if>
+        <if test="topicId != null">
+            LEFT JOIN `eve_topic` o ON  z.id = o.parent_id  AND o.is_deleted = 0
+            LEFT JOIN eve_account p ON o.account_id = p.id
+            LEFT JOIN eve_account_info q ON o.account_id = q.account_id
+        </if>
     </select>
 
     <sql id="order">
@@ -190,10 +325,7 @@
         COUNT(a.`id`)
         FROM
         `eve_topic` a
-        LEFT JOIN
-        `eve_account` b
-        ON
-        a.account_id = b.id
+        LEFT JOIN `eve_account` b ON a.account_id = b.id
         WHERE
         1=1
         <include refid="where"/>
@@ -204,10 +336,7 @@
         SELECT a.`reply_count`
         FROM
             `eve_topic` a
-            LEFT JOIN
-            `eve_account` b
-                ON
-                    a.account_id = b.id
+            LEFT JOIN `eve_account` b ON a.account_id = b.id
         WHERE
             a.`id` = #{id}
     </select>
@@ -217,10 +346,7 @@
         COUNT(a.`id`)
         FROM
         `eve_topic` a
-        LEFT JOIN
-        `eve_account` b
-        ON
-        a.account_id = b.id
+        LEFT JOIN `eve_account` b ON a.account_id = b.id
         WHERE 1=1
         <include refid="where"/>
     </select>
@@ -230,10 +356,7 @@
         COUNT(a.`id`)
         FROM
         `eve_topic` a
-        LEFT JOIN
-        `eve_account` b
-        ON
-        a.account_id = b.id
+        LEFT JOIN `eve_account` b ON a.account_id = b.id
         WHERE 1=1
         <include refid="where"/>
     </select>
@@ -270,18 +393,9 @@
         a.`gmt_modify` "topicDate"
         FROM
         `eve_topic` a
-        LEFT JOIN
-        `eve_account` b
-        ON
-        a.account_id = b.id
-        LEFT JOIN
-        `eve_account_info` c
-        ON
-        c.account_id = a.account_id
-        LEFT JOIN
-        `const_province` d
-        ON
-        c.province_id = d.id
+        LEFT JOIN `eve_account` b ON a.account_id = b.id
+        LEFT JOIN `eve_account_info` c ON c.account_id = a.account_id
+        LEFT JOIN `const_province` d ON c.province_id = d.id
         WHERE
         1=1
         <include refid="whereOfFind"/>
@@ -393,18 +507,9 @@
             d.`name`        "accountExt.schoolName"
         FROM
             eve_topic a
-            LEFT JOIN
-            eve_account b
-                ON
-                    a.account_id = b.id
-            LEFT JOIN
-            eve_account_info c
-                ON
-                    a.account_id = c.account_id
-            LEFT JOIN
-            cu_school d
-                ON
-                    c.school_id = d.id
+            LEFT JOIN eve_account b ON a.account_id = b.id
+            LEFT JOIN eve_account_info c ON a.account_id = c.account_id
+            LEFT JOIN cu_school d ON c.school_id = d.id
         WHERE
             a.parent_id = #{parentId}
             AND a.is_deleted = 0
@@ -459,42 +564,15 @@
         c.`is_deleted` "originTopic.isDeleted"
         FROM
         eve_topic a
-        LEFT JOIN
-        eve_account b
-        ON
-        a.account_id = b.id
-        LEFT JOIN
-        eve_topic c
-        ON
-        a.topic_id = c.id
-        LEFT JOIN
-        eve_account d
-        ON
-        c.account_id = d.id
-        LEFT JOIN
-        eve_account_info e
-        ON
-        a.account_id = e.account_id
-        LEFT JOIN
-        eve_account_info f
-        ON
-        c.account_id = f.account_id
-        LEFT JOIN
-        eve_topic_theme g
-        ON
-        a.theme_id = g.id
-        LEFT JOIN
-        eve_topic_theme h
-        ON
-        c.theme_id = h.id
-        LEFT JOIN
-        cu_school i
-        ON
-        e.school_id = i.id
-        LEFT JOIN
-        cu_school j
-        ON
-        f.school_id = j.id
+        LEFT JOIN eve_account b ON a.account_id = b.id
+        LEFT JOIN eve_topic c ON a.topic_id = c.id
+        LEFT JOIN eve_account d ON c.account_id = d.id
+        LEFT JOIN eve_account_info e ON a.account_id = e.account_id
+        LEFT JOIN eve_account_info f ON c.account_id = f.account_id
+        LEFT JOIN eve_topic_theme g ON a.theme_id = g.id
+        LEFT JOIN eve_topic_theme h ON c.theme_id = h.id
+        LEFT JOIN cu_school i ON e.school_id = i.id
+        LEFT JOIN cu_school j ON f.school_id = j.id
         WHERE
         a.account_id = #{accountId}
         AND a.is_deleted = 0
@@ -515,10 +593,7 @@
         a.nickname
         FROM
         `eve_topic` b
-        LEFT JOIN
-        `eve_account` a
-        ON
-        b.account_id = a.id
+        LEFT JOIN `eve_account` a ON b.account_id = a.id
         WHERE 1=1
         <if test='parentId != null'>
             AND b.parent_id = #{parentId}
@@ -595,10 +670,7 @@
         SELECT COUNT(a.id)
         FROM
             eve_topic a
-            LEFT JOIN
-            eve_account b
-                ON
-                    a.account_id = b.id
+            LEFT JOIN eve_account b ON a.account_id = b.id
         WHERE
             #{id} >= a.id
             AND a.topic_id = #{topicId}

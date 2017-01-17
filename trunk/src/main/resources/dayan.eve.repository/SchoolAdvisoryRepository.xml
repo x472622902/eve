@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.SchoolAdvisoryRepository">
+    <select id="query" resultType="Integer">
+        SELECT school_id
+        FROM
+            cu_school_advisory a
+        WHERE
+            is_deleted = 0
+        ORDER BY gmt_create DESC
+    </select>
+
+    <select id="querySchools" resultType="dayan.eve.model.School">
+        SELECT
+            a.school_id id,
+            b.`name`,
+            b.`address`,
+            b.`city`,
+            b.`cs`,
+            c.`tags`    "tagsValue"
+        FROM
+            cu_school_advisory a
+            LEFT JOIN cu_school b ON a.school_id = b.id
+            LEFT JOIN `cu_school_tag` c ON a.school_id = c.school_id
+        WHERE
+            a.is_deleted = 0
+    </select>
+
+    <update id="delete">
+        UPDATE
+            cu_school_advisory
+        SET
+            is_deleted = 1,
+            gmt_modify = NOW()
+        WHERE
+            school_id = #{schoolId}
+    </update>
+
+    <insert id="insert">
+        INSERT INTO cu_school_advisory (
+            school_id,
+            gmt_create
+        ) VALUES
+            (
+                #{schoolId},
+                NOW()
+            )
+    </insert>
+
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+</mapper>
