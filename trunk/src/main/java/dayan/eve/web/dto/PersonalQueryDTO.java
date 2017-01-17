@@ -17,6 +17,7 @@ package dayan.eve.web.dto;
 public class PersonalQueryDTO {
 
     private String accountId;
+    private PaginationDTO paging;
 
     public String getAccountId() {
         return accountId;
@@ -26,5 +27,11 @@ public class PersonalQueryDTO {
         this.accountId = accountId;
     }
 
+    public PaginationDTO getPaging() {
+        return paging;
+    }
 
+    public void setPaging(PaginationDTO paging) {
+        this.paging = paging;
+    }
 }

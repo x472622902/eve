@@ -83,11 +83,13 @@ public class AccountInfoServiceImpl implements AccountInfoService {
             return new AccountInfo();
         }
         AccountInfo accountInfo = list.get(0);
-        try {
-            accountInfo.setEasemob(go4BaseUtil.getAccountDetailByHashId(accountInfo.getHashId()).getEasemob());
-        } catch (Exception ex) {
-            LOGGER.info("get go4 detail failed,{}", ex.getMessage());
-        }
+
+        // TODO: 1/17/2017 account info easemob
+//        try {
+//            accountInfo.setEasemob(go4BaseUtil.getAccountDetailByHashId(accountInfo.getHashId()).getEasemob());
+//        } catch (Exception ex) {
+//            LOGGER.info("get go4 detail failed,{}", ex.getMessage());
+//        }
         setExp(accountInfo);
         return accountInfo;
     }

@@ -20,6 +20,7 @@ public class ExpUtil {
 
     private static List<Integer> expList = new LinkedList<>();
 
+    // TODO: 1/17/2017  put expList into redis cache
     public static List<Integer> getExpList() {
         if (expList.isEmpty()) {
             expList.add(0);

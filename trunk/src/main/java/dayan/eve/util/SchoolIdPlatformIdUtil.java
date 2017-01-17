@@ -42,6 +42,7 @@ public class SchoolIdPlatformIdUtil {
         this.platformUrl = eveProperties.getWalle().getPlatform();
     }
 
+    // todo put these map to redis cache
     private static Map<Integer, Integer> schoolIdAndPlatformIdMap = new HashMap<>();
     private static Map<Integer, Integer> allSchoolIdAndPlatformIdMap = new HashMap<>();
     private static Map<Integer, Integer> allPlatformIdAndSchoolIdMap = new HashMap<>();
