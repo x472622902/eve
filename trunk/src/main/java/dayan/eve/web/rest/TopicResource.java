@@ -77,7 +77,7 @@ public class TopicResource {
                     JsonResultList result = new JsonResultList();
                     try {
                         TopicQuery query = buildQuery(topicReadQueryDTO);
-                        query.setIsMyTopic(true);
+                        query.setMyTopic(true);
                         result.setData(topicService.readTopics(query));
                         result.setPager(topicService.count(query));
                     } catch (Exception ex) {
@@ -97,7 +97,6 @@ public class TopicResource {
                     JsonResultList result = new JsonResultList();
                     try {
                         TopicQuery query = buildQuery(topicReadQueryDTO);
-                        query.setIsMyTopic(false);
                         result.setData(topicService.readTopics(query));
                         result.setPager(topicService.count(query));
                     } catch (Exception ex) {
@@ -229,13 +228,13 @@ public class TopicResource {
         if (data.getThemeId() != null) {
             query.setThemeId(Integer.valueOf(data.getThemeId()));
         }
-        if (data.isIsMyTopic() != null) {
-            if (data.isIsMyTopic()) {
+        if (data.getMyTopic() != null) {
+            if (data.getMyTopic()) {
                 query.setTopicId(null);
             } else {
                 query.setTopicId(1);
             }
-            query.setIsMyTopic(data.isIsMyTopic());
+            query.setMyTopic(data.getMyTopic());
         } else {
             if (!StringUtils.isEmpty(data.getTopicId())) {
                 query.setTopicId(Integer.valueOf(data.getTopicId()));
@@ -244,14 +243,13 @@ public class TopicResource {
                 query.setParentId(Integer.valueOf(data.getTopicId()));
             }
         }
-        if (data.getIsPopular() != null) {
-            query.setIsPopular(data.getIsPopular());
+        if (data.getPopular() != null) {
+            query.setPopular(data.getPopular());
         }
-        if (data.getIsLive() != null) {
-            query.setIsLive(data.getIsLive());
+        if (data.getLive() != null) {
+            query.setLive(data.getLive());
         }
-        query.setPage(data.getPaging().getPage());
-        query.setSize(data.getPaging().getSize());
+        query.initPaging(data.getPaging());
         return query;
     }
 

@@ -11,8 +11,7 @@
 package dayan.eve.model;
 
 /**
- *
- * @author zhuangyd
+ * @author xsg
  */
 public class JsonResultList extends JsonResult {
 

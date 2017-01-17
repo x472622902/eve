@@ -11,8 +11,6 @@
 package dayan.eve.web.dto;
 
 
-import dayan.eve.model.Pagination;
-
 import java.util.List;
 
 /**
@@ -21,11 +19,11 @@ import java.util.List;
  */
 public class InfoReadQueryDTO {
 
-    String accountId;
-    String hashId;
-    List<String> easemobUsernames;
-    String easemobUsername;
-    Pagination paging;
+    private String accountId;
+    private String hashId;
+    private List<String> easemobUsernames;
+    private String easemobUsername;
+    private PaginationDTO paging;
 
     public String getAccountId() {
         return accountId;
@@ -35,16 +33,6 @@ public class InfoReadQueryDTO {
         this.accountId = accountId;
     }
 
-    public synchronized Pagination getPaging() {
-        if (paging == null) {
-            paging = new Pagination();
-        }
-        return paging;
-    }
-
-    public void setPaging(Pagination paging) {
-        this.paging = paging;
-    }
 
     public String getHashId() {
         return hashId;
@@ -70,4 +58,11 @@ public class InfoReadQueryDTO {
         this.easemobUsername = easemobUsername;
     }
 
+    public PaginationDTO getPaging() {
+        return paging;
+    }
+
+    public void setPaging(PaginationDTO paging) {
+        this.paging = paging;
+    }
 }

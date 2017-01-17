@@ -531,7 +531,7 @@ public class TopicServiceImpl implements TopicService {
         TopicQuery query = new TopicQuery();
         query.setId(topicId);
         Topic topic = topicRepository.queryTopics(query).get(0);
-        query.setIsPinTop(!topic.getIsPinTop());
+        query.setPinTop(!topic.getIsPinTop());
         topicRepository.updateTopic(query);
     }
 

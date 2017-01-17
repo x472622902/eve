@@ -1,5 +1,7 @@
 package dayan.eve.model;
 
+import dayan.eve.web.dto.PaginationDTO;
+
 /**
  * Created by xsg on 2016/7/25.
  */
@@ -20,6 +22,17 @@ public class Pagination {
         }
         this.page = page;
         this.size = size;
+    }
+
+    public void initPaging(PaginationDTO pagination) {
+        if (pagination == null || pagination.getSize() == null) {
+            setSize(DEFAULT_SIZE);
+        } else {
+            setSize(pagination.getSize());
+        }
+        if (pagination != null){
+            setPage(pagination.getPage());
+        }
     }
 
     public Pagination(Pagination p) {

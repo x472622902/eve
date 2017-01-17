@@ -11,10 +11,7 @@
 package dayan.eve.web.dto;
 
 
-import dayan.eve.model.Pagination;
-
 /**
- *
  * @author xsg
  */
 public class FollowDTO {
@@ -23,7 +20,7 @@ public class FollowDTO {
     private String accountId;
     private String schoolHashId;
     private String majorHashId;
-    private Pagination paging;
+    private PaginationDTO paging;
 
     public Integer getPlatformId() {
         return platformId;
@@ -41,14 +38,11 @@ public class FollowDTO {
         this.accountId = accountId;
     }
 
-    public synchronized Pagination getPaging() {
-        if (paging == null) {
-            paging = new Pagination();
-        }
+    public PaginationDTO getPaging() {
         return paging;
     }
 
-    public void setPaging(Pagination paging) {
+    public void setPaging(PaginationDTO paging) {
         this.paging = paging;
     }
 

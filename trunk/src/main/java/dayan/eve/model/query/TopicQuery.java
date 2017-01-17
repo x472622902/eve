@@ -42,10 +42,6 @@ public class TopicQuery extends Pagination {
     private Topic.LiveStatus liveStatus;
     private Integer exAccountId;//不包括的用户id
 
-    public Boolean getIsLiveTop() {
-        return isLiveTop;
-    }
-
     public Topic.LiveStatus getLiveStatus() {
         return liveStatus;
     }
@@ -60,18 +56,6 @@ public class TopicQuery extends Pagination {
 
     public void setLiveStatus(Topic.LiveStatus liveStatus) {
         this.liveStatus = liveStatus;
-    }
-
-    public void setIsLiveTop(Boolean isLiveTop) {
-        this.isLiveTop = isLiveTop;
-    }
-
-    public Boolean getIsLive() {
-        return isLive;
-    }
-
-    public void setIsLive(Boolean isLive) {
-        this.isLive = isLive;
     }
 
     public TopicQuery(Integer id) {
@@ -129,29 +113,6 @@ public class TopicQuery extends Pagination {
         this.accountId = accountId;
     }
 
-    public Boolean isIsMyTopic() {
-        return isMyTopic;
-    }
-
-    public void setIsMyTopic(Boolean isMyTopic) {
-        this.isMyTopic = isMyTopic;
-    }
-
-    public Boolean getIsBlock() {
-        return isBlock;
-    }
-
-    public void setIsBlock(Boolean isBlock) {
-        this.isBlock = isBlock;
-    }
-
-    public Boolean getIsPopular() {
-        return isPopular;
-    }
-
-    public void setIsPopular(Boolean isPopular) {
-        this.isPopular = isPopular;
-    }
 
     public Integer getNum() {
         return num;
@@ -193,21 +154,6 @@ public class TopicQuery extends Pagination {
         this.replyUpdateNum = replyUpdateNum;
     }
 
-    public Boolean getIsPinTop() {
-        return isPinTop;
-    }
-
-    public void setIsPinTop(Boolean isPinTop) {
-        this.isPinTop = isPinTop;
-    }
-
-    public Boolean getIsLike() {
-        return isLike;
-    }
-
-    public void setIsLike(Boolean isLike) {
-        this.isLike = isLike;
-    }
 
     public Integer getDislikeUpdateNum() {
         return dislikeUpdateNum;
@@ -225,4 +171,59 @@ public class TopicQuery extends Pagination {
         this.themeId = themeId;
     }
 
+    public Boolean getMyTopic() {
+        return isMyTopic;
+    }
+
+    public void setMyTopic(Boolean myTopic) {
+        isMyTopic = myTopic;
+    }
+
+    public Boolean getBlock() {
+        return isBlock;
+    }
+
+    public void setBlock(Boolean block) {
+        isBlock = block;
+    }
+
+    public Boolean getPopular() {
+        return isPopular;
+    }
+
+    public void setPopular(Boolean popular) {
+        isPopular = popular;
+    }
+
+    public Boolean getPinTop() {
+        return isPinTop;
+    }
+
+    public void setPinTop(Boolean pinTop) {
+        isPinTop = pinTop;
+    }
+
+    public Boolean getLike() {
+        return isLike;
+    }
+
+    public void setLike(Boolean like) {
+        isLike = like;
+    }
+
+    public Boolean getLive() {
+        return isLive;
+    }
+
+    public void setLive(Boolean live) {
+        isLive = live;
+    }
+
+    public Boolean getLiveTop() {
+        return isLiveTop;
+    }
+
+    public void setLiveTop(Boolean liveTop) {
+        isLiveTop = liveTop;
+    }
 }

@@ -1,19 +1,18 @@
 /**
  * *****************************************************
  * Copyright (C) Dayan techology Co.ltd - All Rights Reserved
- *
+ * <p>
  * This file is part of Dayan techology Co.ltd property.
- *
+ * <p>
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * *****************************************************
  */
 package dayan.eve.web.dto.topic;
 
-import dayan.eve.model.Pagination;
+import dayan.eve.web.dto.PaginationDTO;
 
 /**
- *
  * @author xuesg
  */
 public class TopicReadQueryDTO {
@@ -22,7 +21,7 @@ public class TopicReadQueryDTO {
     private String accountId;
     private Boolean isMyTopic;
     private String topicId;
-    private Pagination paging;
+    private PaginationDTO paging;
     private Boolean isPopular;
     private String parentId;
     private String themeId;
@@ -32,24 +31,24 @@ public class TopicReadQueryDTO {
         return id;
     }
 
-    public Boolean getIsLive() {
-        return isLive;
-    }
-
-    public void setIsLive(Boolean isLive) {
-        this.isLive = isLive;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
 
-    public Boolean isIsMyTopic() {
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
+    }
+
+    public Boolean getMyTopic() {
         return isMyTopic;
     }
 
-    public void setIsMyTopic(Boolean isMyTopic) {
-        this.isMyTopic = isMyTopic;
+    public void setMyTopic(Boolean myTopic) {
+        isMyTopic = myTopic;
     }
 
     public String getTopicId() {
@@ -60,31 +59,20 @@ public class TopicReadQueryDTO {
         this.topicId = topicId;
     }
 
-    public synchronized Pagination getPaging() {
-        if (paging == null) {
-            paging = new Pagination();
-        }
+    public PaginationDTO getPaging() {
         return paging;
     }
 
-    public void setPaging(Pagination paging) {
+    public void setPaging(PaginationDTO paging) {
         this.paging = paging;
     }
 
-    public Boolean getIsPopular() {
+    public Boolean getPopular() {
         return isPopular;
     }
 
-    public void setIsPopular(Boolean isPopular) {
-        this.isPopular = isPopular;
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
+    public void setPopular(Boolean popular) {
+        isPopular = popular;
     }
 
     public String getParentId() {
@@ -101,6 +89,14 @@ public class TopicReadQueryDTO {
 
     public void setThemeId(String themeId) {
         this.themeId = themeId;
+    }
+
+    public Boolean getLive() {
+        return isLive;
+    }
+
+    public void setLive(Boolean live) {
+        isLive = live;
     }
 
 }
