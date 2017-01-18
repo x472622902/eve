@@ -60,7 +60,7 @@ public interface AccountInfoService {
      * @param easemobUsernames
      * @return
      */
-    List readAccountListByEasemob(List<String> easemobUsernames);
+    List readAccountListByEasemob(List<String> easemobUserNames);
 
     void updateInfo(AccountInfo accountInfo) throws Exception;
 

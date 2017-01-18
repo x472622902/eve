@@ -44,7 +44,7 @@ public class InformationService {
         PageResult<Information> result = new PageResult<>(Collections.emptyList(), new Pager(countNews, query.getPage()
                 , query.getSize()));
         if (countNews > 0) {
-            result.setData(informationRepository.queryNews(query));
+            result.setList(informationRepository.queryNews(query));
         }
         return result;
     }

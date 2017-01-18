@@ -10,23 +10,23 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PageResult<T> implements Serializable {
-    private List<T> data;
+    private List<T> list;
     private Pager pager;
 
     public PageResult() {
     }
 
-    public PageResult(List<T> data, Pager pager) {
-        this.data = data;
+    public PageResult(List<T> list, Pager pager) {
+        this.list = list;
         this.pager = pager;
     }
 
-    public List<T> getData() {
-        return data;
+    public List<T> getList() {
+        return list;
     }
 
-    public void setData(List<T> data) {
-        this.data = data;
+    public void setList(List<T> list) {
+        this.list = list;
     }
 
     public Pager getPager() {

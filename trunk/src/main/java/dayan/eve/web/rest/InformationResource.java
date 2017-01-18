@@ -10,26 +10,28 @@
  */
 package dayan.eve.web.rest;
 
-import dayan.eve.exception.ErrorCN;
 import dayan.eve.model.Information;
 import dayan.eve.model.JsonResultList;
 import dayan.eve.model.PageResult;
 import dayan.eve.model.query.InformationQuery;
 import dayan.eve.service.InformationService;
 import dayan.eve.web.dto.InformationQueryDTO;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author xsg
  */
 @RestController
 @RequestMapping(value = "/api/v20/mobile/information")
+@ApiModel("资讯")
 public class InformationResource {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -39,18 +41,13 @@ public class InformationResource {
 
     @ApiOperation("资讯列表")
     @RequestMapping(value = "/read", method = RequestMethod.POST)
-    public JsonResultList readInformations(@RequestBody InformationQueryDTO queryDTO, HttpServletRequest request) {
-        try {
-            InformationQuery query = buildInfoQuery(queryDTO);
-            JsonResultList resultList = new JsonResultList();
-            PageResult<Information> pageResult = informationService.read(query);
-            resultList.setPager(pageResult.getPager());
-            resultList.setData(pageResult.getData());
-            return resultList;
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResultList(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+    public JsonResultList readInformations(@RequestBody InformationQueryDTO queryDTO) {
+        InformationQuery query = buildInfoQuery(queryDTO);
+        JsonResultList resultList = new JsonResultList();
+        PageResult<Information> pageResult = informationService.read(query);
+        resultList.setPager(pageResult.getPager());
+        resultList.setData(pageResult.getList());
+        return resultList;
     }
 
     private InformationQuery buildInfoQuery(InformationQueryDTO queryDTO) {

@@ -8,7 +8,7 @@
  * Proprietary and confidential
  * *****************************************************
  */
-package dayan.eve.web.dto;
+package dayan.eve.web.dto.account;
 
 import dayan.eve.model.account.Account;
 import dayan.eve.model.enumeration.LoginType;

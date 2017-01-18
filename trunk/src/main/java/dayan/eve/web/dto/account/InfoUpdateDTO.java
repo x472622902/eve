@@ -8,7 +8,7 @@
  * Proprietary and confidential
  * *****************************************************
  */
-package dayan.eve.web.dto;
+package dayan.eve.web.dto.account;
 
 import java.util.List;
 

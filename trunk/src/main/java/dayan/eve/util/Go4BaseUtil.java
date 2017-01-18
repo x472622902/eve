@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import dayan.common.util.Go4Util;
 import dayan.eve.exception.ErrorCN;
+import dayan.eve.exception.EveException;
 import dayan.eve.model.account.Account;
 import dayan.eve.model.account.AccountInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -57,12 +58,12 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
         JSONObject data = result.getJSONObject("data");
         boolean available = data.getBoolean("available");
         if (!available) {
-            throw new RuntimeException(ErrorCN.Login.USER_NOT_FOUND);
+            throw new EveException(ErrorCN.Login.USER_NOT_FOUND);
         }
         return true;
     }
@@ -87,7 +88,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
         JSONObject data = result.getJSONObject("data");
         return data.getString("hashId");
@@ -106,7 +107,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
         JSONObject data = result.getJSONObject("data");
         return data.getString("hashId");
@@ -126,7 +127,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
         String data = result.getString("data");
         return JSONObject.parseObject(data, Account.class);
@@ -146,7 +147,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
         String data = result.getString("data");
         return JSONObject.parseObject(data, AccountInfo.class);
@@ -172,7 +173,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
         return result.getObject("data", AccountInfo.class);
     }
@@ -191,7 +192,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
     }
 
@@ -209,7 +210,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
     }
 
@@ -221,7 +222,7 @@ public class Go4BaseUtil {
         if (!success) {
             JSONObject info = JSONObject.parseObject(result.getString("info"));
             String message = info.getString("message");
-            throw new RuntimeException(message);
+            throw new EveException(message);
         }
     }
 
@@ -232,7 +233,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
         JSONObject data = result.getJSONObject("data");
         return data.getBoolean("validated");
@@ -245,7 +246,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
 
         JSONArray array = result.getJSONArray("data");
@@ -266,7 +267,7 @@ public class Go4BaseUtil {
         boolean success = result.getBoolean("success");
         if (!success) {
             String errorCN = result.getString("errorCN");
-            throw new RuntimeException(errorCN);
+            throw new EveException(errorCN);
         }
 
         JSONArray array = result.getJSONArray("data");

@@ -11,7 +11,6 @@
 package dayan.eve.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import dayan.eve.config.EveProperties;
 import dayan.eve.exception.ErrorCN;
 import dayan.eve.model.Pager;
 import dayan.eve.model.account.Account;
@@ -32,16 +31,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
+@Transactional
 public class AccountInfoServiceImpl implements AccountInfoService {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private EveProperties.Image image;
 
     @Autowired
     AccountInfoRepository accountInfoRepository;
@@ -58,12 +56,6 @@ public class AccountInfoServiceImpl implements AccountInfoService {
     @Autowired
     TopicRepository topicRepository;
 
-    @Autowired
-    public AccountInfoServiceImpl(EveProperties eveProperties) {
-        this.image = eveProperties.getImage();
-    }
-
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public void createInfo(Account account) {
         AccountInfo info = new AccountInfo();
@@ -73,7 +65,6 @@ public class AccountInfoServiceImpl implements AccountInfoService {
         accountInfoRepository.insertInfo(info);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Override
     public AccountInfo readInfo(Integer accountId) {
         AccountQuery query = new AccountQuery();
@@ -85,30 +76,24 @@ public class AccountInfoServiceImpl implements AccountInfoService {
         AccountInfo accountInfo = list.get(0);
 
         // TODO: 1/17/2017 account info easemob
-//        try {
-//            accountInfo.setEasemob(go4BaseUtil.getAccountDetailByHashId(accountInfo.getHashId()).getEasemob());
-//        } catch (Exception ex) {
-//            LOGGER.info("get go4 detail failed,{}", ex.getMessage());
-//        }
+        try {
+            accountInfo.setEasemob(go4BaseUtil.getAccountDetailByHashId(accountInfo.getHashId()).getEasemob());
+        } catch (Exception ex) {
+            LOGGER.info("get go4 detail failed,{}", ex.getMessage());
+        }
         setExp(accountInfo);
         return accountInfo;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Override
     public AccountInfo readInfo(String accountHashId) {
         AccountQuery query = new AccountQuery();
         query.setAccountHashId(accountHashId);
         List<AccountInfo> list = accountInfoRepository.queryInfo(query);
-        if (list == null || list.isEmpty()) {
-            throw new RuntimeException(ErrorCN.Login.USER_NOT_FOUND);
-        }
         AccountInfo accountInfo = list.get(0);
         AccountInfo result = new AccountInfo();
         result.setMobile(accountInfo.getMobile());
-        if (!StringUtils.isEmpty(accountInfo.getSubjectType())) {
-            result.setSubjectType(accountInfo.getSubjectType());
-        }
+        result.setSubjectType(accountInfo.getSubjectType());
         result.setProvince(accountInfo.getProvince());
         result.setScore(accountInfo.getScore());
         result.setNickname(accountInfo.getNickname());
@@ -118,7 +103,6 @@ public class AccountInfoServiceImpl implements AccountInfoService {
         return result;
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public AccountInfo readAccountByEasemob(String easemobUsername) {
         AccountInfo accountInfo = null;
@@ -138,24 +122,18 @@ public class AccountInfoServiceImpl implements AccountInfoService {
     }
 
     @Override
-    public List<AccountInfo> readAccountListByEasemob(List<String> easemobUsernames) {
-        List<AccountInfo> accountList = new LinkedList<>();
+    public List<AccountInfo> readAccountListByEasemob(List<String> easemobUserNames) {
+        List<AccountInfo> result = new LinkedList<>();
         try {
-            accountList = go4BaseUtil.getDetailByEasemob(easemobUsernames);
+            go4BaseUtil.getDetailByEasemob(easemobUserNames).forEach(info -> {
+                Easemob easemob = info.getEasemob();
+                info = readOrCreate(info);
+                info.setEasemob(easemob);
+                setExp(info);
+                result.add(info);
+            });
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
-            throw new RuntimeException();
-        }
-        if (accountList == null || accountList.isEmpty()) {
-            return accountList;
-        }
-        List<AccountInfo> result = new LinkedList<>();
-        for (AccountInfo info : accountList) {
-            Easemob easemob = info.getEasemob();
-            info = readOrCreate(info);
-            info.setEasemob(easemob);
-            setExp(info);
-            result.add(info);
         }
         return result;
     }
@@ -174,7 +152,6 @@ public class AccountInfoServiceImpl implements AccountInfoService {
     }
 
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public void updateInfo(AccountInfo accountInfo) throws Exception {
 
@@ -189,7 +166,6 @@ public class AccountInfoServiceImpl implements AccountInfoService {
         accountInfoRepository.updateInfo(accountInfo);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public void updateShared(Integer accountId) {
         accountInfoRepository.updateShared(accountId);
@@ -256,7 +232,7 @@ public class AccountInfoServiceImpl implements AccountInfoService {
     }
 
     private Integer[] getLevelArray() {
-        List<Integer> expList = new ExpUtil().getExpList();
+        List<Integer> expList = ExpUtil.getExpList();
         Integer maxLevel = 40;
         Integer maxExp = expList.get(maxLevel);
         Integer[] levelArray = new Integer[maxExp];

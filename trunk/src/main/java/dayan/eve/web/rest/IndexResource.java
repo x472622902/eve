@@ -11,16 +11,16 @@
 package dayan.eve.web.rest;
 
 import com.alibaba.fastjson.JSON;
-import dayan.eve.exception.ErrorCN;
 import dayan.eve.model.JsonResult;
 import dayan.eve.model.JsonResultList;
-import dayan.eve.model.MobileRequest;
 import dayan.eve.model.Province;
 import dayan.eve.model.account.Account;
 import dayan.eve.service.*;
 import dayan.eve.util.Go4BaseUtil;
 import dayan.eve.web.dto.ActivateLogDTO;
-import dayan.eve.web.dto.LoginDTO;
+import dayan.eve.web.dto.account.LoginDTO;
+import dayan.eve.web.dto.account.MobileDTO;
+import io.swagger.annotations.ApiOperation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.util.JSONPObject;
@@ -29,7 +29,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,121 +65,90 @@ public class IndexResource {
 //    @Autowired
 //    HotRecommendDataV20Service hotRecommendDataV20Service;
 
+    @ApiOperation("登录")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public JsonResult login(@RequestBody LoginDTO loginDTO, HttpServletRequest request) {
-        try {
-            LOGGER.debug("login: " + JSON.toJSONString(loginDTO, true));
-            final Account loginAccount = accountService.login(loginDTO.getLoginType(), loginDTO
-                    .getLoginData());
-            LOGGER.info("login result info,{}", JSON.toJSONString(loginAccount, true));
-            JsonResult result = new JsonResult();
-            result.setData(loginAccount);
-            return result;
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+    public JsonResult login(@RequestBody LoginDTO loginDTO) throws Exception {
+        LOGGER.debug("login: " + JSON.toJSONString(loginDTO, true));
+        final Account loginAccount = accountService.login(loginDTO.getLoginType(), loginDTO
+                .getLoginData());
+        LOGGER.info("login result info,{}", JSON.toJSONString(loginAccount, true));
+        JsonResult result = new JsonResult();
+        result.setData(loginAccount);
+        return result;
     }
 
+    @ApiOperation("注册")
     @RequestMapping(value = "/reg", method = RequestMethod.POST)
-    public JsonResult reg(@RequestBody Account reqAccount, HttpServletRequest request, @RequestParam(required = false,
+    public JsonResult reg(@RequestBody Account reqAccount, @RequestParam(required = false,
             value = "files")
-            MultipartFile file) {
-
-        try {
-            Account account = accountService.register(reqAccount, file);
-            JsonResult result = new JsonResult();
-            Map<String, String> m = new HashMap<>();
-            m.put("userNumber", String.valueOf(account.getId()));
-            result.setData(m);
-            return result;
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+            MultipartFile file) throws Exception {
+        Account account = accountService.register(reqAccount, file);
+        JsonResult result = new JsonResult();
+        Map<String, String> m = new HashMap<>();
+        m.put("userNumber", String.valueOf(account.getId()));
+        result.setData(m);
+        return result;
     }
 
+    @ApiOperation("更新密码")
     @RequestMapping(value = "/updatePassword", method = RequestMethod.POST)
-    public JsonResult updatePassword(@RequestBody Account account) {
-        try {
-            accountService.updatePassword(account);
-            return new JsonResult();
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+    public JsonResult updatePassword(@RequestBody Account account) throws Exception {
+        accountService.updatePassword(account);
+        return new JsonResult();
     }
 
+    @ApiOperation("读取省份列表")
     @RequestMapping(value = "/getProvinces", method = RequestMethod.GET)
     public JsonResult getProvinces() {
-        try {
-            List<Province> list = provinceService.read();
-            JsonResult result = new JsonResult();
-            result.setData(list);
-            return result;
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+        List<Province> list = provinceService.read();
+        JsonResult result = new JsonResult();
+        result.setData(list);
+        return result;
     }
 
+    @ApiOperation("读取省份列表jsonp格式")
     @RequestMapping(value = "/getProvinces.jsonp"
             , method = RequestMethod.GET
             , produces = MediaType.APPLICATION_JSON_VALUE + CHARSET)
-    public JSONPObject getProvincesP(HttpServletRequest request, @RequestParam("callback") String callBack) {
-        try {
-            List<Province> list = provinceService.read();
-            JsonResult result = new JsonResult();
-            result.setData(list);
-            result.setJsessionid(request.getSession().getId());
-            return new JSONPObject(callBack, result);
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JSONPObject(callBack, new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false));
-        }
+    public JSONPObject getProvincesP(@RequestParam("callback") String callBack) {
+        List<Province> list = provinceService.read();
+        JsonResult result = new JsonResult();
+        result.setData(list);
+        return new JSONPObject(callBack, result);
     }
 
+    @ApiOperation("手机激活")
     @RequestMapping(value = "/activate", method = RequestMethod.POST)
-    public JsonResult activate(MobileRequest<ActivateLogDTO> request) {
-        try {
-            LOGGER.debug("login: " + JSON.toJSONString(request, true));
-            String activate = activateService.activate(request.getData());
-            Map<String, String> map = new HashMap<>(1);
-            map.put("deviceNumber", activate);
-            return new JsonResult(map);
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+    public JsonResult activate(@RequestBody ActivateLogDTO activateLogDTO) {
+        LOGGER.debug("login: " + JSON.toJSONString(activateLogDTO, true));
+        String activate = activateService.activate(activateLogDTO);
+        Map<String, String> map = new HashMap<>(1);
+        map.put("deviceNumber", activate);
+        return new JsonResult(map);
     }
 
+    @ApiOperation("发送验证码")
     @RequestMapping(value = "/sendSMS", method = RequestMethod.POST)
-    public JsonResult sendSMS(HttpServletRequest request) {
-        try {
-            String dataStr = request.getParameter("data");
-            String mobile = JSON.parseObject(dataStr).getString("mobile");
-            go4BaseUtil.checkLoginAccount(mobile);
-            go4BaseUtil.getVerificationCode(mobile);
-            return new JsonResult();
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+    public JsonResult sendSMS(@RequestBody MobileDTO mobileDTO) throws Exception {
+        go4BaseUtil.checkLoginAccount(mobileDTO.getMobile());
+        go4BaseUtil.getVerificationCode(mobileDTO.getMobile());
+        return new JsonResult();
     }
 
+    @ApiOperation("忘记密码--发送验证码")
     @RequestMapping(value = "/sendSMSOfPwd", method = RequestMethod.POST)
-    public JsonResult sendSMSOfPwd(HttpServletRequest request) {
-        try {
-            String dataStr = request.getParameter("data");
-            String mobile = JSON.parseObject(dataStr).getString("mobile");
-            go4BaseUtil.getAccountDetailByLoginAccount(mobile);
-            go4BaseUtil.getVerificationCode(mobile);
-            return new JsonResult(request.getSession().getId());
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+    public JsonResult sendSMSOfPwd(@RequestBody MobileDTO mobileDTO) throws Exception {
+        go4BaseUtil.getAccountDetailByLoginAccount(mobileDTO.getMobile());
+        go4BaseUtil.getVerificationCode(mobileDTO.getMobile());
+        return new JsonResult();
     }
+
+    @ApiOperation("首页轮播图")
+    @RequestMapping(value = "/readBanners", method = RequestMethod.POST)
+    public JsonResultList readBanners() {
+        return new JsonResultList(bannerService.readBanners());
+    }
+
 
 //    @RequestMapping(value = "/getRecommendCount", method = RequestMethod.POST)
 //    public @ResponseBody
@@ -224,14 +192,4 @@ public class IndexResource {
 //            return new JsonResult("ooooops, I'm done..", false);
 //        }
 //    }
-    @RequestMapping(value = "/readBanners", method = RequestMethod.POST)
-    public JsonResultList readBanners() {
-        try {
-            return new JsonResultList(bannerService.readBanners());
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResultList(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
-    }
-
 }

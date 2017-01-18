@@ -12,7 +12,7 @@ package dayan.eve.web.rest;
 
 import com.alibaba.fastjson.JSONObject;
 import dayan.eve.exception.ErrorCN;
-import dayan.eve.exception.NotLoginException;
+import dayan.eve.exception.EveException;
 import dayan.eve.model.JsonResult;
 import dayan.eve.model.JsonResultList;
 import dayan.eve.model.School;
@@ -64,53 +64,37 @@ public class PersonalResource {
     @ApiOperation("个人信息")
     @RequestMapping(value = "/readInfo", method = RequestMethod.POST)
     public JsonResult readInfo(@RequestBody PersonalQueryDTO queryDTO, HttpServletRequest request) {
-        try {
-            FollowQuery query = new FollowQuery();
-            query.setAccountId(StringUtils.isEmpty(queryDTO.getAccountId()) ?
-                    getAccountId(queryDTO.getAccountId(), request) : Integer.valueOf(queryDTO.getAccountId()));
-            query.setPage(1);
-            query.setSize(SCHOOL_ICON_NUM);
-            List<School> schools = schoolFollowService.readSchools(query).getData();
-            AccountInfo accountInfo = accountInfoService.readInfo(query.getAccountId());
-            JSONObject resultData = new JSONObject();
-            resultData.put("followSchools", schools);
-            resultData.put("accountInfo", accountInfo);
-            return new JsonResult(resultData);
-        } catch (NotLoginException ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResult(ErrorCN.Login.UN_LOGIN, false);
-        } catch (Exception other) {
-            LOGGER.error(other.getMessage(), other);
-            return new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+        FollowQuery query = new FollowQuery();
+        query.setAccountId(StringUtils.isEmpty(queryDTO.getAccountId()) ?
+                getAccountId(queryDTO.getAccountId(), request) : Integer.valueOf(queryDTO.getAccountId()));
+        query.setPage(1);
+        query.setSize(SCHOOL_ICON_NUM);
+        List<School> schools = schoolFollowService.readSchools(query).getList();
+        AccountInfo accountInfo = accountInfoService.readInfo(query.getAccountId());
+        JSONObject resultData = new JSONObject();
+        resultData.put("followSchools", schools);
+        resultData.put("accountInfo", accountInfo);
+        return new JsonResult(resultData);
     }
 
     @ApiOperation("讨论区动态")
     @RequestMapping(value = "/readTopics", method = RequestMethod.POST)
     public JsonResultList readTopics(@RequestBody PersonalQueryDTO queryDTO, HttpServletRequest request) {
-        try {
-            TopicQuery query = new TopicQuery();
-            query.setAccountId(StringUtils.isEmpty(queryDTO.getAccountId()) ?
-                    getAccountId(queryDTO.getAccountId(), request) : Integer.valueOf(queryDTO.getAccountId()));
-            query.initPaging(queryDTO.getPaging());
+        TopicQuery query = new TopicQuery();
+        query.setAccountId(StringUtils.isEmpty(queryDTO.getAccountId()) ?
+                getAccountId(queryDTO.getAccountId(), request) : Integer.valueOf(queryDTO.getAccountId()));
+        query.initPaging(queryDTO.getPaging());
 
-            JsonResultList result = new JsonResultList();
-            result.setData(topicService.readTimelines(query));
-            result.setPager(topicService.count(query));
-            return result;
-        } catch (NotLoginException ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResultList(ErrorCN.Login.UN_LOGIN, false);
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            return new JsonResultList(ErrorCN.DEFAULT_SERVER_ERROR, false);
-        }
+        JsonResultList result = new JsonResultList();
+        result.setData(topicService.readTimelines(query));
+        result.setPager(topicService.count(query));
+        return result;
     }
 
     private Integer getAccountId(String dataAccountId, HttpServletRequest request) {
         Integer accountId = requestService.getAccountId(request);
         if (StringUtils.isEmpty(dataAccountId) && accountId == null) {
-            throw new NotLoginException(ErrorCN.Login.UN_LOGIN);
+            throw new EveException(ErrorCN.Login.UN_LOGIN);
         }
         return accountId;
     }

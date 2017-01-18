@@ -643,6 +643,7 @@ public class EveProperties {
     public static class School {
         private String logoPrefix;
         private String imageUrlPrefix;
+        private Integer searchPromptNum;
 
         public String getLogoPrefix() {
             return logoPrefix;
@@ -658,6 +659,14 @@ public class EveProperties {
 
         public void setImageUrlPrefix(String imageUrlPrefix) {
             this.imageUrlPrefix = imageUrlPrefix;
+        }
+
+        public Integer getSearchPromptNum() {
+            return searchPromptNum;
+        }
+
+        public void setSearchPromptNum(Integer searchPromptNum) {
+            this.searchPromptNum = searchPromptNum;
         }
     }
 
