@@ -73,14 +73,14 @@
             a.account_id = #{accountId}
     </update>
 
-    <update id="updateBaiduInfo" >
+    <update id="updateBaiduInfo">
         UPDATE `eve_account_info` a, `eve_account_baidu` b
         SET a.portrait_url = CONCAT('http://tb.himg.baidu.com/sys/portrait/item/', b.portrait)
         WHERE a.account_id = #{id}
               AND b.id = #{accountBaiduId}
     </update>
 
-    <update id="updateQQInfo" >
+    <update id="updateQQInfo">
         UPDATE `eve_account_info` a, `eve_account_qq` b
         SET a.portrait_url = b.figureurl_qq2
         WHERE a.account_id = #{id}
@@ -97,7 +97,7 @@
             a.account_id = #{accountId}
     </update>
 
-    <insert id="insertInfo" >
+    <insert id="insertInfo">
         INSERT INTO
             `eve_account_info`
             (
@@ -117,43 +117,34 @@
 
     <select id="queryInfo" resultType="dayan.eve.model.account.AccountInfo">
         SELECT
-        a.`id` "infoId",
-        a.`account_id` "accountId",
-        a.`account_role` "role",
-        a.`province_id` "provinceId",
-        a.`mobile`,
-        a.`gender`,
-        a.`portrait_url` "portraitUrl",
-        a.`subject_type` "subjectType",
-        a.`score` ,
-        a.`rank` ,
-        a.`exp` ,
-        a.`level` ,
-        a.`school_id` "ext.schoolId",
-        a.`platform_id` "ext.platformId",
-        d.`name` "ext.schoolName",
-        a.`vip_level` "vipLevel",
-        a.`continuous_clock_times` "continuousClockTimes",
-        a.`clock_count` "clockCount",
-        a.`is_shared` isShared,
-        b.`id`,
-        b.`nickname`,
-        b.`hash_id` hashId,
-        c.`name` "province"
+            a.`id` "infoId",
+            a.`account_id` "accountId",
+            a.`account_role` "role",
+            a.`province_id` "provinceId",
+            a.`mobile`,
+            a.`gender`,
+            a.`portrait_url` "portraitUrl",
+            a.`subject_type` "subjectType",
+            a.`score` ,
+            a.`rank` ,
+            a.`exp` ,
+            a.`level` ,
+            a.`school_id` "ext.schoolId",
+            a.`platform_id` "ext.platformId",
+            d.`name` "ext.schoolName",
+            a.`vip_level` "vipLevel",
+            a.`continuous_clock_times` "continuousClockTimes",
+            a.`clock_count` "clockCount",
+            a.`is_shared` isShared,
+            b.`id`,
+            b.`nickname`,
+            b.`hash_id` hashId,
+            c.`name` "province"
         FROM
-        `eve_account_info` a
-        LEFT JOIN
-        `eve_account` b
-        ON
-        a.account_id = b.id
-        LEFT JOIN
-        `const_province` c
-        ON
-        a.province_id = c.id
-        LEFT JOIN
-        `cu_school` d
-        ON
-        a.school_id = d.id
+          `eve_account_info` a
+            LEFT JOIN `eve_account` b ON a.account_id = b.id
+            LEFT JOIN `const_province` c ON a.province_id = c.id
+            LEFT JOIN `cu_school` d ON a.school_id = d.id
         WHERE 1=1
         <include refid="where"/>
         <if test='accountHashId != null '>
@@ -241,7 +232,7 @@
         </if>
     </sql>
 
-    <update id="updatePortraitUrl" >
+    <update id="updatePortraitUrl">
         UPDATE
             eve_account_info
         SET
@@ -251,25 +242,7 @@
             account_id = #{accountId}
     </update>
 
-    <update id="updateResume" >
-        UPDATE
-            eve_account_info
-        SET
-            real_name  = #{realname},
-            born_date  = #{bornDate},
-            city       = #{city},
-            height     = #{height},
-            school     = #{school},
-            major      = #{major},
-            qq         = #{qq},
-            email      = #{email},
-            introduce  = #{introduce},
-            gmt_modify = NOW()
-        WHERE
-            account_id = #{accountId}
-    </update>
-
-    <update id="updateContinuousClockTimes" >
+    <update id="updateContinuousClockTimes">
         UPDATE
         eve_account_info
         SET
@@ -284,24 +257,20 @@
         </if>
     </update>
 
-    <select id="query" resultType="dayan.eve.model.account.AccountInfo" >
+    <select id="query" resultType="dayan.eve.model.account.AccountInfo">
         SELECT
-        a.province_id provinceId,
-        a.score,
-        a.subject_type subjectType,
-        a.rank,
-        b.id,
-        b.nickname,
-        b.gmt_create gmtCreate,
-        c.name province
+            a.province_id provinceId,
+            a.score,
+            a.subject_type subjectType,
+            a.rank,
+            b.id,
+            b.nickname,
+            b.gmt_create gmtCreate,
+            c.name province
         FROM
-        eve_account_info a
-        LEFT JOIN
-        eve_account b
-        ON a.account_id = b.id
-        LEFT JOIN
-        const_province c
-        ON a.province_id = c.id
+            eve_account_info a
+            LEFT JOIN eve_account b ON a.account_id = b.id
+            LEFT JOIN const_province c ON a.province_id = c.id
         WHERE 1=1
         <include refid="where2"/>
         <include refid="limit"/>
@@ -323,17 +292,13 @@
         AND b.is_deleted = 0
         AND b.is_block = 0
     </sql>
-    <select id="count2" resultType="Integer" >
+    <select id="count2" resultType="Integer">
         SELECT
-        COUNT(b.id)
+            COUNT(b.id)
         FROM
-        eve_account_info a
-        LEFT JOIN
-        eve_account b
-        ON a.account_id = b.id
-        LEFT JOIN
-        const_province c
-        ON a.province_id = c.id
+            eve_account_info a
+            LEFT JOIN eve_account b ON a.account_id = b.id
+            LEFT JOIN const_province c ON a.province_id = c.id
         WHERE 1=1
         <include refid="where2"/>
     </select>
