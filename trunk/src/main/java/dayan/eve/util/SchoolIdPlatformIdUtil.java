@@ -47,8 +47,8 @@ public class SchoolIdPlatformIdUtil {
     private static Map<Integer, Integer> allSchoolIdAndPlatformIdMap = new HashMap<>();
     private static Map<Integer, Integer> allPlatformIdAndSchoolIdMap = new HashMap<>();
     private static Map<Integer, Integer> platformIdAndSchoolIdMap = new HashMap<>();
-    private static Map<Integer, Integer> schoolCSMap = new HashMap<>();//学校客服map，schoolId作为key，有客服则加入map
-
+    //学校客服map，schoolId作为key，有客服则加入map
+    private static Map<Integer, Integer> schoolCSMap = new HashMap<>();
     /**
      * 学校的id作为key
      *
@@ -73,16 +73,16 @@ public class SchoolIdPlatformIdUtil {
             platformIdAndSchoolIdMap = new HashMap<>();
             schoolCSMap = new HashMap<>();
             for (Object object : jsonArray) {
-                JSONObject jsonobj = (JSONObject) object;
-                Integer schoolId = jsonobj.getInteger("schoolId");
-                Integer platformId = jsonobj.getInteger("id");
+                JSONObject jsonObject = (JSONObject) object;
+                Integer schoolId = jsonObject.getInteger("schoolId");
+                Integer platformId = jsonObject.getInteger("id");
                 allSchoolIdAndPlatformIdMap.put(schoolId, platformId);
                 allPlatformIdAndSchoolIdMap.put(platformId, schoolId);
-                if (jsonobj.getBoolean("qa")) {
+                if (jsonObject.getBoolean("qa")) {
                     schoolIdAndPlatformIdMap.put(schoolId, platformId);
                     platformIdAndSchoolIdMap.put(platformId, schoolId);
                 }
-                if (jsonobj.getBoolean("cs")) {
+                if (jsonObject.getBoolean("cs")) {
                     schoolCSMap.put(schoolId, platformId);
                 }
             }

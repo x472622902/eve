@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.SignRepository">
+    <insert id="insert">
+        INSERT INTO eve_sign (
+            account_id,
+            content,
+            gmt_create)
+        VALUES
+            (
+                #{accountInfo.accountId},
+                #{content},
+                NOW()
+            )
+    </insert>
+    <select id="querySignTime" resultType="java.util.Date">
+        SELECT max(gmt_create)
+        FROM
+            eve_sign
+        WHERE
+            account_id = #{accountId}
+    </select>
+    <select id="queryByTime" resultType="dayan.eve.model.Sign">
+        SELECT count(a.id)
+        FROM
+            eve_sign a
+        WHERE
+            DATE_FORMAT(a.gmt_create, '%Y-%m-%d') = DATE_FORMAT(now(), '%Y-%m-%d')
+            AND a.is_deleted = 0
+    </select>
+    <select id="countToday" resultType="java.lang.Integer">
+        SELECT
+            a.gmt_create   "signTime",
+            a.content,
+            a.account_id   "accountInfo.accountId",
+            b.nickname     "accountInfo.nickname",
+            c.portrait_url "accountInfo.portraitUrl",
+            c.province_id  "accountInfo.provinceId",
+            d.name         "accountInfo.province"
+        FROM
+            eve_sign a
+            LEFT JOIN eve_account b ON a.account_id = b.id
+            LEFT JOIN eve_account_info c ON a.account_id = c.account_id
+            LEFT JOIN const_province d ON c.province_id = d.id
+        WHERE
+            DATE_FORMAT(a.gmt_create, '%Y-%m-%d') = DATE_FORMAT(now(), '%Y-%m-%d')
+            AND a.is_deleted = 0
+        <include refid="limit"/>
+    </select>
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+</mapper>

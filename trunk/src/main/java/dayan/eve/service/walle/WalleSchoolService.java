@@ -217,24 +217,23 @@ public class WalleSchoolService {
 
         Integer page = query.getPage();
         Integer size = query.getSize();
+        PageResult<CS> result = new PageResult<>(new Pager(0, page, size));
 
         if (!csOnlineCache.containsKey(KEY)) {
             try {
                 getCSOnlineFromWalle();
+                List<WalleCs> list = csOnlineCache.get(KEY);
+                if (list != null && !list.isEmpty()) {
+                    List<CS> csList = getCSList(list, page, size, query.getReadAllCs(), query.getAccountId());
+                    Pager pager = new Pager(list.size(), page, size);
+                    result.setList(csList);
+                    result.setPager(new Pager(list.size(), page, size));
+                }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage());
-                return new PageResult<>(Collections.emptyList(), new Pager(0, page, size));
             }
         }
-        List<WalleCs> list = csOnlineCache.get(KEY);
-        if (list == null || list.isEmpty()) {
-            return new PageResult<>(Collections.emptyList(), new Pager(0, page, size));
-        }
-        List<CS> csList = getCSList(list, page, size, query.getReadAllCs(), query.getAccountId());
-        Pager pager = new Pager(list.size(), page, size);
-        PageResult<CS> csReadV20Result = new PageResult<>(csList, pager);
-        LOGGER.info("cs online read result,{}", JSON.toJSONString(csList, true));
-        return csReadV20Result;
+        return result;
     }
 
     public void reloadAllCs() {
@@ -252,7 +251,6 @@ public class WalleSchoolService {
         if ((page - 1) * size > count) {
             return csList;
         }
-
         int start;
         int end;
         if (readAllCs) {

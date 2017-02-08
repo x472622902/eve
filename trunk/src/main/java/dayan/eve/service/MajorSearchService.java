@@ -108,8 +108,7 @@ public class MajorSearchService {
             query.setQueryStr(null);
         }
 
-        PageResult<Major> result = new PageResult<>(Collections.emptyList()
-                , new Pager(0, query.getPage(), query.getSize()));
+        PageResult<Major> result = new PageResult<>(new Pager(0, query.getPage(), query.getSize()));
         MoPageResult moPageResult = moUtil.getMajorList(query);
         result.setList(coverToMajor(moPageResult.getList()));
         result.setPager(moPageResult.getPager());

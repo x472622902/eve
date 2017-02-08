@@ -18,7 +18,6 @@ import dayan.eve.model.topic.Topic;
 import dayan.eve.model.topic.TopicTheme;
 import dayan.eve.service.RequestService;
 import dayan.eve.service.TopicService;
-import dayan.eve.util.SchoolIdPlatformIdUtil;
 import dayan.eve.web.dto.topic.TopicCreateDTO;
 import dayan.eve.web.dto.topic.TopicLikeDTO;
 import dayan.eve.web.dto.topic.TopicReadQueryDTO;
@@ -44,14 +43,14 @@ public class TopicResource {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    @Autowired
-    TopicService topicService;
+    private final TopicService topicService;
+    private final RequestService requestService;
 
     @Autowired
-    RequestService requestService;
-
-    @Autowired
-    SchoolIdPlatformIdUtil schoolIdPlatformIdUtil;
+    public TopicResource(TopicService topicService, RequestService requestService) {
+        this.topicService = topicService;
+        this.requestService = requestService;
+    }
 
     @ApiOperation("看帖")
     @RequestMapping(value = "/readTopics", method = RequestMethod.POST,

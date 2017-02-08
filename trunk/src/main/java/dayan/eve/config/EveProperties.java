@@ -170,6 +170,51 @@ public class EveProperties {
         private String inEnd;
         private String outStart;
         private String outEnd;
+        private String clockedContent;
+        private String unclockedContent;
+        private String morningContent;
+        private String eveningContent;
+        private String dayStart;
+
+        public String getDayStart() {
+            return dayStart;
+        }
+
+        public void setDayStart(String dayStart) {
+            this.dayStart = dayStart;
+        }
+
+        public String getClockedContent() {
+            return clockedContent;
+        }
+
+        public void setClockedContent(String clockedContent) {
+            this.clockedContent = clockedContent;
+        }
+
+        public String getUnclockedContent() {
+            return unclockedContent;
+        }
+
+        public void setUnclockedContent(String unclockedContent) {
+            this.unclockedContent = unclockedContent;
+        }
+
+        public String getMorningContent() {
+            return morningContent;
+        }
+
+        public void setMorningContent(String morningContent) {
+            this.morningContent = morningContent;
+        }
+
+        public String getEveningContent() {
+            return eveningContent;
+        }
+
+        public void setEveningContent(String eveningContent) {
+            this.eveningContent = eveningContent;
+        }
 
         public String getInStart() {
             return inStart;

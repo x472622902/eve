@@ -3,6 +3,7 @@ package dayan.eve.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -14,6 +15,11 @@ public class PageResult<T> implements Serializable {
     private Pager pager;
 
     public PageResult() {
+    }
+
+    public PageResult(Pager pager) {
+        this.pager = pager;
+        this.list = Collections.emptyList();
     }
 
     public PageResult(List<T> list, Pager pager) {

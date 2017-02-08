@@ -13,6 +13,7 @@ package dayan.eve.web.rest;
 import com.alibaba.fastjson.JSONObject;
 import dayan.eve.exception.ErrorCN;
 import dayan.eve.exception.EveException;
+import dayan.eve.model.ConstantKeys;
 import dayan.eve.model.JsonResult;
 import dayan.eve.model.JsonResultList;
 import dayan.eve.model.School;
@@ -47,19 +48,19 @@ import java.util.List;
 public class PersonalResource {
 
     private static final Logger LOGGER = LogManager.getLogger(PersonalResource.class);
-    private static final int SCHOOL_ICON_NUM = 4;//学校图标默认取四个
+
+    private final AccountInfoService accountInfoService;
+    private final TopicService topicService;
+    private final SchoolFollowService schoolFollowService;
+    private final RequestService requestService;
 
     @Autowired
-    AccountInfoService accountInfoService;
-
-    @Autowired
-    SchoolFollowService schoolFollowService;
-
-    @Autowired
-    TopicService topicService;
-
-    @Autowired
-    RequestService requestService;
+    public PersonalResource(SchoolFollowService schoolFollowService, RequestService requestService, TopicService topicService, AccountInfoService accountInfoService) {
+        this.schoolFollowService = schoolFollowService;
+        this.requestService = requestService;
+        this.topicService = topicService;
+        this.accountInfoService = accountInfoService;
+    }
 
     @ApiOperation("个人信息")
     @RequestMapping(value = "/readInfo", method = RequestMethod.POST)
@@ -68,7 +69,7 @@ public class PersonalResource {
         query.setAccountId(StringUtils.isEmpty(queryDTO.getAccountId()) ?
                 getAccountId(queryDTO.getAccountId(), request) : Integer.valueOf(queryDTO.getAccountId()));
         query.setPage(1);
-        query.setSize(SCHOOL_ICON_NUM);
+        query.setSize(ConstantKeys.PERSONAL_SCHOOL_ICON_NUM);
         List<School> schools = schoolFollowService.readSchools(query).getList();
         AccountInfo accountInfo = accountInfoService.readInfo(query.getAccountId());
         JSONObject resultData = new JSONObject();

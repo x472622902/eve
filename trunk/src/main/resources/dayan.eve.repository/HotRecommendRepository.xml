@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.HotRecommendRepository">
+
+    <sql id="where">
+        <if test="schoolId != null">
+            AND a.school_id = #{schoolId}
+        </if>
+        <if test="scoreSegment != null">
+            AND a.score_segment > #{scoreSegment}-2
+            AND  #{scoreSegment}+2 > a.score_segment
+        </if>
+        AND a.province_id = #{provinceId}
+        AND a.subject_type =#{subjectType}
+        AND a.is_deleted = 0
+        <if test='isAdvisory !=null'>
+            AND b.is_advisory = #{isAdvisory}
+        </if>
+        <if test='schoolTypes != null '>
+            AND b.school_type in
+            <foreach item="schoolTypes" index="index" collection="schoolTypes"
+                     open="(" separator="," close=")">
+                #{schoolTypes}
+            </foreach>
+        </if>
+        <if test='provinceIds != null '>
+            AND b.province_id in
+            <foreach item="provinceIds" index="index" collection="provinceIds"
+                     open="(" separator="," close=")">
+                #{provinceIds}
+            </foreach>
+        </if>
+        <if test='tagsValue != null'>
+            AND c.tags &amp; #{tagsValue}  = #{tagsValue}
+        </if>
+    </sql>
+
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+    <insert id="multiInsert">
+        INSERT INTO eve_hot_recommend
+        (
+        school_id,
+        province_id ,
+        subject_type ,
+        score_segment ,
+        follower_count,
+        gmt_create
+        ) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.schoolId},
+            #{item.provinceId},
+            #{item.subjectType},
+            #{item.scoreSegment},
+            #{item.followerCount},
+            NOW()
+            )
+        </foreach>
+    </insert>
+    <update id="update">
+        UPDATE
+          eve_hot_recommend
+        SET
+          recommended_count = recommended_count + 1
+        WHERE
+            province_id = #{provinceId}
+            AND subject_type = #{subjectType}
+            AND school_id IN
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{schoolIds}
+        </foreach>
+
+    </update>
+    <select id="query" resultType="dayan.eve.model.school.HotRecommend">
+        SELECT
+            a.school_id,
+            b.name              schoolName,
+            a.score_segment,
+            a.follower_count,
+            a.recommended_count recommendCount,
+            a.search_count
+        FROM
+            eve_hot_recommend a
+            LEFT JOIN cu_school b ON a.school_id = b.id
+        WHERE 1 = 1
+        ORDER BY a.score_segment ASC
+    </select>
+    <select id="querySchool" resultType="dayan.eve.model.school.HotSchool">
+        SELECT
+            a.school_id         id,
+            a.follower_count,
+            a.recommended_count recommendCount,
+            b.name,
+            b.address,
+            b.city,
+            c.tags              tagsValue
+        FROM
+            eve_hot_recommend a
+            LEFT JOIN cu_school b ON a.school_id = b.id
+            LEFT JOIN cu_school_tag c ON a.school_id = c.school_id
+        WHERE
+            1 = 1
+        <include refid="where"/>
+        GROUP BY a.school_id
+        ORDER BY (a.follower_count + a.recommended_count / 10) DESC
+        <include refid="limit"/>
+    </select>
+    <select id="countSchools" resultType="java.lang.Integer">
+        SELECT count(DISTINCT a.school_id)
+        FROM
+            eve_hot_recommend a
+            LEFT JOIN cu_school b ON a.school_id = b.id
+            LEFT JOIN cu_school_tag c ON a.school_id = c.school_id
+        WHERE
+            1 = 1
+        <include refid="where"/>
+
+    </select>
+    <select id="queryExisted" resultType="java.lang.Boolean">
+        SELECT exists(
+            SELECT id
+            FROM
+                eve_hot_recommend
+            WHERE
+                school_id = #{schoolId}
+                AND score_segment = #{scoreSegment}
+                AND province_id = #{provinceId}
+                AND subject_type = #{subjectType}
+                AND is_deleted = 0
+        )
+    </select>
+</mapper>

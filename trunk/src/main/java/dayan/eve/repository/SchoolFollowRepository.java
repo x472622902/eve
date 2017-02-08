@@ -12,6 +12,7 @@ package dayan.eve.repository;
 
 import dayan.eve.model.School;
 import dayan.eve.model.account.AccountInfo;
+import dayan.eve.model.account.FollowAccount;
 import dayan.eve.model.query.FollowQuery;
 import dayan.eve.model.query.HotRecommendQuery;
 import org.apache.ibatis.annotations.Mapper;
@@ -24,13 +25,8 @@ import java.util.List;
 @Mapper
 public interface SchoolFollowRepository {
 
+    // TODO: 1/23/2017 将cu_school_follow 中的user_id和school_id设为unique key 
     void follow(FollowQuery query);
-
-    void refollow(Integer followId);
-
-    List<Integer> checkIsFollowed(FollowQuery query);
-
-    void cancelFollow(FollowQuery query);
 
     List<AccountInfo> queryAccounts(FollowQuery query);
 
@@ -48,11 +44,8 @@ public interface SchoolFollowRepository {
 
     /**
      * 查询关注该学校的用户（带头像以及关注时间），每次默认5条
-     *
-     * @param query
-     * @return
      */
-    List<AccountInfo> queryFollowAccounts(HotRecommendQuery query);
+    List<FollowAccount> queryFollowAccounts(HotRecommendQuery query);
 
     Integer countAccountItem(HotRecommendQuery query);
 }

@@ -18,7 +18,6 @@ import dayan.eve.model.PageResult;
 import dayan.eve.model.query.SearchQuery;
 import dayan.eve.service.MajorProfileService;
 import dayan.eve.service.MajorSearchService;
-import dayan.eve.service.RequestService;
 import dayan.eve.util.MoUtil;
 import dayan.eve.web.dto.SearchPromptDTO;
 import dayan.eve.web.dto.major.MajorProfileQueryDTO;
@@ -47,18 +46,16 @@ public class MajorResource {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final SchoolPlatformIdEncoder idEncoder = new SchoolPlatformIdEncoder();
+    private final MajorSearchService majorSearchService;
+    private final MajorProfileService majorProfileService;
+    private final MoUtil moUtil;
 
     @Autowired
-    MajorSearchService majorSearchService;
-
-    @Autowired
-    MajorProfileService majorProfileService;
-
-    @Autowired
-    RequestService requestService;
-
-    @Autowired
-    MoUtil moUtil;
+    public MajorResource(MajorProfileService majorProfileService, MoUtil moUtil, MajorSearchService majorSearchService) {
+        this.majorProfileService = majorProfileService;
+        this.moUtil = moUtil;
+        this.majorSearchService = majorSearchService;
+    }
 
     @ApiOperation("搜索")
     @RequestMapping(value = "/search", method = RequestMethod.POST)

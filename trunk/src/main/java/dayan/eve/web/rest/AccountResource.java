@@ -43,20 +43,20 @@ public class AccountResource {
 
     private static final Logger LOGGER = LogManager.getLogger(AccountResource.class);
 
-    @Autowired
-    AccountService accountService;
+    private final AccountService accountService;
+    private final AccountInfoService accountInfoService;
+    private final SchoolFollowService schoolFollowService;
+    private final Go4BaseUtil go4BaseUtil;
+    private final RequestService requestService;
 
     @Autowired
-    AccountInfoService accountInfoService;
-
-    @Autowired
-    SchoolFollowService schoolFollowService;
-
-    @Autowired
-    Go4BaseUtil go4BaseUtil;
-
-    @Autowired
-    RequestService requestService;
+    public AccountResource(AccountService accountService, SchoolFollowService schoolFollowService, Go4BaseUtil go4BaseUtil, AccountInfoService accountInfoService, RequestService requestService) {
+        this.accountService = accountService;
+        this.schoolFollowService = schoolFollowService;
+        this.go4BaseUtil = go4BaseUtil;
+        this.accountInfoService = accountInfoService;
+        this.requestService = requestService;
+    }
 
     @ApiOperation("个人信息")
     @RequestMapping(value = "/info", method = RequestMethod.GET)

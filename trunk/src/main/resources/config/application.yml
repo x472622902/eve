@@ -61,6 +61,11 @@ eve:
     inEnd: 07:59:59
     outStart: 21:00:00
     outend: 23:59:59
+    clockedContent: 本时间段已打卡
+    unclockedContent: 用力打卡！！
+    morningClockedContent: 早上4:00-8:00记得来打卡哟
+    eveningClockedContent: 晚上21:00-24:00记得来打卡哟
+    dayStart:
   walle:
     username: eve
     password: hzdykj709
@@ -98,25 +103,25 @@ eve:
     freqQuestionNum: 5
   school:
     logoPrefix: http://mo.microyan.com/open/school/badge/
-    imageUrlPrefix: http://192.168.200.55:8881/image/schoolimage/
+    imageUrlPrefix: http://inc.dareyan.cn:8881/image/schoolimage/
     searchPromptNum: 20
   image:
-    topicReadUrlPrefix: http://192.168.200.55:8881/image/topic/
+    topicReadUrlPrefix: http://inc.dareyan.cn:8881/image/topic/
     topicCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/topic/
-    accountPortraitReadUrlPrefix: http://192.168.200.55:8881/image/account/portrait/
+    accountPortraitReadUrlPrefix: http://inc.dareyan.cn:8881/image/account/portrait/
     accountPortraitCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/account/portrait/
-    informationReadUrlPrefix: http://192.168.200.55:8881/image/information/
+    informationReadUrlPrefix: http://inc.dareyan.cn:8881/image/information/
     informationCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/information/
-    bannerReadUrlPrefix: http://192.168.200.55:8881/image/banner/
+    bannerReadUrlPrefix: http://inc.dareyan.cn:8881/image/banner/
     bannerCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/banner/
-    adsReadUrlPrefix: http://192.168.200.55:8881/image/ads/
+    adsReadUrlPrefix: http://inc.dareyan.cn:8881/image/ads/
     adsCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/ads/
   html:
-    informationReadUrlPrefix: http://192.168.200.55:8881/image/information/html/
+    informationReadUrlPrefix: http://inc.dareyan.cn:8881/image/information/html/
     informationCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/information/html/
   course:
-    detail: http://192.168.200.55:8881/eve/app/course/detail
-    result :  http://192.168.200.55:8881/eve/app/course/result
+    detail: http://inc.dareyan.cn:8881/eve/app/course/detail
+    result :  http://inc.dareyan.cn:8881/eve/app/course/result
   alipay:
     notifyUrlPrefix :  http://112.16.81.39/eve/api/v20/mobile/course/buy
   swagger:

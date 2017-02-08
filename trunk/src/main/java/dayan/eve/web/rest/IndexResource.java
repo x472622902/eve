@@ -44,26 +44,22 @@ public class IndexResource {
 
     private final static String CHARSET = ";charset=UTF-8";
 
-    @Autowired
-    AccountService accountService;
+    private final AccountService accountService;
+    private final EasemobService easemobService;
+    private final ProvinceService provinceService;
+    private final ActivateService activateService;
+    private final BannerService bannerService;
+    private final Go4BaseUtil go4BaseUtil;
 
     @Autowired
-    ProvinceService provinceService;
-
-    @Autowired
-    ActivateService activateService;
-
-    @Autowired
-    EasemobService easemobService;
-
-    @Autowired
-    BannerService bannerService;
-
-    @Autowired
-    Go4BaseUtil go4BaseUtil;
-
-//    @Autowired
-//    HotRecommendDataV20Service hotRecommendDataV20Service;
+    public IndexResource(Go4BaseUtil go4BaseUtil, EasemobService easemobService, ProvinceService provinceService, BannerService bannerService, AccountService accountService, ActivateService activateService) {
+        this.go4BaseUtil = go4BaseUtil;
+        this.easemobService = easemobService;
+        this.provinceService = provinceService;
+        this.bannerService = bannerService;
+        this.accountService = accountService;
+        this.activateService = activateService;
+    }
 
     @ApiOperation("登录")
     @RequestMapping(value = "/login", method = RequestMethod.POST)

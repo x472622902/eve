@@ -16,7 +16,6 @@ import dayan.eve.model.PageResult;
 import dayan.eve.model.query.InformationQuery;
 import dayan.eve.service.InformationService;
 import dayan.eve.web.dto.InformationQueryDTO;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,13 +30,16 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(value = "/api/v20/mobile/information")
-@ApiModel("资讯")
 public class InformationResource {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
+    private final InformationService informationService;
+
     @Autowired
-    InformationService informationService;
+    public InformationResource(InformationService informationService) {
+        this.informationService = informationService;
+    }
 
     @ApiOperation("资讯列表")
     @RequestMapping(value = "/read", method = RequestMethod.POST)

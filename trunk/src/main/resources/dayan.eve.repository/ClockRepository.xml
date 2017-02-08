@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.ClockRepository">
+    <insert id="insert">
+        INSERT INTO eve_clock (
+            account_id,
+            clock_in_content,
+            clock_in_time,
+            clock_out_content,
+            clock_out_time,
+            gmt_create)
+        VALUES
+            (
+                #{accountId},
+                #{clockInContent},
+                #{clockInTime},
+                #{clockOutContent},
+                #{clockOutTime},
+                NOW()
+            )
+    </insert>
+    <update id="update">
+        UPDATE
+        eve_clock
+        SET
+        <if test="clockInTime != null">
+            clock_in_time = #{clockInTime},
+            clock_in_content = #{clockInContent},
+        </if>
+        <if test="clockOutTime != null">
+            clock_out_time = #{clockOutTime},
+            clock_out_content = #{clockOutContent},
+        </if>
+        <if test="clockDaylong != null and clockDaylong ==true">
+            is_clock_daylong = 1,
+        </if>
+        gmt_modify = NOW()
+        WHERE
+        id = #{id}
+    </update>
+    <select id="query" resultType="dayan.eve.model.ClockTimer">
+        SELECT
+            a.id,
+            a.account_id             accountId,
+            a.clock_in_content       clockInContent,
+            a.clock_in_time          clockInTime,
+            a.clock_out_content      clockOutContent,
+            a.clock_out_time         clockOutTime,
+            a.is_clock_daylong       clockDaylong,
+            b.nickname               "accountInfo.nickname",
+            c.portrait_url           "accountInfo.portraitUrl",
+            c.continuous_clock_times "accountInfo.continuousClockTimes",
+            c.clock_count            "accountInfo.clockCount",
+            c.subject_type           "accountInfo.subjectType",
+            d.name                   "accountInfo.provinceName"
+        FROM
+            eve_clock a
+            LEFT JOIN eve_account b ON a.account_id = b.id
+            LEFT JOIN eve_account_info c ON a.account_id = c.account_id
+            LEFT JOIN const_province d ON c.province_id = d.id
+        WHERE 1 = 1
+        <include refid="where"/>
+        <include refid="order"/>
+        <include refid="limit"/>
+    </select>
+    <select id="queryClocks" resultType="dayan.eve.model.ClockTimer">
+        SELECT
+        a.id,
+        a.clock_in_content clockInContent,
+        a.clock_in_time clockInTime,
+        a.clock_out_content clockOutContent,
+        a.clock_out_time clockOutTime
+        FROM
+        eve_clock a
+        WHERE 1=1
+        <if test="accountId !=null">
+            AND a.account_id = #{accountId}
+        </if>
+        ORDER BY a.gmt_create DESC
+        <include refid="limit"/>
+    </select>
+    <select id="queryAccount" resultType="dayan.eve.model.account.AccountInfo">
+        SELECT
+        a.portrait_url portraitUrl,
+        a.subject_type subjectType,
+        a.account_id accountId,
+        a.continuous_clock_times continuousClockTimes,
+        a.clock_count clockCount,
+        a.last_clock_content lastClockContent,
+        a.account_id accountId,
+        b.nickname nickname,
+        c.name provinceName
+        FROM
+        eve_account_info a
+        LEFT JOIN
+        eve_account b
+        ON
+        a.account_id = b.id
+        LEFT JOIN
+        const_province c
+        ON
+        a.province_id = c.id
+        WHERE 1=1
+        <include refid="where2"/>
+        <include refid="limit"/>
+    </select>
+    <select id="countClock" resultType="java.lang.Integer">
+        SELECT
+        COUNT(a.id)
+        FROM
+        eve_clock a
+        WHERE 1=1
+        <include refid="where"/>
+    </select>
+    <select id="countAccount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(a.id)
+        FROM
+        eve_account_info a
+        WHERE 1=1
+        <include refid="where2"/>
+    </select>
+    <select id="queryClockRank" resultType="java.lang.Integer">
+        SELECT c.rank
+        FROM
+            (SELECT
+                 a.account_id             id,
+                 (@rowNum := @rowNum + 1) rank
+             FROM
+                 eve_clock a,
+                 (SELECT (@rowNum := 0)) b
+             WHERE
+                 a.clock_in_time IS NOT NULL
+                 AND DATE(a.clock_in_time) = CURDATE()
+             ORDER BY a.clock_in_time ASC
+            ) c
+        WHERE
+            c.id = #{accountId}
+    </select>
+    <select id="queryAccountRank" resultType="java.lang.Integer">
+        SELECT
+        c.rank
+        FROM
+        (SELECT
+        a.account_id id,
+        (@rowNum :=@rowNum + 1) rank
+        FROM
+        eve_account_info a,
+        (SELECT(@rowNum := 0)) b
+        WHERE 1=1
+        <include refid="where2"/>
+        ) c
+        WHERE
+        c.id = #{accountId}
+    </select>
+    <select id="queryAccountIds" resultType="java.lang.Integer">
+        SELECT a.account_id
+        FROM
+            eve_clock a
+        WHERE
+            date_sub(curdate(), INTERVAL 1 DAY) = DATE(a.gmt_create)
+            AND is_clock_daylong = 1
+    </select>
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+
+    <sql id="where2">
+        <if test="readContinuousRank !=null and readContinuousRank == true">
+            AND a.continuous_clock_times != 0
+            ORDER BY a.continuous_clock_times DESC,a.account_id DESC
+        </if>
+        <if test="readTotalRank !=null and readTotalRank == true">
+            AND a.clock_count != 0
+            ORDER BY a.clock_count DESC,a.account_id DESC
+        </if>
+    </sql>
+    <sql id="where">
+        <if test="accountId !=null">
+            AND a.account_id = #{accountId}
+            <if test="readToday !=null and readToday == true">
+                AND DATE(a.gmt_create) = CURDATE()
+            </if>
+            <if test="readYesterday !=null and readYesterday == true">
+                AND date_sub(curdate(),interval 1 day) = DATE(a.gmt_create)
+            </if>
+        </if>
+        <if test="readTodayRank !=null and readTodayRank == true">
+            AND a.clock_in_time IS NOT NULL
+            AND DATE(a.clock_in_time) = CURDATE()
+        </if>
+    </sql>
+
+    <sql id="order">
+        <if test="accountId !=null">
+            ORDER BY a.gmt_create DESC
+        </if>
+        <if test="readClockIn !=null and readClockIn == true">
+            ORDER BY a.clock_in_time ASC
+        </if>
+        <if test="readClockOut !=null and readClockOut == true">
+            ORDER BY a.clock_out_time ASC
+        </if>
+    </sql>
+</mapper>

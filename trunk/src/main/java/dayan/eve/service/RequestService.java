@@ -37,6 +37,8 @@ public class RequestService {
         Integer accountId = null;
         if (StringUtils.isEmpty(userNumber) && "null".equals(userNumber))
             accountId = Integer.valueOf(userNumber);
+        // TODO: 1/18/2017 记得去掉 
+        accountId = 1;
         if (accountId == null)
             throw new EveException(ErrorCN.Login.UN_LOGIN);
         return accountId;

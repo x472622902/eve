@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.ScoreRankRepository">
+    <select id="queryMaxScore" resultType="java.lang.Integer">
+        SELECT MAX(a.`score`)
+        FROM
+            `cu_score_rank` a
+        WHERE
+            a.province_id = #{provinceId}
+            AND a.year = #{year}
+            AND a.subject_type = #{subjectType}
+            AND a.rank >= #{rank}
+    </select>
+</mapper>

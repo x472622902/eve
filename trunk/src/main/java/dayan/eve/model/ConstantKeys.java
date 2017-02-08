@@ -1,9 +1,9 @@
 /**
  * *****************************************************
  * Copyright (C) Dayan techology Co.ltd - All Rights Reserved
- *
+ * <p>
  * This file is part of Dayan techology Co.ltd property.
- *
+ * <p>
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * *****************************************************
@@ -11,34 +11,43 @@
 package dayan.eve.model;
 
 /**
- *
  * @author xsg
  */
 public final class ConstantKeys {
-    
+
 //    public static final String[] JOBTYPES=["Clerk","Intern","Leafleteer","Promotion","Receptionist","Tutor","Waiter","Others"];
-    
-    public final static Integer[] ADVISORYSCHOOLIDS = {162,148,161,158};//当前app首页默认四所可以咨询的学校
-    
+
+    public final static Integer[] ADVISORYSCHOOLIDS = {162, 148, 161, 158};//当前app首页默认四所可以咨询的学校
+
     public static final String GAOKAODATE = "2016-06-08";
 
     public static final String UTF8MB4 = "utf8mb4";
-    
+
     public static final String AVATAR_START = "/open/avatar/";
     public static final String AVATAR_END = "/img";
 
     public static final String EVE_PLATFORM = "小言高考";
 
+    public static final String[] SUBJECT_TYPES = {"文科", "理科"};
+
+    public static final Integer DEFAULT_PROVINCE_ID = 11;
+    public static final String DEFAULT_SUBJECT_TYPE = "理科";
+    public static final int SEGMENT_DIFF = 2;//分段上下浮动值
+
+    public static final int PERSONAL_SCHOOL_ICON_NUM = 4;//学校图标默认取四个
+
+
+
     public static class Sign {
 
-        public static final String StartTime = " 04:30:00";
-        public static final String EndTime = " 18:00:00";
+        public static final String START_TIME = " 04:30:00";
+        public static final String END_TIME = " 18:00:00";
     }
 
     public static class SchoolDetail {
 
         public final static String[] SchoolTypes = {"综合类", "理工类", "财经类", "农林类", "林业类",
-            "医药类", "师范类", "体育类", "语文类", "政法类", "艺术类", "民族类", "军事类", "商学类", "语言类"};
+                "医药类", "师范类", "体育类", "语文类", "政法类", "艺术类", "民族类", "军事类", "商学类", "语言类"};
 
         //学校概况--详情
         public static final String SchoolBadgeLogoType = ".png";

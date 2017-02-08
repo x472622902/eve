@@ -10,44 +10,97 @@
  */
 package dayan.eve.service;
 
+import dayan.common.util.SchoolPlatformIdEncoder;
+import dayan.eve.config.EveProperties;
 import dayan.eve.model.PageResult;
+import dayan.eve.model.Pager;
 import dayan.eve.model.School;
+import dayan.eve.model.SchoolTag;
 import dayan.eve.model.account.AccountInfo;
 import dayan.eve.model.query.FollowQuery;
+import dayan.eve.repository.SchoolFollowRepository;
+import dayan.eve.util.SchoolIdPlatformIdUtil;
+import dayan.eve.util.TagUtil;
+import dayan.eve.util.WalleUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @author xsg
- */
-public interface SchoolFollowService {
+import java.util.List;
+import java.util.Map;
 
-    /**
-     * 关注学校
-     *
-     * @param query
-     */
-    void follow(FollowQuery query);
+@Service
+@Transactional
+public class SchoolFollowService {
 
-    /**
-     * 取消关注学校
-     *
-     * @param query
-     */
-    void cancel(FollowQuery query);
+    private static final Logger LOGGER = LogManager.getLogger(SchoolFollowService.class);
+    private static SchoolPlatformIdEncoder encoder = new SchoolPlatformIdEncoder();
+    private String schoolLogoUrlPrefix;
+    private final WalleUtil followUtil;
+    private final SchoolIdPlatformIdUtil schoolIdPlatformIdUtil;
+    private final TagUtil tagUtil;
+    private final HotRecommendService hotRecommendService;
+    private final SchoolFollowRepository schoolFollowRepository;
 
-    /**
-     * 读取用户的关注学校
-     *
-     * @param query
-     * @return
-     */
-    PageResult<School> readSchools(FollowQuery query);
+    @Autowired
+    public SchoolFollowService(EveProperties eveProperties, SchoolIdPlatformIdUtil schoolIdPlatformIdUtil, HotRecommendService hotRecommendService, SchoolFollowRepository schoolFollowRepository, WalleUtil followUtil, TagUtil tagUtil) {
+        this.schoolLogoUrlPrefix = eveProperties.getSchool().getLogoPrefix();
+        this.schoolIdPlatformIdUtil = schoolIdPlatformIdUtil;
+        this.hotRecommendService = hotRecommendService;
+        this.schoolFollowRepository = schoolFollowRepository;
+        this.followUtil = followUtil;
+        this.tagUtil = tagUtil;
+    }
 
-    /**
-     * 读取关注该学校的所有用户
-     *
-     * @param query
-     * @return
-     */
-    PageResult<AccountInfo> readAccounts(FollowQuery query);
+    private List<School> assign(List<School> list) {
+        Map<Integer, Integer> schoolIdPlatformIdMap = schoolIdPlatformIdUtil.getSchoolIdAndPlatformIdMap();
+        for (School school : list) {
+            Integer platformId = schoolIdPlatformIdMap.get(school.getId());
+            if (platformId != null) {
+                school.setPlatformHashId(encoder.encrypt(platformId.longValue()));
+            }
 
+            String schoolHashId = encoder.encrypt(school.getId().longValue());
+            school.setLogoUrl(schoolLogoUrlPrefix + schoolHashId);
+            if (school.getTagsValue() != null) {
+                List<SchoolTag> schoolTags = tagUtil.getSchoolTags(school.getTagsValue());
+                school.setTags(schoolTags);
+            }
+            school.setSchoolHashId(schoolHashId);
+        }
+        return list;
+    }
+
+    public void follow(FollowQuery query) {
+        schoolFollowRepository.follow(query);
+        Integer platformId = schoolIdPlatformIdUtil.getSchoolIdAndPlatformIdMap().get(query.getSchoolId());
+        if (platformId != null) {
+            followUtil.sendFollow(platformId);
+        }
+        hotRecommendService.updateHotRecommend(query.getSchoolId(), query.getAccountId());
+    }
+
+    public void cancel(FollowQuery query) {
+        schoolFollowRepository.follow(query);
+    }
+
+    public PageResult<School> readSchools(FollowQuery query) {
+        Integer count = schoolFollowRepository.countSchool(query);
+        PageResult<School> result = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        if (count > 0) {
+            result.setList(assign(schoolFollowRepository.querySchools(query)));
+        }
+        return result;
+    }
+
+    public PageResult<AccountInfo> readAccounts(FollowQuery query) {
+        Integer count = schoolFollowRepository.countAccount(query);
+        PageResult<AccountInfo> result = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        if (count > 0) {
+            result.setList(schoolFollowRepository.queryAccounts(query));
+        }
+        return result;
+    }
 }
