@@ -13,10 +13,15 @@ package dayan.eve.util;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import dayan.common.util.HttpClientUtil;
+import dayan.common.util.SchoolPlatformIdEncoder;
 import dayan.eve.config.EveProperties;
+import dayan.eve.config.RedisCacheConfig;
+import dayan.eve.redis.respository.SingleValueRedis;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -25,6 +30,7 @@ import java.util.Map;
 /**
  * @author xsg
  */
+@Lazy
 @Component
 public class SchoolIdPlatformIdUtil {
 
@@ -32,101 +38,91 @@ public class SchoolIdPlatformIdUtil {
 
     @Autowired
     WalleUtil walleUtil;
-
+    private final SingleValueRedis singleValueRedis;
     private String platformUrl;
-
-    private EveProperties.Walle walle;
+    private static SchoolPlatformIdEncoder idEncoder = new SchoolPlatformIdEncoder();
 
     @Autowired
-    public SchoolIdPlatformIdUtil(EveProperties eveProperties) {
+    public SchoolIdPlatformIdUtil(EveProperties eveProperties, SingleValueRedis singleValueRedis) {
         this.platformUrl = eveProperties.getWalle().getPlatform();
+        this.singleValueRedis = singleValueRedis;
     }
 
-    // todo put these map to redis cache
-    private static Map<Integer, Integer> schoolIdAndPlatformIdMap = new HashMap<>();
-    private static Map<Integer, Integer> allSchoolIdAndPlatformIdMap = new HashMap<>();
-    private static Map<Integer, Integer> allPlatformIdAndSchoolIdMap = new HashMap<>();
-    private static Map<Integer, Integer> platformIdAndSchoolIdMap = new HashMap<>();
-    //学校客服map，schoolId作为key，有客服则加入map
-    private static Map<Integer, Integer> schoolCSMap = new HashMap<>();
-    /**
-     * 学校的id作为key
-     *
-     * @return
-     */
-    public Map<Integer, Integer> getSchoolIdAndPlatformIdMap() {
-        if (schoolIdAndPlatformIdMap == null || schoolIdAndPlatformIdMap.isEmpty()) {
-            update();
-        }
-        return schoolIdAndPlatformIdMap;
-    }
-
-    // TODO: 1/14/2017 集成redis 
-    public void update() {
+    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
+    public JSONArray getWallePlatformList() {
+        LOGGER.info("get platform list from walle");
+        JSONArray jsonArray = new JSONArray();
         try {
-            String url = platformUrl + "?access_token=" + walleUtil.getAccessToken();
+            String url = String.format(platformUrl, walleUtil.getAccessToken());
             String result = HttpClientUtil.get(url);
             JSONObject obj = JSONObject.parseObject(result);
-            JSONArray jsonArray = obj.getJSONArray("data");
-            schoolIdAndPlatformIdMap = new HashMap<>();
-            allSchoolIdAndPlatformIdMap = new HashMap<>();
-            platformIdAndSchoolIdMap = new HashMap<>();
-            schoolCSMap = new HashMap<>();
-            for (Object object : jsonArray) {
-                JSONObject jsonObject = (JSONObject) object;
-                Integer schoolId = jsonObject.getInteger("schoolId");
-                Integer platformId = jsonObject.getInteger("id");
-                allSchoolIdAndPlatformIdMap.put(schoolId, platformId);
-                allPlatformIdAndSchoolIdMap.put(platformId, schoolId);
-                if (jsonObject.getBoolean("qa")) {
-                    schoolIdAndPlatformIdMap.put(schoolId, platformId);
-                    platformIdAndSchoolIdMap.put(platformId, schoolId);
-                }
-                if (jsonObject.getBoolean("cs")) {
-                    schoolCSMap.put(schoolId, platformId);
-                }
-            }
+            jsonArray = obj.getJSONArray("data");
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
         }
+        return jsonArray;
     }
 
+
+    //开通平台的学校map
+    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
+    public Map<Integer, Integer> getSchoolIdAndPlatformIdMap() {
+        Map<Integer, Integer> schoolIdAndPlatformIdMap = new HashMap<>();
+        getWallePlatformList().stream()
+                .filter(obj -> ((JSONObject) obj).getBoolean("qa"))
+                .forEach(obj -> {
+                    JSONObject jsonObject = (JSONObject) obj;
+                    schoolIdAndPlatformIdMap.put(jsonObject.getInteger("schoolId"), jsonObject.getInteger("id"));
+                });
+        return schoolIdAndPlatformIdMap;
+    }
+
+    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
+    public Map<Integer, Integer> getPlatformIdAndSchoolIdMap() {
+        Map<Integer, Integer> platformIdAndSchoolIdMap = new HashMap<>();
+        Map<Integer, Integer> schoolIdAndPlatformIdMap = getSchoolIdAndPlatformIdMap();
+        schoolIdAndPlatformIdMap.keySet().forEach(schoolId -> platformIdAndSchoolIdMap.put(schoolIdAndPlatformIdMap.get(schoolId), schoolId));
+        return platformIdAndSchoolIdMap;
+    }
+
+    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
     public Map<Integer, Integer> getSchoolCSMap() {
-        if (schoolCSMap == null || schoolCSMap.isEmpty()) {
-            update();
-        }
+        Map<Integer, Integer> schoolCSMap = new HashMap<>();
+        getWallePlatformList().stream()
+                .filter(obj -> ((JSONObject) obj).getBoolean("cs"))
+                .forEach(obj -> {
+                    JSONObject jsonObject = (JSONObject) obj;
+                    schoolCSMap.put(jsonObject.getInteger("schoolId"), jsonObject.getInteger("id"));
+                });
         return schoolCSMap;
     }
 
+
+    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
     public Map<Integer, Integer> getAllSchoolPlatformMap() {
-        if (allSchoolIdAndPlatformIdMap == null || allSchoolIdAndPlatformIdMap.isEmpty()) {
-            update();
-        }
+        Map<Integer, Integer> allSchoolIdAndPlatformIdMap = new HashMap<>();
+        getWallePlatformList()
+                .forEach(obj -> {
+                    JSONObject jsonObject = (JSONObject) obj;
+                    allSchoolIdAndPlatformIdMap.put(jsonObject.getInteger("schoolId"), jsonObject.getInteger("id"));
+                });
         return allSchoolIdAndPlatformIdMap;
     }
 
+    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
     public Map<Integer, Integer> getAllPlatformSchoolMap() {
-        if (allPlatformIdAndSchoolIdMap == null || allPlatformIdAndSchoolIdMap.isEmpty()) {
-            update();
-        }
+        Map<Integer, Integer> allPlatformIdAndSchoolIdMap = new HashMap<>();
+        Map<Integer, Integer> allSchoolPlatformMap = getAllSchoolPlatformMap();
+        allSchoolPlatformMap.keySet().forEach(schoolId -> allPlatformIdAndSchoolIdMap.put(allSchoolPlatformMap.get(schoolId), schoolId));
         return allPlatformIdAndSchoolIdMap;
     }
 
-    public void clearSchoolIdAndPlatformIdMap() {
-        schoolIdAndPlatformIdMap.clear();
-        schoolCSMap.clear();
-        platformIdAndSchoolIdMap.clear();
+    public Integer getPlatformIdBySchoolId(Integer schoolId) {
+        return getSchoolIdAndPlatformIdMap().get(schoolId);
     }
 
-    /**
-     * 平台id作为key
-     *
-     * @return
-     */
-    public Map<Integer, Integer> getPlatformIdAndSchoolIdMap() {
-        if (platformIdAndSchoolIdMap == null || platformIdAndSchoolIdMap.isEmpty()) {
-            update();
-        }
-        return platformIdAndSchoolIdMap;
+    public Integer getPlatformIdBySchoolHashId(String schoolHashId) {
+        Integer schoolId = idEncoder.decode(schoolHashId).intValue();
+        return getSchoolIdAndPlatformIdMap().get(schoolId);
     }
 }

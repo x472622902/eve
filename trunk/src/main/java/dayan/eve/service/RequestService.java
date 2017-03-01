@@ -13,17 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 @Service
 public class RequestService {
 
-//    public Optional<Integer> getUserNumber(HttpServletRequest request) {
-//        String userNumber = request.getParameter("usernumber");
-//
-//        Integer accountId = null;
-//        if (StringUtils.isEmpty(userNumber) && "null".equals(userNumber))
-//            accountId = Integer.valueOf(userNumber);
-////        accountId = 1;
-//        return Optional.ofNullable(accountId);
-//    }
-
-    public Integer getAccountId(HttpServletRequest request) {
+    public Integer getAccountIdValue(HttpServletRequest request) {
         String userNumber = request.getParameter("usernumber");
         Integer accountId = null;
         if (StringUtils.isEmpty(userNumber) && "null".equals(userNumber))
@@ -31,7 +21,7 @@ public class RequestService {
         return accountId;
     }
 
-    public Integer getUserNumber(HttpServletRequest request) throws EveException {
+    public Integer getAccountId(HttpServletRequest request) throws EveException {
         String userNumber = request.getParameter("usernumber");
 
         Integer accountId = null;

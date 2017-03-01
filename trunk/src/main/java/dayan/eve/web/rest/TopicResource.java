@@ -12,15 +12,16 @@ package dayan.eve.web.rest;
 
 import dayan.eve.model.JsonResult;
 import dayan.eve.model.JsonResultList;
-import dayan.eve.model.PageResult;
 import dayan.eve.model.query.TopicQuery;
 import dayan.eve.model.topic.Topic;
 import dayan.eve.model.topic.TopicTheme;
 import dayan.eve.service.RequestService;
 import dayan.eve.service.TopicService;
+import dayan.eve.web.dto.PaginationQueryDTO;
 import dayan.eve.web.dto.topic.TopicCreateDTO;
 import dayan.eve.web.dto.topic.TopicLikeDTO;
-import dayan.eve.web.dto.topic.TopicReadQueryDTO;
+import dayan.eve.web.dto.topic.TopicQueryDTO;
+import dayan.eve.web.dto.topic.TopicThemeQueryDTO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -55,48 +56,42 @@ public class TopicResource {
     @ApiOperation("看帖")
     @RequestMapping(value = "/readTopics", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public JsonResultList readTopics(@RequestBody TopicReadQueryDTO topicReadQueryDTO, HttpServletRequest request) {
-        TopicQuery query = buildQuery(topicReadQueryDTO);
-        query.setAccountId(requestService.getAccountId(request));
-        JsonResultList result = new JsonResultList();
-        result.setData(topicService.readTopics(query));
-        result.setPager(topicService.count(query));
-        return result;
+    public JsonResultList readTopics(@RequestBody TopicQueryDTO topicQueryDTO, HttpServletRequest request) {
+        TopicQuery query = buildQuery(topicQueryDTO);
+        query.setAccountId(requestService.getAccountIdValue(request));
+        return new JsonResultList(topicService.readTopics(query));
     }
 
     @ApiOperation("查看自己发的贴")
     @RequestMapping(value = "/readMyTopics", method = RequestMethod.POST)
-    public JsonResultList readMyTopics(@RequestBody TopicReadQueryDTO topicReadQueryDTO, HttpServletRequest
+    public JsonResultList readMyTopics(@RequestBody PaginationQueryDTO queryDTO, HttpServletRequest
             request) {
-        JsonResultList result = new JsonResultList();
-        TopicQuery query = buildQuery(topicReadQueryDTO);
-        query.setAccountId(requestService.getUserNumber(request));
+        Integer accountId = requestService.getAccountId(request);
+        TopicQuery query = new TopicQuery();
+        query.setAccountId(accountId);
         query.setMyTopic(true);
-        result.setData(topicService.readTopics(query));
-        result.setPager(topicService.count(query));
-        return result;
+        query.initPaging(queryDTO.getPaging());
+        return new JsonResultList(topicService.readTopics(query));
     }
 
     @ApiOperation("查看自己的回复")
     @RequestMapping(value = "/readMyReplies", method = RequestMethod.POST)
-    public JsonResultList readMyReplies(@RequestBody TopicReadQueryDTO topicReadQueryDTO, HttpServletRequest request) {
-        JsonResultList result = new JsonResultList();
-        TopicQuery query = buildQuery(topicReadQueryDTO);
-        query.setAccountId(requestService.getUserNumber(request));
-        result.setData(topicService.readTopics(query));
-        result.setPager(topicService.count(query));
-        return result;
+    public JsonResultList readMyReplies(@RequestBody PaginationQueryDTO queryDTO, HttpServletRequest request) {
+        Integer accountId = requestService.getAccountId(request);
+        TopicQuery query = new TopicQuery();
+        query.setAccountId(accountId);
+        query.initPaging(queryDTO.getPaging());
+        return new JsonResultList(topicService.readTopics(query));
     }
 
     @ApiOperation("发帖")
     @RequestMapping(value = "/createTopic", method = RequestMethod.POST)
     public JsonResult createTopic(@RequestBody TopicCreateDTO topicCreateDTO, HttpServletRequest request,
                                   @RequestParam(required = false, value = "files") MultipartFile... files) {
-        JsonResult result = new JsonResult();
+        Integer accountId = requestService.getAccountId(request);
         Topic topic = buildTopic(topicCreateDTO);
-        topic.setAccountId(requestService.getUserNumber(request));
-        result.setData(topicService.createTopic(topic, files));
-        return result;
+        topic.setAccountId(accountId);
+        return new JsonResult(topicService.createTopic(topic, files));
     }
 
     private Topic buildTopic(TopicCreateDTO topicCreateDTO) {
@@ -120,45 +115,38 @@ public class TopicResource {
     @ApiOperation("赞")
     @RequestMapping(value = "/like", method = RequestMethod.POST)
     public JsonResult like(@RequestBody TopicLikeDTO topicLikeDTO, HttpServletRequest request) {
-        TopicQuery query = new TopicQuery();
-        query.setTopicId(Integer.valueOf(topicLikeDTO.getTopicId()));
-        query.setAccountId(requestService.getUserNumber(request));
-        topicService.like(query);
+        Integer accountId = requestService.getAccountId(request);
+        topicService.like(accountId, Integer.valueOf(topicLikeDTO.getTopicId()));
         return new JsonResult();
     }
 
     @ApiOperation("踩")
     @RequestMapping(value = "/dislike", method = RequestMethod.POST)
     public JsonResult dislike(@RequestBody TopicLikeDTO topicLikeDTO, HttpServletRequest request) {
-        TopicQuery query = new TopicQuery();
-        query.setTopicId(Integer.valueOf(topicLikeDTO.getTopicId()));
-        query.setAccountId(requestService.getUserNumber(request));
-        topicService.dislike(query);
+        topicService.dislike(requestService.getAccountId(request), Integer.valueOf(topicLikeDTO.getTopicId()));
         return new JsonResult();
     }
 
     @ApiOperation("删帖")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public JsonResult delete(@RequestBody TopicLikeDTO topicLikeDTO, HttpServletRequest request) {
+        Integer accountId = requestService.getAccountId(request);
         TopicQuery query = new TopicQuery();
         query.setTopicId(Integer.valueOf(topicLikeDTO.getTopicId()));
-        query.setAccountId(requestService.getUserNumber(request));
+        query.setAccountId(accountId);
         topicService.delete(query);
         return new JsonResult();
     }
 
     @ApiOperation("查看主题")
     @RequestMapping(value = "/readAllThemes", method = RequestMethod.POST)
-    public JsonResultList readAllThemes(@RequestBody TopicReadQueryDTO topicReadQueryDTO) {
-        TopicQuery query = buildQuery(topicReadQueryDTO);
-        PageResult<TopicTheme> pageResult = topicService.readAllThemes(query);
-        JsonResultList result = new JsonResultList();
-        result.setData(pageResult.getList());
-        result.setPager(pageResult.getPager());
-        return result;
+    public JsonResultList readAllThemes(@RequestBody TopicThemeQueryDTO queryDTO) {
+        TopicQuery query = new TopicQuery();
+        query.initPaging(queryDTO.getPaging());
+        return new JsonResultList(topicService.readAllThemes(query));
     }
 
-    private TopicQuery buildQuery(TopicReadQueryDTO data) {
+    private TopicQuery buildQuery(TopicQueryDTO data) {
         TopicQuery query = new TopicQuery();
         if (!StringUtils.isEmpty(data.getAccountId())) {
             query.setAccountId(Integer.valueOf(data.getAccountId()));

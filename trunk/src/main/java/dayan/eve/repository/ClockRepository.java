@@ -13,6 +13,7 @@ package dayan.eve.repository;
 import dayan.eve.model.ClockTimer;
 import dayan.eve.model.account.AccountInfo;
 import dayan.eve.model.query.ClockQuery;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ import java.util.List;
  *
  * @author xsg
  */
+@Mapper
 public interface ClockRepository {
 
     void insert(ClockTimer clockTimer);

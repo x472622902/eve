@@ -12,6 +12,7 @@ package dayan.eve.repository;
 
 import dayan.eve.model.school.ControlLine;
 import dayan.eve.model.query.RecommendQuery;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ import java.util.List;
  *
  * @author xsg
  */
+@Mapper
 public interface ScoreControlLineRepository {
 
     /**

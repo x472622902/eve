@@ -5,6 +5,7 @@ import dayan.eve.config.EveProperties;
 import dayan.eve.model.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,7 +21,7 @@ import java.util.Collection;
 @ComponentScan
 @SpringBootApplication(scanBasePackages = "dayan.eve")
 @EnableConfigurationProperties({EveProperties.class})
-public class EveApplication {
+public class EveApplication implements CommandLineRunner {
 
     private static final org.apache.logging.log4j.Logger log = LogManager.getLogger();
     @Autowired
@@ -65,6 +66,11 @@ public class EveApplication {
                 env.getProperty("server.port"),
                 InetAddress.getLocalHost().getHostAddress(),
                 env.getProperty("server.port"));
+
+    }
+
+    @Override
+    public void run(String... strings) throws Exception {
 
     }
 }

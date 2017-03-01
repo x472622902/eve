@@ -2,12 +2,12 @@
 <Configuration status="off">
     <Appenders>
         <RollingFile name="RollingFile" fileName="/dydata/logs/eve.log"
-                     filePattern="~/logs/$${date:yyyy-MM}/eve-%d{MM-dd-yyyy}-%i.log.gz">
+                     filePattern="/dydata/logs/$${date:yyyy-MM}/eve-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>
             <Policies>
-                <TimeBasedTriggeringPolicy />
+                <TimeBasedTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="250 MB"/>
             </Policies>
         </RollingFile>

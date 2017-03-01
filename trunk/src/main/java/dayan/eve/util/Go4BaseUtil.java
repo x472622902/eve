@@ -15,9 +15,12 @@ import com.alibaba.fastjson.JSONObject;
 import dayan.common.util.Go4Util;
 import dayan.eve.exception.ErrorCN;
 import dayan.eve.exception.EveException;
+import dayan.eve.model.Constants;
 import dayan.eve.model.account.Account;
 import dayan.eve.model.account.AccountInfo;
+import dayan.eve.redis.respository.SingleValueRedis;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,19 +33,22 @@ import java.util.List;
 @Component
 public class Go4BaseUtil {
 
-    private static String ACCESS_TOKEN;
+    private final SingleValueRedis singleValueRedis;
 
-    public String getAccessToken() throws Exception {
-        if (StringUtils.isEmpty(ACCESS_TOKEN)) {
-            updateAccessToken();
+    @Autowired
+    public Go4BaseUtil(SingleValueRedis singleValueRedis) {
+        this.singleValueRedis = singleValueRedis;
+    }
+
+    private String getAccessToken() throws Exception {
+        String token = singleValueRedis.get(SingleValueRedis.SingleKey.Go4Token);
+        if (StringUtils.isEmpty(token)) {
+            token = JSONObject.parseObject(Go4Util.accessToken()).getString("access_token");
+            singleValueRedis.put(SingleValueRedis.SingleKey.Go4Token, token, Constants.DAY_MINUTES);
         }
-        return ACCESS_TOKEN;
+        return token;
     }
 
-    public void updateAccessToken() throws Exception {
-        String resultJSON = Go4Util.accessToken();
-        ACCESS_TOKEN = JSONObject.parseObject(resultJSON).getString("access_token");
-    }
 
     /**
      * 检查用户是否可以注册
@@ -97,12 +103,12 @@ public class Go4BaseUtil {
     //注册密码已经md5加密过的用户
     public String registerMd5(String mobile, String password, String md5password, String nickname) throws Exception {
         String accessToken = getAccessToken();
-        JSONObject jsonobj = new JSONObject();
-        jsonobj.put("mobile", mobile);
-        jsonobj.put("password", password);
-        jsonobj.put("md5password", md5password);
-        jsonobj.put("nickname", nickname);
-        String resultJSON = Go4Util.register(accessToken, jsonobj.toString());
+        JSONObject params = new JSONObject();
+        params.put("mobile", mobile);
+        params.put("password", password);
+        params.put("md5password", md5password);
+        params.put("nickname", nickname);
+        String resultJSON = Go4Util.register(accessToken, params.toString());
         JSONObject result = JSONObject.parseObject(resultJSON);
         boolean success = result.getBoolean("success");
         if (!success) {

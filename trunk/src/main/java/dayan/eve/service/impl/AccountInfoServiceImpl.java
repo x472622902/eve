@@ -155,7 +155,7 @@ public class AccountInfoServiceImpl implements AccountInfoService {
     @Override
     public void updateInfo(AccountInfo accountInfo) throws Exception {
 
-        LOGGER.warn("AccountInfo update. info: {}", JSON.toJSONString(accountInfo, true));
+        LOGGER.warn("AccountInfo updateBuyCount. info: {}", JSON.toJSONString(accountInfo, true));
         if (!StringUtils.isEmpty(accountInfo.getMobile())) {
             Boolean isVerified = go4BaseUtil.checkVerificationCode(accountInfo.getMobile(), accountInfo.getCode());
             if (!isVerified) {

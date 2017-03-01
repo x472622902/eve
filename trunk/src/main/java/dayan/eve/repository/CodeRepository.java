@@ -1,5 +1,6 @@
 package dayan.eve.repository;
 
+import dayan.eve.model.Constants;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -7,5 +8,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface CodeRepository {
-    void setCode();
+    void setCode(String emojiCode);
 }

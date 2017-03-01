@@ -15,7 +15,7 @@ import dayan.eve.web.dto.PaginationDTO;
 /**
  * @author xuesg
  */
-public class TopicReadQueryDTO {
+public class TopicQueryDTO {
 
     private String id;
     private String accountId;

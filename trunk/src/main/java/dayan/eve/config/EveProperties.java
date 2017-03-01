@@ -17,6 +17,13 @@ public class EveProperties {
     private Alipay alipay = new Alipay();
     private School school = new School();
     private Course course = new Course();
+    private Redis redis = new Redis();
+    private Topic topic = new Topic();
+    private Async async = new Async();
+
+    public Topic getTopic() {
+        return topic;
+    }
 
     public Mo getMo() {
         return mo;
@@ -60,6 +67,14 @@ public class EveProperties {
 
     public Swagger getSwagger() {
         return swagger;
+    }
+
+    public Redis getRedis() {
+        return redis;
+    }
+
+    public Async getAsync() {
+        return async;
     }
 
     public static class Swagger {
@@ -560,8 +575,6 @@ public class EveProperties {
     }
 
     public static class Image {
-        private String topicReadUrlPrefix;
-        private String topicCreateUrlPrefix;
         private String accountPortraitReadUrlPrefix;
         private String accountPortraitCreateUrlPrefix;
         private String informationReadUrlPrefix;
@@ -571,21 +584,6 @@ public class EveProperties {
         private String adsReadUrlPrefix;
         private String adsCreateUrlPrefix;
 
-        public String getTopicReadUrlPrefix() {
-            return topicReadUrlPrefix;
-        }
-
-        public void setTopicReadUrlPrefix(String topicReadUrlPrefix) {
-            this.topicReadUrlPrefix = topicReadUrlPrefix;
-        }
-
-        public String getTopicCreateUrlPrefix() {
-            return topicCreateUrlPrefix;
-        }
-
-        public void setTopicCreateUrlPrefix(String topicCreateUrlPrefix) {
-            this.topicCreateUrlPrefix = topicCreateUrlPrefix;
-        }
 
         public String getAccountPortraitReadUrlPrefix() {
             return accountPortraitReadUrlPrefix;
@@ -892,4 +890,129 @@ public class EveProperties {
         }
     }
 
+    public static class Redis {
+        private String host;
+        private int port;
+        private int timeout;
+
+        public String getHost() {
+            return host;
+        }
+
+        public void setHost(String host) {
+            this.host = host;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+
+        public int getTimeout() {
+            return timeout;
+        }
+
+        public void setTimeout(int timeout) {
+            this.timeout = timeout;
+        }
+    }
+
+    public static class Topic {
+        private Integer replyExp;
+        private Integer createExp;
+        private Integer likeExp;
+        private Integer maxContentSize;
+        private String likeNotificationMsg;
+        private String topicReadUrlPrefix;
+        private String topicCreateUrlPrefix;
+
+        public Integer getReplyExp() {
+            return replyExp;
+        }
+
+        public void setReplyExp(Integer replyExp) {
+            this.replyExp = replyExp;
+        }
+
+        public Integer getCreateExp() {
+            return createExp;
+        }
+
+        public void setCreateExp(Integer createExp) {
+            this.createExp = createExp;
+        }
+
+        public Integer getLikeExp() {
+            return likeExp;
+        }
+
+        public void setLikeExp(Integer likeExp) {
+            this.likeExp = likeExp;
+        }
+
+        public Integer getMaxContentSize() {
+            return maxContentSize;
+        }
+
+        public void setMaxContentSize(Integer maxContentSize) {
+            this.maxContentSize = maxContentSize;
+        }
+
+        public String getLikeNotificationMsg() {
+            return likeNotificationMsg;
+        }
+
+        public void setLikeNotificationMsg(String likeNotificationMsg) {
+            this.likeNotificationMsg = likeNotificationMsg;
+        }
+
+        public String getTopicReadUrlPrefix() {
+            return topicReadUrlPrefix;
+        }
+
+        public void setTopicReadUrlPrefix(String topicReadUrlPrefix) {
+            this.topicReadUrlPrefix = topicReadUrlPrefix;
+        }
+
+        public String getTopicCreateUrlPrefix() {
+            return topicCreateUrlPrefix;
+        }
+
+        public void setTopicCreateUrlPrefix(String topicCreateUrlPrefix) {
+            this.topicCreateUrlPrefix = topicCreateUrlPrefix;
+        }
+    }
+
+    public static class Async {
+        private Integer corePoolSize;
+        private Integer maxPoolSize;
+        private Integer queueCapacity;
+
+        public Integer getCorePoolSize() {
+            return corePoolSize;
+        }
+
+        public void setCorePoolSize(Integer corePoolSize) {
+            this.corePoolSize = corePoolSize;
+        }
+
+        public Integer getMaxPoolSize() {
+            return maxPoolSize;
+        }
+
+        public void setMaxPoolSize(Integer maxPoolSize) {
+            this.maxPoolSize = maxPoolSize;
+        }
+
+        public Integer getQueueCapacity() {
+            return queueCapacity;
+        }
+
+        public void setQueueCapacity(Integer queueCapacity) {
+            this.queueCapacity = queueCapacity;
+        }
+    }
 }

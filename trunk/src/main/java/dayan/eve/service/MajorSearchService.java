@@ -10,6 +10,7 @@
  */
 package dayan.eve.service;
 
+import com.alibaba.fastjson.JSON;
 import dayan.eve.config.EveProperties;
 import dayan.eve.model.MoPageResult;
 import dayan.eve.model.PageResult;
@@ -109,7 +110,7 @@ public class MajorSearchService {
         }
 
         PageResult<Major> result = new PageResult<>(new Pager(0, query.getPage(), query.getSize()));
-        MoPageResult moPageResult = moUtil.getMajorList(query);
+        MoPageResult moPageResult = moUtil.getMajorList(JSON.toJSONString(query));
         result.setList(coverToMajor(moPageResult.getList()));
         result.setPager(moPageResult.getPager());
 
@@ -120,7 +121,7 @@ public class MajorSearchService {
         SearchQuery query = new SearchQuery();
         query.setPage(1);
         query.setSize(2000);
-        return moUtil.getMajorList(query).getList();
+        return moUtil.getMajorList(JSON.toJSONString(query)).getList();
 
     }
 

@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import dayan.eve.exception.ErrorCN;
 import dayan.eve.exception.EveException;
+import dayan.eve.model.Constants;
 import dayan.eve.model.account.Account;
 import dayan.eve.model.account.AccountBase;
 import dayan.eve.model.account.AccountInfo;
@@ -84,7 +85,7 @@ public class AccountServiceImpl implements AccountService {
 
     private Account createOrUpdate(LoginType loginType, AccountBase loginData) throws Exception {
         AccountInfo go4Info = go4BaseUtil.checkLogin(loginType.toString(), loginData);
-        codeMapper.setCode();
+        codeMapper.setCode(Constants.EMOJI_CODE);
         return checkInfoAndUpdate(go4Info);
     }
 
@@ -93,7 +94,7 @@ public class AccountServiceImpl implements AccountService {
         loginInfo.put("loginAccount", mobile);
         loginInfo.put("password", password);
         AccountInfo go4Info = go4BaseUtil.checkLogin("go4", loginInfo);
-        codeMapper.setCode();
+        codeMapper.setCode(Constants.EMOJI_CODE);
         return checkInfoAndUpdate(go4Info);
     }
 
@@ -129,7 +130,7 @@ public class AccountServiceImpl implements AccountService {
             go4BaseUtil.updateAvatar(hashId, file);
             account.setAvatarURL(go4BaseUtil.getAccountDetailByHashId(hashId).getAvatarURL());
         }
-        codeMapper.setCode();
+        codeMapper.setCode(Constants.EMOJI_CODE);
         accountRepository.insert(account);
 
         accountInfoService.createInfo(account);

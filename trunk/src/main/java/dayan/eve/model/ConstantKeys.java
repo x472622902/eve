@@ -37,6 +37,9 @@ public final class ConstantKeys {
     public static final int PERSONAL_SCHOOL_ICON_NUM = 4;//学校图标默认取四个
 
 
+    public static final Integer[] TAG_VALUES = {1, 2, 4, 8, 16, 32};
+    public static final String[] SCHOOL_TAGS = {"211", "985", "研究生院", "自主招生", "国防生", "卓越计划"};
+
 
     public static class Sign {
 
@@ -143,6 +146,44 @@ public final class ConstantKeys {
 
         public static final String Pager = "pager";
 
+    }
+
+    public static class Course {
+        //MBTI
+
+        public static final String MI_TITLE_PREFIX = "多元智能测试——";
+        public static final String[] MBTI_OPTIONS = {"A", "B"};
+        public static final int[] MBTI_TYPE_A_E = {4, 8, 14, 19, 23, 34, 62, 67, 77};
+        public static final int[] MBTI_TYPE_A_I = {12, 18, 22, 26, 27, 35, 42, 48, 54, 60, 66, 72};
+        public static final int[] MBTI_TYPE_A_S = {3, 13, 32, 40, 47, 53, 58, 61, 73, 82, 86, 90, 93};
+        public static final int[] MBTI_TYPE_A_N = {5, 15, 24, 29, 37, 44, 50, 55, 63, 74, 79, 83, 87};
+        public static final int[] MBTI_TYPE_A_T = {31, 39, 46, 52, 57, 69, 78, 81, 85, 89, 92};
+        public static final int[] MBTI_TYPE_A_F = {6, 16, 30, 38, 45, 51, 56, 64, 75, 80, 84, 88, 91};
+        public static final int[] MBTI_TYPE_A_J = {1, 9, 10, 20, 28, 36, 43, 49, 59, 68, 70};
+        public static final int[] MBTI_TYPE_A_P = {2, 7, 11, 17, 21, 25, 33, 41, 65, 71, 76};
+        public static final int[] MBTI_TYPE_B_E = {12, 18, 22, 26, 27, 35, 42, 48, 54, 60, 66, 72};
+        public static final int[] MBTI_TYPE_B_I = {4, 8, 14, 19, 23, 34, 62, 67, 77};
+        public static final int[] MBTI_TYPE_B_S = {5, 15, 24, 29, 37, 44, 50, 55, 63, 74, 79, 83, 87};
+        public static final int[] MBTI_TYPE_B_N = {3, 13, 32, 40, 47, 53, 58, 61, 73, 82, 86, 90, 93};
+        public static final int[] MBTI_TYPE_B_T = {6, 16, 30, 38, 45, 51, 56, 64, 75, 80, 84, 88, 91};
+        public static final int[] MBTI_TYPE_B_F = {31, 39, 46, 52, 57, 69, 78, 81, 85, 89, 92};
+        public static final int[] MBTI_TYPE_B_J = {2, 7, 11, 17, 21, 25, 33, 41, 65, 71, 76};
+        public static final int[] MBTI_TYPE_B_P = {1, 9, 10, 20, 28, 36, 43, 49, 59, 68, 70};
+
+        //多元智能
+        public static final String[] MI_OPTION_TYPES = {"语言", "逻辑数学", "视觉空间", "身体运动", "音乐", "人际交往", "自我认知", "自然观察者"};
+        public static final String[] MI_OPTIONS = {"A. 非常符合", "B. 比较符合", "C. 说不清", "D. 不太符合", "E. 非常不符合"};
+
+        //霍兰德
+        public static final String[] HOL_OPTION_TYPES = {"常规型", "现实型", "研究型", "艺术型", "社会型", "企业型"};
+        public static final String[] HOL_OPTION_TYPES_EN = {"C", "R", "I", "A", "S", "E"};
+        public static final String[] HOL_OPTIONS = {"A.是", "B.不是"};
+
+        //职业锚
+        public static final String[] CA_OPTION_TYPES = {"TF 技术/职能型", "GM 管理型", "AU 自主/独立型", "SE 安全/定型",
+                "EC 创造/创业型", "SV 服务/奉献型", "CH 挑战型", "LS 生活型"};
+        public static final String[] CA_OPTION_TYPES_EN = {"TF", "GM", "AU", "SE", "EC", "SV", "CH", "LS"};
+        public static final String[] CA_OPTIONS = {"A. 从不", "B. 偶尔", "C. 有时", "D. 经常", "E. 频繁", "F. 总是"};
     }
 
     public static class Key {

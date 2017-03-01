@@ -17,7 +17,7 @@ import dayan.eve.model.Pagination;
  *
  * @author xsg
  */
-public class GuestBookQuery extends Pagination {
+public class GuestbookQuery extends Pagination {
 
     private Integer schoolId;
     private String question;

@@ -11,7 +11,6 @@
 package dayan.eve.web.dto;
 
 /**
- *
  * @author xsg
  */
 public class SignCheckDTO {

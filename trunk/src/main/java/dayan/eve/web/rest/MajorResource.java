@@ -14,7 +14,6 @@ import com.alibaba.fastjson.JSONObject;
 import dayan.common.util.SchoolPlatformIdEncoder;
 import dayan.eve.model.JsonResult;
 import dayan.eve.model.JsonResultList;
-import dayan.eve.model.PageResult;
 import dayan.eve.model.query.SearchQuery;
 import dayan.eve.service.MajorProfileService;
 import dayan.eve.service.MajorSearchService;
@@ -66,17 +65,13 @@ public class MajorResource {
             query.setDegreeTypeId(Integer.valueOf(queryDTO.getDegreeTypeId()));
         }
         query.initPaging(queryDTO.getPaging());
-        JsonResultList result = new JsonResultList();
-        PageResult pageResult = majorSearchService.searchMajors(query);
-        result.setData(pageResult.getList());
-        result.setPager(pageResult.getPager());
-        return result;
+        return new JsonResultList(majorSearchService.searchMajors(query));
     }
 
     @ApiOperation("搜索提示")
     @RequestMapping(value = "/searchPrompt", method = RequestMethod.POST)
-    public JsonResultList searchPrompt(@RequestBody SearchPromptDTO queryDTO) throws Exception {
-        return new JsonResultList(majorSearchService.getPrompts(queryDTO.getQueryString()));
+    public JsonResult searchPrompt(@RequestBody SearchPromptDTO queryDTO) throws Exception {
+        return new JsonResult(majorSearchService.getPrompts(queryDTO.getQueryString()));
     }
 
     @ApiOperation("详情带相近专业")

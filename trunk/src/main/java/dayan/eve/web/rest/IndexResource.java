@@ -12,7 +12,6 @@ package dayan.eve.web.rest;
 
 import com.alibaba.fastjson.JSON;
 import dayan.eve.model.JsonResult;
-import dayan.eve.model.JsonResultList;
 import dayan.eve.model.Province;
 import dayan.eve.model.account.Account;
 import dayan.eve.service.*;
@@ -141,8 +140,8 @@ public class IndexResource {
 
     @ApiOperation("首页轮播图")
     @RequestMapping(value = "/readBanners", method = RequestMethod.POST)
-    public JsonResultList readBanners() {
-        return new JsonResultList(bannerService.readBanners());
+    public JsonResult readBanners() {
+        return new JsonResult(bannerService.readBanners());
     }
 
 

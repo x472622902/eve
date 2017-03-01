@@ -12,8 +12,6 @@ package dayan.eve.web.rest;
 
 import dayan.eve.model.JsonResult;
 import dayan.eve.model.JsonResultList;
-import dayan.eve.model.PageResult;
-import dayan.eve.model.Sign;
 import dayan.eve.model.query.ClockQuery;
 import dayan.eve.model.query.SignQuery;
 import dayan.eve.service.ClockService;
@@ -53,7 +51,7 @@ public class SignResource {
     @RequestMapping(value = "/sign", method = RequestMethod.POST)
     public JsonResult sign(@RequestBody ClockDTO clockDTO, HttpServletRequest request) throws Exception {
         SignQuery query = new SignQuery();
-        query.setAccountId(requestService.getUserNumber(request));
+        query.setAccountId(requestService.getAccountId(request));
         query.setContent(clockDTO.getContent());
         signService.sign(query);
         return new JsonResult();
@@ -61,18 +59,14 @@ public class SignResource {
 
     @RequestMapping(value = "/check", method = RequestMethod.POST)
     public JsonResult check(HttpServletRequest request) throws Exception {
-        return new JsonResult(signService.check(requestService.getUserNumber(request)));
+        return new JsonResult(signService.check(requestService.getAccountId(request)));
     }
 
     @RequestMapping(value = "/readAccounts", method = RequestMethod.POST)
     public JsonResultList readAccounts(@RequestBody ClockDTO clockDTO) throws Exception {
         SignQuery query = new SignQuery();
         query.initPaging(clockDTO.getPaging());
-        PageResult<Sign> signPageResult = signService.readAccounts(query);
-        JsonResultList resultList = new JsonResultList();
-        resultList.setData(signPageResult.getList());
-        resultList.setPager(signPageResult.getPager());
-        return resultList;
+        return new JsonResultList(signService.readAccounts(query));
     }
 
     @RequestMapping(value = "/readDays", method = RequestMethod.POST)
@@ -83,7 +77,7 @@ public class SignResource {
     @RequestMapping(value = "/clockIn", method = RequestMethod.POST)
     public JsonResult clockIn(@RequestBody ClockDTO clockDTO, HttpServletRequest request) {
         ClockQuery query = new ClockQuery();
-        query.setAccountId(requestService.getUserNumber(request));
+        query.setAccountId(requestService.getAccountId(request));
         query.setContent(clockDTO.getContent());
         clockService.clockIn(query);
         return new JsonResult();

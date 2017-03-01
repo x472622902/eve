@@ -10,8 +10,8 @@
  */
 package dayan.eve.repository.topic;
 
-import dayan.eve.model.query.TopicQuery;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -22,8 +22,10 @@ import java.util.List;
 @Mapper
 public interface TopicDislikeRepository {
 
-    void insert(TopicQuery query);
+    void insert(@Param("accountId") Integer accountId, @Param("topicId") Integer topicId);
     
     List<Integer> query(Integer accountId);
+
+    boolean queryExisted(@Param("accountId") Integer accountId, @Param("topicId") Integer topicId);
     
 }

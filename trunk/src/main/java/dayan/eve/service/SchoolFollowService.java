@@ -87,7 +87,10 @@ public class SchoolFollowService {
     }
 
     public PageResult<School> readSchools(FollowQuery query) {
-        Integer count = schoolFollowRepository.countSchool(query);
+        Integer count = 0;
+        if (query.getAccountId() != null) {
+            count = schoolFollowRepository.countSchool(query);
+        }
         PageResult<School> result = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
         if (count > 0) {
             result.setList(assign(schoolFollowRepository.querySchools(query)));

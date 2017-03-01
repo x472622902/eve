@@ -47,7 +47,7 @@ public class Topic {
     private List<Topic> comments;//楼层回复
     private Boolean isDeleted;
     private Integer dislikeNum;//被踩数
-    private TopicTheme theme;//主题
+    private TopicTheme theme = new TopicTheme();//主题
     private Integer position;//定位
 
     //用户部分

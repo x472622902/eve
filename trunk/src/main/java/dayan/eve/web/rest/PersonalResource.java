@@ -13,13 +13,11 @@ package dayan.eve.web.rest;
 import com.alibaba.fastjson.JSONObject;
 import dayan.eve.exception.ErrorCN;
 import dayan.eve.exception.EveException;
-import dayan.eve.model.ConstantKeys;
-import dayan.eve.model.JsonResult;
-import dayan.eve.model.JsonResultList;
-import dayan.eve.model.School;
+import dayan.eve.model.*;
 import dayan.eve.model.account.AccountInfo;
 import dayan.eve.model.query.FollowQuery;
 import dayan.eve.model.query.TopicQuery;
+import dayan.eve.model.topic.Topic;
 import dayan.eve.service.AccountInfoService;
 import dayan.eve.service.RequestService;
 import dayan.eve.service.SchoolFollowService;
@@ -85,15 +83,15 @@ public class PersonalResource {
         query.setAccountId(StringUtils.isEmpty(queryDTO.getAccountId()) ?
                 getAccountId(queryDTO.getAccountId(), request) : Integer.valueOf(queryDTO.getAccountId()));
         query.initPaging(queryDTO.getPaging());
-
         JsonResultList result = new JsonResultList();
-        result.setData(topicService.readTimelines(query));
-        result.setPager(topicService.count(query));
+        PageResult<Topic> pageResult = topicService.readTimelines(query);
+        result.setData(pageResult.getList());
+        result.setPager(pageResult.getPager());
         return result;
     }
 
     private Integer getAccountId(String dataAccountId, HttpServletRequest request) {
-        Integer accountId = requestService.getAccountId(request);
+        Integer accountId = requestService.getAccountIdValue(request);
         if (StringUtils.isEmpty(dataAccountId) && accountId == null) {
             throw new EveException(ErrorCN.Login.UN_LOGIN);
         }

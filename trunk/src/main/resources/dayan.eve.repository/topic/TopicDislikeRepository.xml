@@ -24,4 +24,13 @@
         WHERE
             a.account_id = #{accountId}
     </select>
+    <select id="queryExisted" resultType="java.lang.Boolean">
+        SELECT exists(
+                SELECT id
+                FROM eve_topic_dislike
+                WHERE account_id = #{accountId}
+                      AND topic_id = #{topicId}
+                      AND is_deleted = 0
+        )
+    </select>
 </mapper>

@@ -11,9 +11,12 @@
 package dayan.eve.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import dayan.common.util.MD5Util;
 import dayan.easemob.entity.EasemobRequest;
+import dayan.eve.config.EveProperties;
 import dayan.eve.exception.ErrorCN;
+import dayan.eve.exception.EveException;
+import dayan.eve.model.ConstantKeys;
+import dayan.eve.model.Constants;
 import dayan.eve.model.PageResult;
 import dayan.eve.model.Pager;
 import dayan.eve.model.account.AccountInfo;
@@ -23,10 +26,9 @@ import dayan.eve.model.topic.Topic;
 import dayan.eve.model.topic.TopicImage;
 import dayan.eve.model.topic.TopicNotification;
 import dayan.eve.model.topic.TopicTheme;
+import dayan.eve.redis.respository.SingleValueRedis;
 import dayan.eve.repository.AccountInfoRepository;
-import dayan.eve.repository.AccountRepository;
 import dayan.eve.repository.CodeRepository;
-import dayan.eve.repository.topic.TopicRepository;
 import dayan.eve.repository.topic.*;
 import dayan.eve.service.AccountInfoService;
 import dayan.eve.service.EasemobService;
@@ -38,74 +40,68 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TopicServiceImpl implements TopicService {
 
     private static final Logger LOGGER = LogManager.getLogger(TopicServiceImpl.class);
 
-    @Autowired
-    TopicRepository topicRepository;
-
-    @Autowired
-    CodeRepository codeRepository;
-
-    @Autowired
-    TopicLikeRepository topicLikeRepository;
-
-    @Autowired
-    TopicDislikeRepository topicDislikeRepository;
-
-    @Autowired
-    TopicImageRepository topicImageRepository;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    AccountInfoRepository accountInfoRepository;
-
-    @Autowired
-    AccountInfoService accountInfoService;
-
-    @Autowired
-    EasemobService easemobService;
-
-    @Autowired
-    TopicThemeRepository topicThemeRepository;
-
-    @Autowired
-    Go4BaseUtil go4BaseUtil;
-
-    @Value("${image.topic.create.url.prefix}")
-    String topicImageUrlCreatePrefix;
-
-    @Value("${image.topic.read.url.prefix}")
-    String topicImageUrlReadPrefix;
-
+    private static final Integer TOPIC_CREATE_LIMIT_TIME = 10;
+    private final EveProperties.Topic topicProperties;
+    private final TopicRepository topicRepository;
+    private final CodeRepository codeRepository;
+    private final TopicLikeRepository topicLikeRepository;
+    private final TopicDislikeRepository topicDislikeRepository;
+    private final TopicImageRepository topicImageRepository;
+    private final AccountInfoRepository accountInfoRepository;
+    private final AccountInfoService accountInfoService;
+    private final EasemobService easemobService;
+    private final TopicThemeRepository topicThemeRepository;
+    private final Go4BaseUtil go4BaseUtil;
     private PassiveExpiringMap topicCache = new PassiveExpiringMap(10000);
+    private final SingleValueRedis singleValueRedis;
 
-    private boolean isCreatedIn10s(Topic topic) {
-        String key = MD5Util.StringMD5(topic.getAccountId() + "-" + topic.getContent());
-        if (topicCache.containsKey(key)) {
-            return true;
-        } else {
-            topicCache.put(key, topic);
-            return false;
-        }
+    @Autowired
+    public TopicServiceImpl(EveProperties eveProperties, TopicThemeRepository topicThemeRepository, TopicImageRepository
+            topicImageRepository, TopicRepository topicRepository, TopicDislikeRepository topicDislikeRepository, TopicLikeRepository topicLikeRepository, Go4BaseUtil go4BaseUtil, EasemobService easemobService, CodeRepository codeRepository, AccountInfoRepository accountInfoRepository, AccountInfoService accountInfoService, SingleValueRedis singleValueRedis) {
+        this.topicProperties = eveProperties.getTopic();
+        this.topicThemeRepository = topicThemeRepository;
+        this.topicImageRepository = topicImageRepository;
+        this.topicRepository = topicRepository;
+        this.topicDislikeRepository = topicDislikeRepository;
+        this.topicLikeRepository = topicLikeRepository;
+        this.go4BaseUtil = go4BaseUtil;
+        this.easemobService = easemobService;
+        this.codeRepository = codeRepository;
+        this.accountInfoRepository = accountInfoRepository;
+        this.accountInfoService = accountInfoService;
+        this.singleValueRedis = singleValueRedis;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    @Override
-    public Pager count(TopicQuery query) {
-        Pager pager = new Pager();
+    private boolean isCreatedIn10s(Topic topic) {
+        boolean createdInTenSeconds = false;
+        try {
+            if (singleValueRedis.get(SingleValueRedis.SingleKey.TopicAccount, topic.getAccountId().toString()) != null) {
+                createdInTenSeconds = true;
+            } else {
+                singleValueRedis.putInSeconds(SingleValueRedis.SingleKey.TopicAccount, topic.getAccountId().toString()
+                        , TOPIC_CREATE_LIMIT_TIME);
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return createdInTenSeconds;
+    }
+
+    public Integer count(TopicQuery query) {
         Integer count;
         if (query.getAccountId() == null) {
             if (query.getTopicId() == null) {
@@ -120,14 +116,7 @@ public class TopicServiceImpl implements TopicService {
                 count = topicRepository.countMyReply(query);
             }
         }
-        pager.setCount(count);
-        if (query.getPage() == null) {
-            pager.setPage(1);
-        } else {
-            pager.setPage(query.getPage());
-        }
-        pager.setSize(query.getSize());
-        return pager;
+        return count;
     }
 
     private void setImages(List<Topic> topics) {
@@ -139,300 +128,263 @@ public class TopicServiceImpl implements TopicService {
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Override
-    public List<Topic> readTopics(TopicQuery query) {
-        List<Topic> topics = topicRepository.queryTopics(query);
-
-        //配置直播贴
-        setLive(topics);
-//        if (query.getTopicId() != null)
-//            setComments(topics);
-        return topics;
+    public PageResult<Topic> readTopics(TopicQuery query) {
+        Integer count = count(query);
+        PageResult<Topic> pageResult = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        if (count > 0) {
+            List<Topic> topics = topicRepository.queryTopics(query);
+            //配置直播贴
+            setLive(topics);
+            pageResult.setList(topics);
+        }
+        return pageResult;
     }
-
-    private static final String LIKE_MSG = "给你点了个赞";
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public void like(TopicQuery query) {
-        LOGGER.info("topic like ,info {}", JSON.toJSONString(query, true));
-        Integer topicId = query.getTopicId();
-        List<TopicQuery> likes = topicLikeRepository.query(query);
-        if (likes != null && !likes.isEmpty()) {
+    public void like(Integer accountId, Integer topicId) {
+        LOGGER.info("topic like ,accountId: {},topicId: {}", accountId, topicId);
+        if (topicLikeRepository.queryExisted(accountId, topicId)) {
             return;
         }
-        topicLikeRepository.insert(query);
-        TopicQuery newQuery = new TopicQuery();
-        newQuery.setLikeUpdateNum(1);
-        newQuery.setId(query.getTopicId());
-        topicRepository.updateTopic(newQuery);
+        topicLikeRepository.insert(accountId, topicId);
+        topicRepository.updateLikeNum(topicId);
 
-        TopicNotification notification = new TopicNotification();
-        Integer accountId = query.getAccountId();//点赞用户id
-        newQuery = new TopicQuery();
-        newQuery.setTopicId(topicId);
-        List<AccountInfo> originAccounts = topicRepository.queryAccountByTopic(newQuery);//主贴用户
-        if (originAccounts == null || originAccounts.isEmpty()) {
-            return;
-        } else {
-            //被赞加2分
-            accountInfoService.updateExp(originAccounts.get(0).getAccountId(), LIKE_EXP);
-            //如果被点赞的帖子是自己的贴，则不通知，返回
-            if (Objects.equals(originAccounts.get(0).getAccountId(), accountId)) {
-                return;
-            }
-        }
-        List<String> easemobUserIds = getEasemobUserIds(originAccounts);
-        if (easemobUserIds == null || easemobUserIds.isEmpty()) {
+        List<AccountInfo> noticeAccounts = topicRepository.queryAccountByTopic(new TopicQuery(topicId));//主贴用户
+        if (noticeAccounts.isEmpty()) {
             return;
         }
-        AccountInfo accountInfo = accountInfoRepository.queryOneInfo(accountId);
-        query = new TopicQuery();
-        query.setId(topicId);
-        List<Topic> topics = topicRepository.queryTopics(query);
-        if (topics == null || topics.isEmpty()) {
+        //被赞加2分
+        accountInfoService.updateExp(noticeAccounts.get(0).getAccountId(), topicProperties.getLikeExp());
+        //如果被点赞的帖子是自己的贴，则不通知，返回
+        if (Objects.equals(noticeAccounts.get(0).getAccountId(), accountId)) {
             return;
         }
+
+        List<Topic> topics = topicRepository.queryTopics(new TopicQuery(topicId));
+        if (topics.isEmpty()) return;
         Topic topic = topics.get(0);
-        List<TopicImage> images = topicImageRepository.query(topicId);
-        setImage(images, topic);//设置贴子的图片
-        notification.setTopic(topic);
-        Topic originTopic;
-        if (topic.getTopicId() != null) {
-            originTopic = getOriginTopic(topic.getTopicId());
-            if (originTopic == null) {
-                return;
-            }
-            setTopicLiked(originTopic, originTopic.getAccountId());
-            originTopic.setPosition(getPosition(topic));
-        } else {
-            originTopic = topic;
-            notification.setTopic(null);
-        }
+        Topic originTopic = getOriginTopic(topic);
+        if (originTopic == null) return;
 
-        notification.setAccountInfo(accountInfo);
-        notification.setOriginTopic(originTopic);
-        notification.setAction(TopicNotification.Action.Like);
-        notification.setTime(new Date());
-
-        sendMessage(notification, easemobUserIds, accountInfo.getNickname() + LIKE_MSG);
-        LOGGER.info("a user likes a topic!");
+        sendNotification(topic, noticeAccounts, originTopic, TopicNotification.Action.Like);
     }
 
     @Transactional
     @Override
-    public void dislike(TopicQuery query) {
-        LOGGER.info("topic dislike ,info {}", JSON.toJSONString(query, true));
-        topicDislikeRepository.insert(query);
-        TopicQuery newQuery = new TopicQuery();
-        newQuery.setDislikeUpdateNum(1);
-        newQuery.setId(query.getTopicId());
-        topicRepository.updateTopic(newQuery);
+    public void dislike(Integer accountId, Integer topicId) {
+        if (!topicDislikeRepository.queryExisted(accountId, topicId)) {
+            LOGGER.info("topic dislike ,accountId: {},topicId: {}", accountId, topicId);
+            topicDislikeRepository.insert(accountId, topicId);
+            topicRepository.updateDislikeNum(topicId);
+        }
     }
 
     /**
      * 设置贴子的图片（缩略图、中图和大图）
      */
     private void setImage(List<TopicImage> images, Topic topic) {
+        topic.setThumbnailUrls(Collections.emptyList());
+        topic.setImageUrls(Collections.emptyList());
+        topic.setMiddleImageUrls(Collections.emptyList());
         if (images == null || images.isEmpty()) {
-            topic.setThumbnailUrls(Collections.emptyList());
-            topic.setImageUrls(Collections.emptyList());
-            topic.setMiddleImageUrls(Collections.emptyList());
             return;
         }
-        List<String> imageUrls = new LinkedList<>();
-        List<String> thumbnailUrls = new LinkedList<>();
-        List<String> middleImageUrls = new LinkedList<>();
         for (TopicImage image : images) {
-            imageUrls.add(image.getImageUrl());
-            thumbnailUrls.add(image.getThumbnailUrl());
-            middleImageUrls.add(image.getMiddleImageUrl());
+            topic.getImageUrls().add(image.getImageUrl());
+            topic.getThumbnailUrls().add(image.getThumbnailUrl());
+            topic.getMiddleImageUrls().add(image.getMiddleImageUrl());
 
         }
-        topic.setMiddleImageUrls(middleImageUrls);
-        topic.setImageUrls(imageUrls);
-        topic.setThumbnailUrls(thumbnailUrls);
     }
 
     /*
      *设置原帖
      */
     private void setOriginTopic(List<Topic> topics) {
-        for (Topic topic : topics) {
-            if (topic.getTopicId() == null) {
-                continue;
-            }
-            if (topic.getOriginTopic() != null) {
-                //判断原帖是否已经删除,是则将原帖设为null
-                if (topic.getOriginTopic().getIsDeleted()) {
-                    continue;
-                }
-                List<TopicImage> images = topicImageRepository.query(topic.getOriginTopic().getId());
-                setImage(images, topic.getOriginTopic());
-            }
-        }
+
+        topics.stream()
+                .filter(topic -> topic.getTopicId() != null && topic.getOriginTopic() != null && !topic.getOriginTopic().getIsDeleted())
+                .forEach(topic -> {
+                    List<TopicImage> images = topicImageRepository.query(topic.getOriginTopic().getId());
+                    setImage(images, topic.getOriginTopic());
+                });
+        topics.stream()
+                .filter(topic -> topic.getOriginTopic() != null && topic.getOriginTopic().getIsDeleted())
+                .forEach(topic -> topic.setOriginTopic(null));
     }
 
-    //    public static final String REPLY_MSG = "有用户回复了你的贴";
-    private static final Integer REPLY_EXP = 5;//回帖经验
-    private static final Integer TOPIC_EXP = 10;//发帖经验
-    private static final Integer LIKE_EXP = 2;//被点赞或被回帖经验
-    private static final Integer MAX_TEXT_SIZE = 1024;//最大内容字数
-
+    /**
+     * 发帖流程
+     * <p>
+     * 1.判断是否十秒内再发（防止恶意刷帖），是则结束
+     * 2.内容过长（1024字），是则结束
+     * 3.如果帖子带主题，更新该主题的帖子数
+     * 4.插入数据
+     * 5.插入图片
+     * 6.如果是发帖，更新该用户的经验（+10），如果是回复，继续
+     * 7.更新该主贴的回复数
+     * 8.更新主贴用户经验（+2），该用户（+5）
+     * 9.生成被通知列表（初始为主贴用户）
+     * 10.如果该回复是楼中楼，则将所有楼中楼的用户加入通知列表，将该回帖作为返回结果
+     * 11.设置回帖定位
+     * 12.发送通知
+     * 13.结束
+     * <p>
+     * PS:帖子分3个等级，1.主贴（topic） 2.回帖(reply) 3.评论(comment)
+     */
     @Override
     @Transactional
     public Topic createTopic(Topic topic, MultipartFile[] files) {
         if (isCreatedIn10s(topic)) {
-            LOGGER.warn("topic created in 10s. {}", JSON.toJSONString(topic, true));
+            LOGGER.error("topic created in 10s. {}", JSON.toJSONString(topic, true));
             return null;
         }
-        codeRepository.setCode();
-        if (topic.getContent().length() > MAX_TEXT_SIZE) {
-            throw new RuntimeException(ErrorCN.Topic.TEXT_SIZE_LIMIT);
-        }
-        if (topic.getTheme() == null) {
-            topic.setTheme(new TopicTheme());
-        }
-        if (topic.getTheme().getId() != null) {
-            topicThemeRepository.updateTopicCount(topic.getTheme().getId());
-        }
+        checkTopicContent(topic);
+        updateTheme(topic);
+        codeRepository.setCode(Constants.EMOJI_CODE);
         topicRepository.insertTopic(topic);
+        List<TopicImage> imageList = saveImages(files, topic);
+        setImage(imageList, topic);
 
-        //批量插入图片
+        Topic returnTopic = new Topic();
+        //获取原帖
+        Topic originTopic = getOriginTopic(topic);
+        if (originTopic == null) {
+            throw new RuntimeException(ErrorCN.Topic.TOPIC_NOT_FOUND);
+        }
+        //发帖加10分，回帖加5分
+        if (topic.getTopicId() == null) {
+            accountInfoService.updateExp(topic.getAccountId(), topicProperties.getCreateExp());
+            return returnTopic;
+        }
+        //更新回帖数
+        topicRepository.updateReplyNum(topic.getTopicId());
+
+        //获取原帖用户
+        AccountInfo originTopicAccount = topicRepository.queryAccountByTopic(new TopicQuery(topic.getTopicId())).get(0);
+        //回帖用户加5分
+        accountInfoService.updateExp(topic.getAccountId(), topicProperties.getReplyExp());
+        //被回帖，原贴用户加2分
+        accountInfoService.updateExp(originTopicAccount.getAccountId(), topicProperties.getLikeExp());
+        Map<Integer, AccountInfo> noticeAccountMap = new HashMap<>();
+
+        //判断原帖的用户是不是发帖的用户，如果是则不加入通知队列中
+        if (!Objects.equals(originTopicAccount.getAccountId(), topic.getAccountId())) {
+            noticeAccountMap.put(originTopicAccount.getAccountId(), originTopicAccount);
+        }
+
+        //如果是评论回帖（即楼中楼），读取该楼层所有评论的用户，用于消息通知
+        if (topic.getParentId() != null) {
+            buildReplyNoticeMap(topic, noticeAccountMap);
+            //获取该楼层的主贴（回帖）
+            returnTopic = topicRepository.queryTopics(new TopicQuery(topic.getParentId())).get(0);
+        } else {
+            returnTopic = topicRepository.queryTopics(new TopicQuery(topic.getId())).get(0);
+        }
+
+        if (noticeAccountMap.isEmpty()) {
+            return returnTopic;
+        }
+        List<AccountInfo> noticeAccounts = new ArrayList<>(noticeAccountMap.values());
+
+
+        sendNotification(topic, noticeAccounts, originTopic, TopicNotification.Action.Comment);
+        LOGGER.info("a topic create or reply,then send SMS topicLikeRepository users!");
+        return returnTopic;
+    }
+
+    @Async
+    private void sendNotification(Topic topic, List<AccountInfo> noticeAccounts, Topic originTopic, TopicNotification.Action action) {
+        TopicNotification notification = new TopicNotification();
+        notification.setAccountInfo(accountInfoRepository.queryOneInfo(topic.getAccountId()));
+        notification.setOriginTopic(originTopic);
+        notification.setTopic(topic);
+        notification.setAction(action);
+        notification.setTime(new Date());
+
+        EasemobRequest easemobRequest = new EasemobRequest();
+        easemobRequest.setFrom(ConstantKeys.EVE_PLATFORM);
+        easemobRequest.setTarget(getEasemobUserIds(noticeAccounts));
+        easemobRequest.setTarget_type(EasemobRequest.TargetType.users);
+        easemobRequest.setMsg(new EasemobRequest.Msg(buildMsg(action, topic)));
+        Map<String, String> ext = new HashMap<>();
+        ext.put("type", EasemobType.Topic.name());
+        ext.put("json", JSON.toJSONString(notification));
+        easemobRequest.setExt(ext);
+        easemobService.sendMessages(easemobRequest);
+    }
+
+    private String buildMsg(TopicNotification.Action action, Topic topic) {
+        String msg;
+        if (TopicNotification.Action.Comment.equals(action)) {
+            msg = topic.getAccountId() + ":" + topic.getContent();
+        } else {
+            msg = topic.getAccountId() + topicProperties.getLikeNotificationMsg();
+        }
+        return msg;
+    }
+
+    /**
+     * 获取该楼层的所有用户（包括楼主，不包括自己）
+     */
+    private void buildReplyNoticeMap(Topic topic, Map<Integer, AccountInfo> map) {
+        //获取该楼层下所以回帖用户
+        TopicQuery query = new TopicQuery();
+        query.setAccountId(topic.getAccountId());
+        query.setParentId(topic.getParentId());
+        topicRepository.queryAccountByTopic(query)
+                .forEach(accountInfo -> map.put(accountInfo.getAccountId(), accountInfo));
+        //获取楼层的层主
+        TopicQuery replyQuery = new TopicQuery();
+        replyQuery.setTopicId(topic.getParentId());
+        replyQuery.setAccountId(topic.getAccountId());
+        topicRepository.queryAccountByTopic(replyQuery)
+                .forEach(accountInfo -> map.put(accountInfo.getAccountId(), accountInfo));
+    }
+
+    private List<TopicImage> saveImages(MultipartFile[] files, Topic topic) {
         List<TopicImage> imageList = new LinkedList<>();
         if (files != null && files.length > 0) {
-            List<TopicImage> imageUrlList = ImageBaseUtil.uploadTopicImages(files, topicImageUrlCreatePrefix, topicImageUrlReadPrefix);
+            List<TopicImage> imageUrlList = ImageBaseUtil.uploadTopicImages(files, topicProperties
+                    .getTopicCreateUrlPrefix(), topicProperties.getTopicReadUrlPrefix());
             for (TopicImage topicImage : imageUrlList) {
                 topicImage.setTopicId(topic.getId());
                 imageList.add(topicImage);
             }
             topicImageRepository.insert(imageList);
-            setImage(imageList, topic);
         }
-
-        LOGGER.info("a topic create or reply.  {}", JSON.toJSONString(topic, true));
-
-        Integer accountId = topic.getAccountId();//发帖或回帖的用户id
-
-        Integer topicId = topic.getTopicId();//主贴id
-        Topic returnTopic = new Topic();
-        //发帖加10分，回帖加5分
-        if (topicId == null) {
-            accountInfoService.updateExp(accountId, TOPIC_EXP);
-            return returnTopic;
-        }
-        //更新回帖数
-        TopicQuery replyUpdate = new TopicQuery(topicId);
-        replyUpdate.setReplyUpdateNum(1);
-        topicRepository.updateTopic(replyUpdate);
-
-        TopicQuery query = new TopicQuery();
-        query.setTopicId(topicId);
-
-        List<AccountInfo> originAccountList = topicRepository.queryAccountByTopic(query);//原帖用户
-
-        //回帖用户加5分
-        accountInfoService.updateExp(accountId, REPLY_EXP);
-        //被回帖，主贴用户加2分
-        accountInfoService.updateExp(originAccountList.get(0).getAccountId(), LIKE_EXP);
-
-        //下面部分为消息推送
-        TopicNotification notification = new TopicNotification();
-
-        List<AccountInfo> noticeAccounts;//要被消息通知的用户
-        Map<Integer, AccountInfo> noticeAccountMap = new HashMap<>();//用户存用户id和信息
-        Integer parentId = topic.getParentId();
-
-        //如果是评论回帖（即楼中楼），读取该楼层所有评论的用户，用于消息通知
-        if (parentId != null) {
-            query.setAccountId(accountId);
-            query.setParentId(parentId);
-            query.setTopicId(null);
-            noticeAccounts = topicRepository.queryAccountByTopic(query);
-            if (noticeAccounts == null || noticeAccounts.isEmpty()) {
-                noticeAccounts = new LinkedList<>();
-            }
-            listConvertToMap(noticeAccounts, noticeAccountMap);
-            query.setTopicId(parentId);
-            query.setParentId(null);
-
-            //获取该回帖的用户,加入被通知用户队列中
-            List<AccountInfo> replyAccounts = topicRepository.queryAccountByTopic(query);
-            if (replyAccounts != null && !replyAccounts.isEmpty()) {
-                noticeAccountMap.put(replyAccounts.get(0).getAccountId(), replyAccounts.get(0));
-            }
-
-            //获取该回帖并设置属性
-            TopicQuery newQuery = new TopicQuery();
-            newQuery.setId(parentId);
-            returnTopic = topicRepository.queryTopics(newQuery).get(0);
-            //设置贴子的图片
-            setImage(topicImageRepository.query(parentId), returnTopic);
-            //设置楼中楼帖子
-            returnTopic.setComments(topicRepository.queryComments(parentId));
-        } else {
-            TopicQuery newQuery = new TopicQuery(topic.getId());
-            returnTopic = topicRepository.queryTopics(newQuery).get(0);
-            setImage(imageList, returnTopic);//设置贴子的图片
-            returnTopic.setComments(Collections.emptyList());
-        }
-        //判断原帖的用户是不是发帖的用户，如果是则不加入通知队列中
-        if (!Objects.equals(originAccountList.get(0).getAccountId(), accountId)) {
-            noticeAccountMap.put(originAccountList.get(0).getAccountId(), originAccountList.get(0));
-        }
-        noticeAccounts = new ArrayList<>(noticeAccountMap.values());
-
-        if (noticeAccounts.isEmpty()) {
-            return returnTopic;
-        }
-        List<String> easemobUserIds = getEasemobUserIds(noticeAccounts);
-        AccountInfo accountInfo = accountInfoRepository.queryOneInfo(topic.getAccountId());
-
-        //获取原帖
-        Topic originTopic = getOriginTopic(topicId);
-        if (originTopic == null) {
-            throw new RuntimeException(ErrorCN.Topic.TOPIC_NOT_FOUND);
-
-        }
-
-        //设置是否喜欢
-        setTopicLiked(originTopic, accountId);
-        //获取定位
-        originTopic.setPosition(getPosition(topic));
-
-        notification.setAccountInfo(accountInfo);
-        notification.setOriginTopic(originTopic);
-        notification.setTopic(topic);
-        notification.setAction(TopicNotification.Action.Comment);
-        notification.setTime(new Date());
-
-        sendMessage(notification, easemobUserIds, accountInfo.getNickname() + ":" + topic.getContent());
-        LOGGER.info("a topic create or reply,then send SMS topicLikeRepository users!");
-        return returnTopic;
+        return imageList;
     }
 
-    private Topic getOriginTopic(Integer topicId) {
-        TopicQuery query = new TopicQuery();
-        query.setId(topicId);
+    private void checkTopicContent(Topic topic) {
+        if (topic.getContent().length() > topicProperties.getMaxContentSize()) {
+            throw new RuntimeException(ErrorCN.Topic.TEXT_SIZE_LIMIT);
+        }
+    }
 
-        //获取原帖
+    /**
+     * 更新主题帖子数
+     */
+    private void updateTheme(Topic topic) {
+        if (topic.getTheme().getId() != null) {
+            topicThemeRepository.updateTopicCount(topic.getTheme().getId());
+        }
+    }
+
+    private Topic getOriginTopic(Topic topic) {
+        if (topic.getTopicId() == null) return topic;
+        TopicQuery query = new TopicQuery();
+        query.setId(topic.getTopicId());
+        query.setAccountId(topic.getAccountId());
         List<Topic> originTopics = topicRepository.queryTopics(query);
-        if (originTopics == null || originTopics.isEmpty()) {
+        if (originTopics.isEmpty()) {
             return null;
         }
         Topic originTopic = originTopics.get(0);
-        List<TopicImage> images = topicImageRepository.query(topicId);
-        setImage(images, originTopic);//设置贴子的图片
+        //获取回复所在的定位
+        originTopic.setPosition(getPosition(topic));
         return originTopic;
-    }
-
-    private void setTopicLiked(Topic topic, Integer accountId) {
-        TopicQuery query = new TopicQuery();
-        query.setTopicId(topic.getId());
-        query.setAccountId(accountId);
-        List<TopicQuery> likes = topicLikeRepository.query(query);
-        if (likes != null && !likes.isEmpty()) {
-            topic.setIsLiked(true);
-        }
     }
 
     /**
@@ -451,48 +403,33 @@ public class TopicServiceImpl implements TopicService {
         return topicRepository.queryPosition(query);
     }
 
-    //消息推送
-    private void sendMessage(TopicNotification notification, List<String> easemobUserIds, String msgContent) {
-        EasemobRequest easemobRequest = new EasemobRequest();
-        String FROM = "小言高考";
-        easemobRequest.setFrom(FROM);
-        easemobRequest.setTarget(easemobUserIds);
-        easemobRequest.setTarget_type(EasemobRequest.TargetType.users);
-        easemobRequest.setMsg(new EasemobRequest.Msg(msgContent));
-        Map<String, String> ext = new HashMap<>();
-        ext.put("type", EasemobType.Topic.name());
-        ext.put("json", JSON.toJSONString(notification));
-        easemobRequest.setExt(ext);
-        LOGGER.info("notification info ,{}", JSON.toJSONString(notification, true));
-        easemobService.sendMessages(easemobRequest);
-    }
-
     private List<String> getEasemobUserIds(List<AccountInfo> accountHashIds) {
-        List<String> easemobUserIds = new LinkedList<>();
-        for (AccountInfo info : accountHashIds) {
-            String easemobUserName;
-            try {
-                easemobUserName = go4BaseUtil.getAccountDetailByHashId(info.getHashId()).getEasemob().getUsername();
-                if (StringUtils.isEmpty(easemobUserName)) {
-                    LOGGER.info("get easemob username failed,hashId,{}", info);
-                    continue;
-                }
-            } catch (Exception ex) {
-                LOGGER.info("get detail failed,hashId,{}", info);
-                LOGGER.info("get detail failed,exception,{}", ex.getMessage());
-                continue;
-            }
-            easemobUserIds.add(easemobUserName);
-        }
-        return easemobUserIds;
+        return accountHashIds.stream()
+                .map(info -> {
+                    String easemobUserName = null;
+                    try {
+                        easemobUserName = go4BaseUtil.getAccountDetailByHashId(info.getHashId()).getEasemob().getUsername();
+                    } catch (Exception ex) {
+                        LOGGER.error(ex.getMessage(), ex);
+                    }
+                    return easemobUserName;
+                })
+                .filter(StringUtils::isEmpty)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Topic> readTimelines(TopicQuery query) {
-        List<Topic> myTopics = topicRepository.queryMyTopic(query);
-        setOriginTopic(myTopics);
-        setImages(myTopics);
-        return myTopics;
+    public PageResult<Topic> readTimelines(TopicQuery query) {
+
+        Integer count = count(query);
+        PageResult<Topic> pageResult = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        if (count > 0) {
+            List<Topic> topics = topicRepository.queryMyTopic(query);
+            setOriginTopic(topics);
+            setImages(topics);
+            pageResult.setList(topics);
+        }
+        return pageResult;
     }
 
     @Override
@@ -500,13 +437,12 @@ public class TopicServiceImpl implements TopicService {
         Integer topicId = query.getTopicId();
         Integer accountId = query.getAccountId();
         LOGGER.info("delete topic ,info {}", JSON.toJSONString(query));
-        TopicQuery newQuery = new TopicQuery();
-        newQuery.setId(topicId);
+        TopicQuery newQuery = new TopicQuery(topicId);
         Topic topic = topicRepository.queryTopics(newQuery).get(0);
         if (accountId != null && !Objects.equals(accountId, topic.getAccountId())) return;
         int updateExp;
         if (topic.getTopicId() != null) {
-            updateExp = REPLY_EXP;
+            updateExp = topicProperties.getReplyExp();
             newQuery.setId(topic.getId());
             if (topic.getParentId() == null) {
                 Integer countDelete = topicRepository.countComment(topic.getId()) + 1;
@@ -517,19 +453,19 @@ public class TopicServiceImpl implements TopicService {
             newQuery.setId(topic.getTopicId());
             topicRepository.updateTopic(newQuery);
         } else {
-            updateExp = TOPIC_EXP + topic.getReplyCount() * LIKE_EXP;
+            updateExp = topicProperties.getCreateExp() + topic.getReplyCount() * topicProperties.getLikeExp();
         }
         if (accountId != null) {
-            LOGGER.info("exp update", updateExp * -1);
+            LOGGER.info("exp updateBuyCount", updateExp * -1);
             accountInfoService.updateExp(accountId, updateExp * -1);
         }
         topicRepository.delete(topic.getId());
     }
 
+    // TODO: 2/23/2017 讨论区后台功能
     @Override
     public void setTop(Integer topicId) {
-        TopicQuery query = new TopicQuery();
-        query.setId(topicId);
+        TopicQuery query = new TopicQuery(topicId);
         Topic topic = topicRepository.queryTopics(query).get(0);
         query.setPinTop(!topic.getIsPinTop());
         topicRepository.updateTopic(query);
@@ -567,15 +503,6 @@ public class TopicServiceImpl implements TopicService {
         return topicRepository.queryAccountByTopic(query);
     }
 
-    private void listConvertToMap(List<AccountInfo> noticeAccountList, Map<Integer, AccountInfo> noticeAccountMap) {
-        if (noticeAccountList.isEmpty()) {
-            return;
-        }
-        for (AccountInfo ai : noticeAccountList) {
-            noticeAccountMap.put(ai.getAccountId(), ai);
-        }
-    }
-
     @Override
     public void setStamp(TopicQuery query) {
         topicRepository.updateTopic(query);
@@ -592,7 +519,7 @@ public class TopicServiceImpl implements TopicService {
         try {
             topicThemeRepository.insert(theme);
         } catch (Exception e) {
-            throw new RuntimeException(ErrorCN.Topic.THEME_EXISTED);
+            throw new EveException(ErrorCN.Topic.THEME_EXISTED);
         }
     }
 
@@ -615,9 +542,9 @@ public class TopicServiceImpl implements TopicService {
         }
         topic.setIsLive(Boolean.TRUE);
         topic.setLiveStatus(Topic.LiveStatus.Living);
-        codeRepository.setCode();
-        if (topic.getContent().length() > MAX_TEXT_SIZE) {
-            throw new RuntimeException(ErrorCN.Topic.TEXT_SIZE_LIMIT);
+        codeRepository.setCode(Constants.EMOJI_CODE);
+        if (topic.getContent().length() > topicProperties.getMaxContentSize()) {
+            throw new EveException(ErrorCN.Topic.TEXT_SIZE_LIMIT);
         }
         if (topic.getTheme() == null) {
             topic.setTheme(new TopicTheme());
@@ -630,7 +557,8 @@ public class TopicServiceImpl implements TopicService {
         List<TopicImage> imageList = new LinkedList<>();
         if (files != null && files.length > 0) {
             Integer newTopicId = topicRepository.queryId(topic);
-            List<TopicImage> imageUrlList = ImageBaseUtil.uploadTopicImages(files, topicImageUrlCreatePrefix, topicImageUrlReadPrefix);
+            List<TopicImage> imageUrlList = ImageBaseUtil.uploadTopicImages(files, topicProperties
+                    .getTopicCreateUrlPrefix(), topicProperties.getTopicReadUrlPrefix());
             for (TopicImage topicImage : imageUrlList) {
                 topicImage.setTopicId(newTopicId);
                 imageList.add(topicImage);
@@ -641,27 +569,22 @@ public class TopicServiceImpl implements TopicService {
     }
 
     private void setLive(List<Topic> topics) {
-        for (Topic topic : topics) {
-            if (!topic.getIsLive()) {
-                continue;
-            }
-            AccountInfo info;
-            try {
-                info = go4BaseUtil.getAccountDetailByHashId(topic.getAccountHashId());
-            } catch (Exception ex) {
-                LOGGER.error(ex.getMessage());
-                LOGGER.error("getAccountDetailByHashId failed ,hashId : {},accountId:{}" + topic.getAccountHashId(), topic.getAccountId());
-                continue;
-            }
-            topic.setCsDisplayName(info.getNickname());
-        }
+        topics.stream()
+                .filter(Topic::getIsLive)
+                .forEach(topic -> {
+                    try {
+                        AccountInfo info = go4BaseUtil.getAccountDetailByHashId(topic.getAccountHashId());
+                        topic.setCsDisplayName(info.getNickname());
+                    } catch (Exception ex) {
+                        LOGGER.error(ex.getMessage(), ex);
+                    }
 
+                });
     }
 
     @Override
     public void updateLiveStatus(Integer topicId) {
-        TopicQuery query = new TopicQuery();
-        query.setId(topicId);
+        TopicQuery query = new TopicQuery(topicId);
 
         List<Topic> topics = topicRepository.queryTopics(query);
         if (topics == null || topics.isEmpty()) {

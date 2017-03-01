@@ -11,7 +11,6 @@
 package dayan.eve.web.rest;
 
 import dayan.eve.model.JsonResult;
-import dayan.eve.model.JsonResultList;
 import dayan.eve.model.account.AccountInfo;
 import dayan.eve.model.query.AccountQuery;
 import dayan.eve.service.AccountInfoService;
@@ -63,7 +62,7 @@ public class AccountResource {
     public JsonResult info(HttpServletRequest request) {
         JsonResult jsonResult = new JsonResult();
         AccountQuery query = new AccountQuery();
-        query.setId(requestService.getUserNumber(request));
+        query.setId(requestService.getAccountId(request));
         jsonResult.setData(accountService.read(query).get(0));
         return jsonResult;
     }
@@ -72,7 +71,7 @@ public class AccountResource {
     @RequestMapping(value = "/updateInfo", method = RequestMethod.POST)
     public JsonResult updateInfo(@RequestBody InfoUpdateDTO infoUpdateDTO, HttpServletRequest request) throws Exception {
         AccountInfo accountInfo = buildAccountInfo(infoUpdateDTO);
-        accountInfo.setAccountId(requestService.getUserNumber(request));
+        accountInfo.setAccountId(requestService.getAccountId(request));
         accountInfoService.updateInfo(accountInfo);
         return new JsonResult();
     }
@@ -80,7 +79,7 @@ public class AccountResource {
     @ApiOperation("更新分享")
     @RequestMapping(value = "/updateShared", method = RequestMethod.POST)
     public JsonResult updateShared(HttpServletRequest request) {
-        accountInfoService.updateShared(requestService.getUserNumber(request));
+        accountInfoService.updateShared(requestService.getAccountId(request));
         return new JsonResult();
     }
 
@@ -95,7 +94,7 @@ public class AccountResource {
     @ApiOperation("读取个人信息")
     @RequestMapping(value = "/readInfo", method = RequestMethod.POST)
     public JsonResult readInfo(HttpServletRequest request) throws Exception {
-        return new JsonResult(accountInfoService.readInfo(requestService.getUserNumber(request)));
+        return new JsonResult(accountInfoService.readInfo(requestService.getAccountId(request)));
 
     }
 
@@ -107,8 +106,8 @@ public class AccountResource {
 
     @ApiOperation("根据环信读用户列表")
     @RequestMapping(value = "/readAccountsByEasemob", method = RequestMethod.POST)
-    public JsonResultList readAccountsByEasemob(@RequestBody InfoReadQueryDTO queryDTO) {
-        return new JsonResultList(accountInfoService.readAccountListByEasemob(queryDTO.getEasemobUsernames()));
+    public JsonResult readAccountsByEasemob(@RequestBody InfoReadQueryDTO queryDTO) {
+        return new JsonResult(accountInfoService.readAccountListByEasemob(queryDTO.getEasemobUsernames()));
     }
 
 
@@ -116,7 +115,7 @@ public class AccountResource {
     @RequestMapping(value = "/updateAvatar", method = RequestMethod.POST)
     public JsonResult updateAvatar(HttpServletRequest request, @RequestParam(value = "files")
             MultipartFile file) throws Exception {
-        Integer accountId = requestService.getUserNumber(request);
+        Integer accountId = requestService.getAccountId(request);
         return new JsonResult(accountService.updateAvatar(accountId, file));
     }
 

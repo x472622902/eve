@@ -1,9 +1,9 @@
 /**
  * *****************************************************
  * Copyright (C) Dayan techology Co.ltd - All Rights Reserved
- *
+ * <p>
  * This file is part of Dayan techology Co.ltd property.
- *
+ * <p>
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * *****************************************************
@@ -20,13 +20,19 @@ public class JsonResultList extends JsonResult {
     public JsonResultList() {
     }
 
+    public <T> JsonResultList(PageResult<T> pageResult) {
+        super.setData(pageResult.getList());
+        this.pager = pageResult.getPager();
+    }
+
+
     public JsonResultList(String info, Boolean success) {
         super(info, success);
     }
 
-    public JsonResultList(Object data) {
-        super(data);
-    }
+//    public JsonResultList(Object data) {
+//        super(data);
+//    }
 
     public Pager getPager() {
         return pager;

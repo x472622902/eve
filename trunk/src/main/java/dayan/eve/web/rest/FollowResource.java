@@ -12,8 +12,9 @@ package dayan.eve.web.rest;
 
 import com.alibaba.fastjson.JSON;
 import dayan.common.util.SchoolPlatformIdEncoder;
-import dayan.eve.model.*;
-import dayan.eve.model.account.AccountInfo;
+import dayan.eve.model.Constants;
+import dayan.eve.model.JsonResult;
+import dayan.eve.model.JsonResultList;
 import dayan.eve.model.easemob.EasemobResult;
 import dayan.eve.model.easemob.EasemobType;
 import dayan.eve.model.query.FollowQuery;
@@ -37,7 +38,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,28 +71,15 @@ public class FollowResource {
     @ApiOperation("关注学校的用户列表")
     @RequestMapping(value = "/readAccounts", method = RequestMethod.POST)
     public JsonResultList readAccounts(@RequestBody FollowDTO followDTO) {
-        PageResult<AccountInfo> pageResult = schoolFollowService.readAccounts(buildQueryOfSchool(followDTO));
-        JsonResultList result = new JsonResultList();
-        result.setData(pageResult.getList());
-        result.setPager(pageResult.getPager());
-        return result;
+        return new JsonResultList(schoolFollowService.readAccounts(buildQueryOfSchool(followDTO)));
     }
 
     @ApiOperation("关注的学校列表")
     @RequestMapping(value = "/readSchools", method = RequestMethod.POST)
-    public JsonResultList readSchools(@RequestBody FollowSchoolQueryDTO queryDTO, HttpServletRequest request) {
-        JsonResultList result = new JsonResultList();
-        FollowQuery query = buildQueryOfAccount(queryDTO);
-        query.setAccountId(requestService.getAccountId(request));
-        if (query.getAccountId() != null) {
-            PageResult<School> pageResult = schoolFollowService.readSchools(query);
-            result.setData(pageResult.getList());
-            result.setPager(pageResult.getPager());
-        } else {
-            result.setData(Collections.emptyList());
-            result.setPager(new Pager(0, 1, 20));
-        }
-        return result;
+    public JsonResult readSchools(HttpServletRequest request) {
+        FollowQuery query = new FollowQuery();
+        query.setAccountId(requestService.getAccountIdValue(request));
+        return new JsonResult(schoolFollowService.readSchools(query).getList());
     }
 
     @ApiOperation("walle学校向关注的用户推送消息")
@@ -122,7 +109,7 @@ public class FollowResource {
     @RequestMapping(value = "/follow", method = RequestMethod.POST)
     public JsonResult follow(@RequestBody FollowSchoolQueryDTO queryDTO, HttpServletRequest request) {
         FollowQuery followQuery = buildQueryOfAccount(queryDTO);
-        followQuery.setAccountId(requestService.getUserNumber(request));
+        followQuery.setAccountId(requestService.getAccountId(request));
         schoolFollowService.follow(followQuery);
         return new JsonResult();
     }
@@ -131,7 +118,7 @@ public class FollowResource {
     @RequestMapping(value = "/cancel", method = RequestMethod.POST)
     public JsonResult cancel(@RequestBody FollowSchoolQueryDTO queryDTO, HttpServletRequest request) {
         FollowQuery followQuery = buildQueryOfAccount(queryDTO);
-        followQuery.setAccountId(requestService.getUserNumber(request));
+        followQuery.setAccountId(requestService.getAccountId(request));
         schoolFollowService.cancel(followQuery);
         return new JsonResult();
     }

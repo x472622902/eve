@@ -14,6 +14,8 @@ import dayan.eve.config.EveProperties;
 import dayan.eve.exception.ErrorCN;
 import dayan.eve.model.ClockTimer;
 import dayan.eve.model.ClockTimer.Status;
+import dayan.eve.model.Constants;
+import dayan.eve.model.PageResult;
 import dayan.eve.model.Pager;
 import dayan.eve.model.account.AccountInfo;
 import dayan.eve.model.query.ClockQuery;
@@ -38,11 +40,8 @@ public class ClockService {
 
     private static final Logger LOGGER = LogManager.getLogger(ClockService.class);
     private EveProperties.Clock clockProperties;
-
     private final ClockRepository clockRepository;
-
     private final CodeRepository codeRepository;
-
     private final AccountInfoRepository accountInfoRepository;
 
     @Autowired
@@ -63,7 +62,7 @@ public class ClockService {
         query.setReadToday(true);
         List<ClockTimer> clockTimers = clockRepository.query(query);
 
-        codeRepository.setCode();
+        codeRepository.setCode(Constants.EMOJI_CODE);
         AccountInfo accountInfo = accountInfoRepository.queryOneInfo(query.getAccountId());
 
         if (clockTimers != null && !clockTimers.isEmpty()) {
@@ -237,12 +236,16 @@ public class ClockService {
         return null;
     }
 
-    public List<ClockTimer> readClocks(ClockQuery query) {
-        List<ClockTimer> clocks = clockRepository.queryClocks(query);
-        if (clocks == null || clocks.isEmpty()) {
-            clocks = Collections.emptyList();
+    public PageResult<ClockTimer> readClocks(ClockQuery query) {
+        Integer count = 0;
+        if (query.getAccountId() != null) {
+            count = clockRepository.countClock(query);
         }
-        return clocks;
+        PageResult<ClockTimer> pageResult = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        if (count > 0) {
+            pageResult.setList(clockRepository.queryClocks(query));
+        }
+        return pageResult;
     }
 
     public void updateContinuousCount() {

@@ -79,8 +79,6 @@ public interface TopicRepository {
     /**
      * 更新点赞次数
      */
-    void updateLikeNum(TopicQuery query);
-
     Integer queryId(Topic topic);
 
     /**
@@ -101,7 +99,7 @@ public interface TopicRepository {
     //用于统计被删的回复数
     Integer countComment(Integer id);
 
-    void updateReplyNum(TopicQuery query);
+    void updateReplyNum(Integer topicId);
 
     /**
      * 更新帖子的被赞数、被踩数、回复数、置顶
@@ -116,4 +114,8 @@ public interface TopicRepository {
      * 查询回帖定位
      */
     Integer queryPosition(TopicQuery query);
+
+    void updateLikeNum(Integer topicId);
+
+    void updateDislikeNum(Integer topicId);
 }

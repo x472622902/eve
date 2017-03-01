@@ -8,6 +8,21 @@
                 AND a.id = #{id}
             </when>
             <otherwise>
+                <if test='themeId != null'>
+                    AND a.theme_id = #{themeId}
+                </if>
+                <if test='content != null'>
+                    AND a.content LIKE CONCAT('%',#{content},'%')
+                </if>
+                <if test='isLive != null and isLive ==true'>
+                    AND a.is_live = 1
+                </if>
+                <if test='isLive != null and isLive == false'>
+                    AND a.is_live = 0
+                </if>
+                <if test='isPopular != null and isPopular == true'>
+                    AND a.like_num != 0
+                </if>
                 <choose>
                     <when test="isMyTopic == null">
                         <choose>
@@ -31,21 +46,6 @@
                 </choose>
             </otherwise>
         </choose>
-        <if test='themeId != null'>
-            AND a.theme_id = #{themeId}
-        </if>
-        <if test='content != null'>
-            AND a.content LIKE CONCAT('%',#{content},'%')
-        </if>
-        <if test='isLive != null and isLive ==true'>
-            AND a.is_live = 1
-        </if>
-        <if test='isLive != null and isLive == false'>
-            AND a.is_live = 0
-        </if>
-        <if test='isPopular != null and isPopular == true'>
-            AND a.like_num != 0
-        </if>
         AND ( b.is_block = 0 OR a.account_id = #{accountId})
         AND a.is_deleted = 0
     </sql>
@@ -163,7 +163,7 @@
         <collection property="imageUrls" ofType="String">
             <result column="middle_image_url"/>
         </collection>
-        <collection property="comments"  ofType="dayan.eve.model.topic.Topic">
+        <collection property="comments" ofType="dayan.eve.model.topic.Topic">
             <result column="comment.id" property="id"/>
             <result column="comment.content" property="content"/>
             <result column="comment.accountId" property="accountId"/>
@@ -231,57 +231,57 @@
             ,
             o.id "comment.id",
             o.content "comment.content",
-            o.account_id    "comment.accountId",
-            o.gmt_create    "comment.topicDate",
-            o.topic_id      "comment.topicId",
-            o.parent_id     "comment.parentId",
+            o.account_id "comment.accountId",
+            o.gmt_create "comment.topicDate",
+            o.topic_id "comment.topicId",
+            o.parent_id "comment.parentId",
             p.nickname "comment.nickname"
         </if>
         <if test="accountId != null">
             ,
             EXISTS (
-                SELECT id
-                FROM eve_topic_like
-                WHERE topic_id =z.id
-                AND account_id = #{accountId}
-                AND is_deleted = 0
+            SELECT id
+            FROM eve_topic_like
+            WHERE topic_id =z.id
+            AND account_id = #{accountId}
+            AND is_deleted = 0
             ) AS "isLiked",
             EXISTS (
-                SELECT id
-                FROM eve_topic_dislike
-                WHERE topic_id =z.id
-                AND account_id = #{accountId}
-                AND is_deleted = 0
+            SELECT id
+            FROM eve_topic_dislike
+            WHERE topic_id =z.id
+            AND account_id = #{accountId}
+            AND is_deleted = 0
             ) AS "isDisliked"
         </if>
         FROM(
-            SELECT
-                a.`id`,
-                a.`account_id` ,
-                a.`content`,
-                a.`topic_id` ,
-                a.`parent_id`,
-                a.`theme_id`,
-                a.`school_id` ,
-                a.`like_num`,
-                a.`dislike_num` ,
-                a.`is_pin_top` ,
-                a.`is_live` ,
-                a.`live_status`,
-                a.`live_time` ,
-                a.`reply_count`,
-                a.`stamp_url`,
-                b.`nickname` ,
-                b.`hash_id`,
-                a.`gmt_create`,
-                a.`gmt_modify`
-            FROM
-            `eve_topic` a
-            LEFT JOIN `eve_account` b ON a.account_id = b.id
-            WHERE 1 = 1
-            <include refid="where"/>
-            <include refid="order"/>
-            <include refid="limit"/>
+        SELECT
+        a.`id`,
+        a.`account_id` ,
+        a.`content`,
+        a.`topic_id` ,
+        a.`parent_id`,
+        a.`theme_id`,
+        a.`school_id` ,
+        a.`like_num`,
+        a.`dislike_num` ,
+        a.`is_pin_top` ,
+        a.`is_live` ,
+        a.`live_status`,
+        a.`live_time` ,
+        a.`reply_count`,
+        a.`stamp_url`,
+        b.`nickname` ,
+        b.`hash_id`,
+        a.`gmt_create`,
+        a.`gmt_modify`
+        FROM
+        `eve_topic` a
+        LEFT JOIN `eve_account` b ON a.account_id = b.id
+        WHERE 1 = 1
+        <include refid="where"/>
+        <include refid="order"/>
+        <include refid="limit"/>
         ) as z
         LEFT JOIN `eve_account_info` c ON c.account_id = z.account_id
         LEFT JOIN `const_province` d ON c.province_id = d.id
@@ -294,7 +294,7 @@
             LEFT JOIN eve_topic_theme l ON i.theme_id = l.id
         </if>
         <if test="topicId != null">
-            LEFT JOIN `eve_topic` o ON  z.id = o.parent_id  AND o.is_deleted = 0
+            LEFT JOIN `eve_topic` o ON z.id = o.parent_id AND o.is_deleted = 0
             LEFT JOIN eve_account p ON o.account_id = p.id
             LEFT JOIN eve_account_info q ON o.account_id = q.account_id
         </if>
@@ -464,17 +464,8 @@
         UPDATE
             `eve_topic` a
         SET
-            a.`reply_count` = a.`reply_count` + #{num},
+            a.`reply_count` = a.`reply_count` + 1,
             a.gmt_modify    = NOW()
-        WHERE
-            a.id = #{topicId}
-    </update>
-
-    <update id="updateLikeNum">
-        UPDATE
-            `eve_topic` a
-        SET
-            a.`like_num` = a.`like_num` + #{num}
         WHERE
             a.id = #{topicId}
     </update>
@@ -599,7 +590,7 @@
             AND b.parent_id = #{parentId}
         </if>
         <if test='topicId != null'>
-            AND b.id = #{topicId}
+            AND b.id = #{id}
         </if>
         <if test='accountId != null'>
             AND a.id != #{accountId}
@@ -650,6 +641,17 @@
         </if>
         WHERE
         id = #{id}
+    </update>
+    <update id="updateLikeNum">
+        UPDATE eve_topic
+        SET like_num = like_num + 1
+        WHERE id = #{topicId}
+    </update>
+
+    <update id="updateDislikeNum">
+        UPDATE eve_topic
+        SET dislike_num = dislike_num + 1
+        WHERE id = #{topicId}
     </update>
 
     <select id="queryAllTopics" resultType="dayan.eve.model.topic.Topic">

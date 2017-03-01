@@ -11,11 +11,13 @@
 package dayan.eve.repository;
 
 import dayan.eve.model.query.RecommendQuery;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  *
  * @author xsg
  */
+@Mapper
 public interface ScoreRankRepository {
 
     /**

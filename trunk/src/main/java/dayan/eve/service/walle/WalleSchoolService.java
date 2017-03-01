@@ -81,7 +81,7 @@ public class WalleSchoolService {
     @Autowired
     AccountInfoService accountInfoService;
 
-    public String readHotQuestion(String schoolHashId) {
+    public JSONArray readHotQuestion(String schoolHashId) {
         Map<String, String> params = new HashMap<>();
         Integer schoolId = idEncoder.decode(schoolHashId).intValue();
         Integer platformId = schoolIdPlatformIdUtil.getSchoolIdAndPlatformIdMap().get(schoolId);
@@ -91,16 +91,17 @@ public class WalleSchoolService {
         params.put("platformId", platformId.toString());
         params.put("number", walleProperties.getHotQuestionNum().toString());
         String url = walleProperties.getHot() + "?access_token=" + walleUtil.getAccessToken();
-        String result = null;
+        JSONArray array = new JSONArray();
         try {
-            result = HttpClientUtil.get(url, params);
+            String result = HttpClientUtil.get(url, params);
+            array = JSONObject.parseObject(result).getJSONArray("data");
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
         }
-        return result;
+        return array;
     }
 
-    public String readFreqQuestion(String schoolHashId, Boolean refresh, Integer number) {
+    public JSONArray readFreqQuestion(String schoolHashId, Boolean refresh, Integer number) {
         number = number == null ? walleProperties.getFreqQuestionNum() : number;
         Map<String, String> params = new HashMap<>();
         Integer platformId = walleProperties.getEvePlatformId();
@@ -114,27 +115,28 @@ public class WalleSchoolService {
         }
         params.put("platformId", platformId.toString());
         params.put("refresh", refresh.toString());
-        String url = walleProperties.getFreq() + "?access_token=" + walleUtil.getAccessToken();
+        String url = String.format(walleProperties.getFreq(), walleProperties.getAccessToken());
         String result = null;
+        JSONArray array = new JSONArray();
         try {
             result = HttpClientUtil.get(url, params);
             LOGGER.info("result from walle,{}", result);
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
+            return array;
         }
         JSONObject jsonObject;
         try {
             jsonObject = JSON.parseObject(result);
         } catch (Exception e) {
             LOGGER.error("walle数据返回不是json格式");
-            return JSON.toJSONString(Collections.EMPTY_LIST);
+            return array;
         }
         if (!jsonObject.getBoolean("success")) {
-            return JSON.toJSONString(Collections.EMPTY_LIST);
+            return array;
         }
-        JSONArray array = jsonObject.getJSONArray("data");
-        array = getListBySize(array, number);
-        return JSON.toJSONString(array);
+        array = jsonObject.getJSONArray("data");
+        return getListBySize(array, number);
     }
 
     /**
@@ -163,7 +165,7 @@ public class WalleSchoolService {
         List<AccountInfo> accountInfoList = new LinkedList<>();
         String accessToken = walleUtil.getAccessToken();
         String csResult = null;
-        String url = walleProperties.getCsStaff() + "?access_token=" + accessToken + "&platformId=" + platformId;
+        String url = String.format(walleProperties.getCsStaff(), walleProperties.getAccessToken(), platformId);
         try {
             csResult = HttpClientUtil.get(url);
         } catch (Exception ex) {

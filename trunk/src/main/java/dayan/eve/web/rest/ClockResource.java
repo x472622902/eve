@@ -47,36 +47,32 @@ public class ClockResource {
     @RequestMapping(value = "", method = RequestMethod.POST)
     public JsonResult clockIn(@RequestBody ClockDTO clockDTO, HttpServletRequest request) {
         ClockQuery query = new ClockQuery();
-        query.setAccountId(requestService.getUserNumber(request));
+        query.setAccountId(requestService.getAccountId(request));
         query.setContent(clockDTO.getContent());
         clockService.clockIn(query);
-        JsonResult result = new JsonResult();
-        result.setJsessionid(request.getSession().getId());
-        return result;
+        return new JsonResult();
     }
 
     @RequestMapping(value = "/readStatus", method = RequestMethod.POST)
     public JsonResult check(HttpServletRequest request) {
-        JsonResult result = new JsonResult(clockService.readStatus(requestService.getUserNumber(request)));
-        result.setJsessionid(request.getSession().getId());
-        return result;
+        return new JsonResult(clockService.readStatus(requestService.getAccountId(request)));
     }
 
     @RequestMapping(value = "/readRank", method = RequestMethod.POST)
-    public JsonResultList readTodayClockRank(@RequestBody ClockDTO clockDTO, HttpServletRequest request) {
+    public JsonResult readTodayClockRank(@RequestBody ClockDTO clockDTO, HttpServletRequest request) {
         ClockQuery query = new ClockQuery();
-        query.setAccountId(requestService.getAccountId(request));
+        query.setAccountId(requestService.getAccountIdValue(request));
         query.setReadContinuousRank(clockDTO.getReadContinuousRank());
         query.setReadTodayRank(clockDTO.getReadTodayRank());
         query.setReadTotalRank(clockDTO.getReadTotalRank());
         query.initPaging(clockDTO.getPaging());
-        return new JsonResultList(clockService.readRank(query));
+        return new JsonResult(clockService.readRank(query));
     }
 
     @RequestMapping(value = "/readMyClocks", method = RequestMethod.POST)
     public JsonResultList readMyClocks(@RequestBody ClockDTO clockDTO, HttpServletRequest request) {
         ClockQuery query = new ClockQuery();
-        query.setAccountId(requestService.getUserNumber(request));
+        query.setAccountId(requestService.getAccountId(request));
         query.initPaging(clockDTO.getPaging());
         JsonResultList result = new JsonResultList(clockService.readClocks(query));
         result.setPager(clockService.count(query));

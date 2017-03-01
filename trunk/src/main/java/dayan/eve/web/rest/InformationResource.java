@@ -10,9 +10,7 @@
  */
 package dayan.eve.web.rest;
 
-import dayan.eve.model.Information;
 import dayan.eve.model.JsonResultList;
-import dayan.eve.model.PageResult;
 import dayan.eve.model.query.InformationQuery;
 import dayan.eve.service.InformationService;
 import dayan.eve.web.dto.InformationQueryDTO;
@@ -44,12 +42,7 @@ public class InformationResource {
     @ApiOperation("资讯列表")
     @RequestMapping(value = "/read", method = RequestMethod.POST)
     public JsonResultList readInformations(@RequestBody InformationQueryDTO queryDTO) {
-        InformationQuery query = buildInfoQuery(queryDTO);
-        JsonResultList resultList = new JsonResultList();
-        PageResult<Information> pageResult = informationService.read(query);
-        resultList.setPager(pageResult.getPager());
-        resultList.setData(pageResult.getList());
-        return resultList;
+        return new JsonResultList(informationService.read(buildInfoQuery(queryDTO)));
     }
 
     private InformationQuery buildInfoQuery(InformationQueryDTO queryDTO) {

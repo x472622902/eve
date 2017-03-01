@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.course.CourseTestRepository">
+    <insert id="insert">
+        INSERT INTO eve_course_test
+        (
+            account_id,
+            course_id,
+            cd_key,
+            personality_id,
+            options_str,
+            gmt_create
+        )
+        VALUES
+            (
+                #{accountId},
+                #{courseId},
+                #{cdkey},
+                #{personalityId},
+                #{optionsStr},
+                NOW()
+            )
+    </insert>
+    <select id="query" resultType="dayan.eve.model.course.CourseTestResult">
+        SELECT
+        a.id,
+        a.course_id courseId,
+        b.name courseName,
+        b.test_type testType,
+        c.personality personality,
+        c.personality_code personalityCode,
+        a.gmt_create testDate
+        FROM
+        eve_course_test a
+        LEFT JOIN eve_course b ON a.course_id = b.id
+        LEFT JOIN eve_course_personality c ON a.personality_id = c.id
+        WHERE a.is_deleted = 0
+        <if test="accountId != null">
+            AND a.account_id = #{accountId}
+        </if>
+        <if test="courseId != null">
+            AND a.course_id = #{courseId}
+        </if>
+        <include refid="limit"/>
+    </select>
+    <select id="queryCourseIds" resultType="dayan.eve.model.course.CourseTestResult">
+        SELECT
+        a.id,
+        a.course_id courseId
+        FROM
+        eve_course_test a
+        WHERE a.is_deleted = 0
+        <if test="accountId != null">
+            AND a.account_id = #{accountId}
+        </if>
+        <if test="cdkey != null">
+            AND a.cd_key = #{cdkey}
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        SELECT
+        count(a.id)
+        FROM
+        eve_course_test a
+        WHERE a.is_deleted = 0
+        <if test="accountId != null">
+            AND a.account_id = #{accountId}
+        </if>
+        <if test="courseId != null">
+            AND a.course_id = #{courseId}
+        </if>
+    </select>
+    <select id="queryDetail" resultType="dayan.eve.model.course.CourseTestResult">
+        SELECT
+        a.id,
+        a.course_id courseId,
+        a.options_str optionsStr,
+        a.gmt_create testDate,
+        b.name courseName,
+        b.test_type testType,
+        c.personality personality,
+        c.personality_code personalityCode,
+        d.description
+        FROM
+        eve_course_test a
+        LEFT JOIN eve_course b ON a.course_id = b.id
+        LEFT JOIN eve_course_personality c ON a.personality_id = c.id
+        LEFT JOIN eve_course_personality_description d ON a.personality_id = d.personality_id
+        WHERE a.is_deleted = 0
+        <if test="testId != null">
+            AND a.id = #{testId}
+        </if>
+    </select>
+    <sql id="limit">
+        <if test="limit !=null">
+            LIMIT
+            <if test="start !=null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+</mapper>

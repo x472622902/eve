@@ -12,8 +12,13 @@ package dayan.eve.service;
 
 import dayan.eve.model.Banner;
 import dayan.eve.model.Information;
+import dayan.eve.model.PageResult;
+import dayan.eve.model.School;
 import dayan.eve.model.query.BannerQuery;
 import dayan.eve.model.query.InformationQuery;
+import dayan.eve.model.query.SearchQuery;
+import dayan.eve.model.query.TopicQuery;
+import dayan.eve.model.topic.Topic;
 import dayan.eve.repository.BannerRepository;
 import dayan.eve.repository.InformationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,50 +28,41 @@ import java.util.List;
 
 @Service
 public class BannerService {
-//
-//    @Autowired
-//    SchoolSearchV20Service schoolSearchV20Service;
+    private final SchoolSearchService schoolSearchService;
+    private final TopicService topicService;
+    private final BannerRepository bannerRepository;
+    private final InformationRepository informationRepository;
 
     @Autowired
-    BannerRepository bannerRepository;
-
-    @Autowired
-    InformationRepository informationRepository;
+    public BannerService(SchoolSearchService schoolSearchService, TopicService topicService, BannerRepository bannerRepository, InformationRepository informationRepository) {
+        this.schoolSearchService = schoolSearchService;
+        this.topicService = topicService;
+        this.bannerRepository = bannerRepository;
+        this.informationRepository = informationRepository;
+    }
 
     public List<Banner> readBanners() {
         List<Banner> banners = bannerRepository.query(new BannerQuery());
         for (Banner banner : banners) {
             if (banner.getType().equals(Banner.Type.Topic)) {
-//                setTopic(banner);
-//                if (banner.getTopic() == null) {
-//                    continue;
-//                }
+                setTopic(banner);
             } else if (banner.getType().equals(Banner.Type.News)) {
                 setNews(banner);
-                if (banner.getNews() == null) {
-                    continue;
-                }
             } else if (banner.getType().equals(Banner.Type.School)) {
-//                setSchool(banner);
-//                if (banner.getSchool() == null) {
-//                    continue;
-//                }
+                setSchool(banner);
             }
         }
         return banners;
     }
 
-//    @Autowired
-//    TopicV20Service topicV20Service;
-//
-//    private void setTopic(Banner banner) {
-//        TopicQuery query = new TopicQuery();
-//        query.setId(banner.getTopic().getId());
-//        List<Topic> topics = topicV20Service.readTopics(query);
-//        if (topics != null && !topics.isEmpty()) {
-//            banner.setTopic(topics.get(0));
-//        }
-//    }
+    private void setTopic(Banner banner) {
+        TopicQuery query = new TopicQuery();
+        query.setId(banner.getTopic().getId());
+        PageResult<Topic> topics = topicService.readTopics(query);
+        if (topics.getPager().getCount() > 0) {
+            banner.setTopic(topics.getList().get(0));
+        }
+    }
 
     private void setNews(Banner banner) {
         InformationQuery query = new InformationQuery();
@@ -77,38 +73,13 @@ public class BannerService {
         }
     }
 
-//    private void setSchool(Banner banner) {
-//        SearchQuery query = new SearchQuery();
-//        query.setSchoolId(banner.getSchool().getId());
-//        School school = schoolSearchV20Service.readSingleSchool(query);
-//        if (school != null) {
-//            banner.setSchool(school);
-//        }
-//    }
-
-//    public void createBanner(Banner banner) {
-//        String androidParamsStr = banner.getAndroidParams() == null ? null : JSON.toJSONString(banner.getAndroidParams());
-//        String iosParamsStr = banner.getIosParams() == null ? null : JSON.toJSONString(banner.getIosParams());
-//        bannerRepository.insert(banner, androidParamsStr, iosParamsStr);
-//    }
-//
-//    @Value("${image.banner.create.url.prefix}")
-//    String BANNER_IMAGE_CREATE_PRIFIX;
-//
-//    @Value("${image.banner.read.url.prefix}")
-//    String BANNER_IMAGE_READ_PREFIX;
-//
-//    public String uploadImage(MultipartFile file) {
-//        String imageUrl = ImageBaseUtil.uploadSingleImage(file, BANNER_IMAGE_CREATE_PRIFIX, BANNER_IMAGE_READ_PREFIX);
-//        return imageUrl;
-//    }
-//
-//    public void deleteBanner(Integer id) {
-//        bannerRepository.delete(id);
-//    }
-//
-//    public void updateBanner(Banner banner) {
-//        bannerRepository.update(banner);
-//    }
-
+    private void setSchool(Banner banner) {
+        SearchQuery query = new SearchQuery();
+        query.setSchoolId(banner.getSchool().getId());
+        School school = schoolSearchService.readSingleSchool(query);
+        if (school != null) {
+            banner.setSchool(school);
+        }
+    }
+// TODO: 2/21/2017  后台功能添加轮播图
 }

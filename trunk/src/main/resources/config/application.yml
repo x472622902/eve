@@ -25,6 +25,17 @@ spring:
       testOnReturn: false
       poolPreparedStatements: true
       maxOpenPreparedStatements: 20
+# todo 在线上配置
+#    redis:
+##      database: 0
+#      host: localhost
+#      pool:
+#        max-active: 8
+#        max-idle: 8
+#        min-idle: 0
+#        max-wait: -1
+#      port: 6379
+#      timeout: 0
 server:
     port: 8080
     session:
@@ -73,30 +84,30 @@ eve:
     grantType: password
     refreshGrantType: refresh_token
     csTopHashId: V4lgnzyjY
-    qaAnswer: http://inc.dareyan.cn:8081/walle2/api/qa/getAnswer
-    qaHint: http://inc.dareyan.cn:8081/walle2/api/eve/inputHint
-    qaGreet: http://inc.dareyan.cn:8081/walle2/api/eve/greeting
-    qaFreq: http://inc.dareyan.cn:8081/walle2/api/qa/getFreq.jsonp
-    csAsk: http://inc.dareyan.cn:8081/walle2/api/qa/askCS.jsonp
-    csClose: http://inc.dareyan.cn:8081/walle2/api/qa/closeCustomService.jsonp
-    csStaff: http://inc.dareyan.cn:8081/walle2/api/eve/cs/csStaff
-    csAllOnline: http://inc.dareyan.cn:8081/walle2/api/eve/cs/allOnline
+    qaAnswer: http://zs.microyan.com/api/qa/getAnswer?access_token=%s
+    qaHint: http://zs.microyan.com/api/eve/inputHint?access_token=%s
+    qaGreet: http://zs.microyan.com/api/eve/greeting?access_token=%s&platformId=%s
+    qaFreq: http://zs.microyan.com/api/qa/getFreq.jsonp
+    csAsk: http://zs.microyan.com/api/qa/askCS.jsonp
+    csClose: http://zs.microyan.com/api/qa/closeCustomService.jsonp
+    csStaff: http://zs.microyan.com/api/eve/cs/csStaff?access_token=%s&platformId=%s
+    csAllOnline: http://zs.microyan.com/api/eve/cs/allOnline
     evePlatformId: 861
-    platform: http://inc.dareyan.cn:8081/walle2/api/eve/platform
-    url: http://inc.dareyan.cn:8081/walle2/
-    loginUrl: http://inc.dareyan.cn:8081/walle2/api/eve/login
-    statisUrl: http://inc.dareyan.cn:8081/walle2/api/statis
-    guestbookSendQuestion: http://inc.dareyan.cn:8081/walle2/api/guestbook/appsubmit
-    guestbookGetschool: http://inc.dareyan.cn:8081/walle2/api/guestbook/getschool
-    guestbookPut: http://inc.dareyan.cn:8081/walle2/api/eve/guestbook
-    guestbookGet: http://inc.dareyan.cn:8081/walle2/api/eve/guestbook/school
-    messageHandlerSend: http://inc.dareyan.cn:8081/walle2/api/messagehandler/send
-    answer: http://inc.dareyan.cn:8081/walle2/api/eve/answer
-    freq :  http://inc.dareyan.cn:8081/walle2/api/eve/freqQuestion
-    hot: http://inc.dareyan.cn:8081/walle2/api/eve/hotQuestion
-    visitor: http://inc.dareyan.cn:8081/walle2/api/eve/visitor
-    feedback: http://inc.dareyan.cn:8081/walle2/api/eve/feedback
-    accessToken: http://inc.dareyan.cn:8081/walle2/oauth/token
+    platform: http://zs.microyan.com/api/eve/platform?access_token=%s
+    url: http://zs.microyan.com/
+    loginUrl: http://zs.microyan.com/api/eve/login
+    statisUrl: http://zs.microyan.com/api/statis
+    guestbookSendQuestion: http://zs.microyan.com/api/guestbook/appsubmit
+    guestbookGetschool: http://zs.microyan.com/api/guestbook/getschool
+    guestbookPut: http://zs.microyan.com/api/eve/guestbook
+    guestbookGet: http://zs.microyan.com/api/eve/guestbook/school
+    messageHandlerSend: http://zs.microyan.com/api/messagehandler/send
+    answer: http://zs.microyan.com/api/eve/answer
+    freq :  http://zs.microyan.com/api/eve/freqQuestion?access_token=%s
+    hot: http://zs.microyan.com/api/eve/hotQuestion?access_token=%s
+    visitor: http://zs.microyan.com/api/eve/visitor
+    feedback: http://zs.microyan.com/api/eve/feedback?access_token=%s
+    accessToken: http://zs.microyan.com/oauth/token
     csOnlineDisplayNum : 4
     csOnlineCacheSeconds: 3600000
     hotQuestionNum : 30
@@ -106,8 +117,6 @@ eve:
     imageUrlPrefix: http://inc.dareyan.cn:8881/image/schoolimage/
     searchPromptNum: 20
   image:
-    topicReadUrlPrefix: http://inc.dareyan.cn:8881/image/topic/
-    topicCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/topic/
     accountPortraitReadUrlPrefix: http://inc.dareyan.cn:8881/image/account/portrait/
     accountPortraitCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/account/portrait/
     informationReadUrlPrefix: http://inc.dareyan.cn:8881/image/information/
@@ -134,6 +143,19 @@ eve:
       contactEmail:
       license:
       licenseUrl:
+
+  topic:
+    topicReadUrlPrefix: http://inc.dareyan.cn:8881/image/topic/
+    topicCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/topic/
+    replyExp: 5
+    createExp: 10
+    likeExp: 2
+    maxContentSize: 1024
+    likeNotificationMsg: 给你点了个赞
+  async:
+    corePoolSize: 2
+    maxPoolSize: 50
+    queueCapacity: 10000
 
 #\u6d4b\u8bd5
 #walle.cs.top.hashid = DKowlnrK8

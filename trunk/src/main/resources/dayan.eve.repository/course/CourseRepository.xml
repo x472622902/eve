@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.course.CourseRepository">
+    <insert id="insert">
+        INSERT INTO eve_course (
+            name,
+            type,
+            url,
+            logo_url,
+            price,
+            content,
+            content_url,
+            purchase_url,
+            test_type,
+            bundle_ids_str,
+            gmt_create)
+        VALUES
+            (
+                #{name},
+                #{type},
+                #{url},
+                #{logoUrl},
+                #{price},
+                #{content},
+                #{contentUrl},
+                #{purchaseUrl},
+                #{testType},
+                #{bundleIdsStr},
+                NOW()
+            )
+    </insert>
+    <update id="updateBuyCount">
+        UPDATE
+            eve_course
+        SET
+            buyer_count = buyer_count + 1
+        WHERE
+            id = #{courseId}
+    </update>
+    <select id="query" resultType="dayan.eve.model.course.Course">
+        SELECT
+        a.id,
+        a.name,
+        a.type,
+        a.url,
+        a.content,
+        a.logo_url ,
+        a.test_type ,
+        a.content_url ,
+        a.purchase_url ,
+        a.price,
+        a.buyer_count ,
+        a.bundle_ids_str
+        <if test="accountId != null">
+            ,exists(
+            SELECT id FROM eve_course_trade
+            WHERE is_deleted = 0
+            AND account_id is not null
+            and account_id = #{accountId}
+            AND course_id = a.id
+            ) as isBought
+        </if>
+        <if test="accountId != null or cdkey != null">
+            ,exists(
+            SELECT id FROM eve_course_test
+            WHERE is_deleted = 0
+            AND course_id = a.id
+            <if test="accountId != null">
+                AND account_id = #{accountId}
+            </if>
+            <if test="cdkey != null">
+                AND cd_key = #{cdkey}
+            </if>
+            ) as isTested
+        </if>
+        FROM
+        eve_course a
+        WHERE
+        a.is_deleted = 0
+        <if test="courseId !=null">
+            AND a.id= #{courseId}
+        </if>
+        ORDER BY a.id DESC
+        <include refid="limit"/>
+    </select>
+    <select id="queryMy" resultType="dayan.eve.model.course.Course">
+        SELECT
+        a.id,
+        a.name,
+        a.type,
+        a.url,
+        a.content,
+        a.logo_url ,
+        a.purchase_url ,
+        a.test_type ,
+        a.price,
+        a.buyer_count,
+        1 as isBought,
+        exists(
+        SELECT id from eve_course_test
+        WHERE is_deleted = 0
+        AND account_id = #{accountId}
+        AND course_id = a.id
+        ) as isTested
+        FROM
+        eve_course a
+        LEFT JOIN eve_course_trade b on a.id = b.course_id
+        WHERE 1=1
+        <include refid="where"/>
+        <include refid="limit"/>
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        SELECT count(a.id)
+        FROM
+            eve_course a
+        WHERE
+            a.is_deleted = 0
+    </select>
+    <select id="countMy" resultType="java.lang.Integer">
+        SELECT
+        count(a.id)
+        FROM
+        eve_course_trade b
+        LEFT JOIN
+        eve_course a
+        ON b.course_id = a.id
+        WHERE 1=1
+        <include refid="where"/>
+    </select>
+    <select id="queryBundleIds" resultType="java.lang.String">
+        SELECT bundle_ids_str
+        FROM eve_course
+        WHERE id = #{courseId}
+    </select>
+    <select id="queryType" resultType="java.lang.String">
+        SELECT type
+        FROM eve_course
+        WHERE id = #{courseId}
+    </select>
+    <sql id="where">
+        <if test="accountId !=null">
+            AND b.account_id = #{accountId}
+        </if>
+        AND a.is_deleted = 0
+        AND b.is_deleted = 0
+        ORDER BY a.id DESC
+    </sql>
+
+    <sql id="limit">
+        <if test="limit !=null">
+            LIMIT
+            <if test="start !=null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+</mapper>

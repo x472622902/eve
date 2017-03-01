@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.course.CourseTradeRepository">
+    <insert id="insert">
+        INSERT INTO eve_course_trade (
+            account_id,
+            course_id,
+            cd_key_id,
+            gmt_create)
+        VALUES
+            (
+                #{accountId},
+                #{courseId},
+                #{cdkeyId},
+                NOW()
+            )
+    </insert>
+    <insert id="insertAlipayTrade">
+        INSERT INTO eve_course_trade (
+            account_id,
+            course_id,
+            cd_key_id,
+            notify_time,
+            notify_type,
+            notify_id,
+            sign_type,
+            out_trade_no,
+            subject,
+            payment_type,
+            trade_no,
+            trade_status,
+            gmt_trade_create,
+            gmt_payment,
+            gmt_close,
+            seller_email,
+            buyer_email,
+            seller_id,
+            buyer_id,
+            price,
+            quantity,
+            gmt_refund,
+            gmt_create)
+        VALUES
+            (
+                #{accountId},
+                #{courseId},
+                #{cdkeyId},
+                #{alipayTrade.notifyTime},
+                #{alipayTrade.notifyType},
+                #{alipayTrade.notifyId},
+                #{alipayTrade.signType},
+                #{alipayTrade.outTradeNo},
+                #{alipayTrade.subject},
+                #{alipayTrade.paymentType},
+                #{alipayTrade.tradeNo},
+                #{alipayTrade.tradeStatus},
+                #{alipayTrade.gmtCreate},
+                #{alipayTrade.gmtPayment},
+                #{alipayTrade.gmtClose},
+                #{alipayTrade.sellerEmail},
+                #{alipayTrade.buyerEmail},
+                #{alipayTrade.sellerId},
+                #{alipayTrade.buyerId},
+                #{alipayTrade.price},
+                #{alipayTrade.quantity},
+                #{alipayTrade.gmtRefund},
+                NOW()
+            )
+    </insert>
+    <update id="update">
+        UPDATE
+        eve_course_trade
+        SET
+        <if test="accountId != null">
+            account_id = #{accountId},
+        </if>
+        gmt_modify = NOW()
+        WHERE
+        cd_key_id = #{cdkeyId}
+    </update>
+    <select id="queryTradeIds" resultType="java.lang.Integer">
+        SELECT
+        course_id
+        FROM
+        eve_course_trade
+        WHERE 1=1
+        <if test="accountId != null">
+            AND account_id = #{accountId}
+        </if>
+        <if test="courseId != null">
+            AND course_id = #{courseId}
+        </if>
+        <if test="cdkeyId != null">
+            AND cd_key_id = #{cdkeyId}
+        </if>
+        AND is_deleted = 0
+    </select>
+    <select id="queryTrades" resultType="dayan.eve.model.query.CourseQuery">
+        SELECT
+        course_id courseId,
+        account_id accountId,
+        cd_key_id cdkeyId
+        FROM
+        eve_course_trade
+        WHERE 1=1
+        <if test="accountId != null">
+            AND account_id = #{accountId}
+        </if>
+        <if test="courseId != null">
+            AND course_id = #{courseId}
+        </if>
+        <if test="cdkeyId != null">
+            AND cd_key_id = #{cdkeyId}
+        </if>
+        AND is_deleted = 0
+    </select>
+    <select id="queryCourse" resultType="dayan.eve.model.course.Course">
+        SELECT
+        a.course_id id,
+        b.type,
+        b.bundle_ids_str bundleIdsStr
+        FROM
+        eve_course_trade a
+        LEFT JOIN
+        eve_course b
+        ON a.course_id = b.id
+        WHERE 1=1
+        <if test="accountId != null">
+            AND a.account_id = #{accountId}
+        </if>
+        <if test="courseId != null">
+            AND a.course_id = #{courseId}
+        </if>
+        <if test="cdkeyId != null">
+            AND a.cd_key_id = #{cdkeyId}
+        </if>
+        AND a.is_deleted = 0
+    </select>
+    <select id="queryByTradeNo" resultType="dayan.eve.model.course.Course">
+        SELECT
+            course_id  id,
+            account_id accountId
+        FROM
+            eve_course_trade
+        WHERE
+            trade_no = #{tradeNo}
+            AND is_deleted = 0
+    </select>
+    <select id="queryExisted" resultType="java.lang.Boolean">
+        SELECT exists(
+        SELECT course_id
+        FROM
+        eve_course_trade
+        WHERE
+        is_deleted = 0
+        <if test="accountId != null">
+            AND account_id = #{accountId}
+        </if>
+        <if test="courseId != null">
+            AND course_id = #{courseId}
+        </if>
+        <if test="cdkeyId != null">
+            AND cd_key_id = #{cdkeyId}
+        </if>
+        )
+    </select>
+</mapper>

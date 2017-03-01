@@ -109,4 +109,6 @@ public final class ErrorCN {
         public final static String VERIFY_CODE_ERROR = "验证码错误";
         public final static String ACCOUNT_DUPLICATE = "账号重复";
     }
+
+
 }

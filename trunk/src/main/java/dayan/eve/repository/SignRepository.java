@@ -12,6 +12,7 @@ package dayan.eve.repository;
 
 import dayan.eve.model.Sign;
 import dayan.eve.model.query.SignQuery;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
  *
  * @author xsg
  */
+@Mapper
 public interface SignRepository {
 
     void insert(Sign sign);

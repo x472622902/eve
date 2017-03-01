@@ -15,11 +15,13 @@ import com.alibaba.fastjson.JSONObject;
 import dayan.common.util.HttpClientUtil;
 import dayan.common.util.SchoolPlatformIdEncoder;
 import dayan.eve.config.EveProperties;
+import dayan.eve.model.Constants;
 import dayan.eve.model.GuestBook;
-import org.apache.commons.lang3.StringUtils;
+import dayan.eve.redis.respository.SingleValueRedis;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -31,6 +33,7 @@ import java.util.Map;
 /**
  * @author xsg
  */
+@Lazy
 @Component
 public class WalleUtil {
     private EveProperties.Walle walle;
@@ -39,9 +42,12 @@ public class WalleUtil {
     public WalleUtil(EveProperties eveProperties) {
         this.walle = eveProperties.getWalle();
     }
-    
+
     @Autowired
     SchoolIdPlatformIdUtil schoolIdPlatformIdUtil;
+
+    @Autowired
+    SingleValueRedis singleValueRedis;
 
     private static List<String> schoolHashIdsWithGuestbook;
 
@@ -83,6 +89,7 @@ public class WalleUtil {
         }
     }
 
+    // TODO: 2/24/2017 add to redis ,filter in guestbook service
     public List<String> getSchoolHashIdsWithGuestbook() {
         if (schoolHashIdsWithGuestbook == null) {
             try {
@@ -119,47 +126,54 @@ public class WalleUtil {
         return HttpClientUtil.post(url, JSON.toJSONString(params));
     }
 
-    public static String ACCESS_TOKEN;
+//    public static String ACCESS_TOKEN;
+//
+//    public static String REFRESH_TOKEN;
+//
+//    public String getAccessToken() {
+//
+//        if (StringUtils.isEmpty(ACCESS_TOKEN)) {
+//            getNewAccessToken();
+//        }
+//        return ACCESS_TOKEN;
+//    }
 
-    public static String REFRESH_TOKEN;
+
+//    public void updateAccessToken() {
+//        String REFRESH_TOKEN_URL = "%s?client_id=%s&grant_type=%s&refresh_token=%s";
+//        String url = String.format(REFRESH_TOKEN_URL, walle.getAccessToken(), walle.getClientId(), walle.getRefreshGrantType(),
+//                REFRESH_TOKEN);
+//        String post = null;
+//        try {
+//            post = HttpClientUtil.post(url, "");
+//        } catch (URISyntaxException | IOException ex) {
+//            LOGGER.error(ex.getMessage());
+//        }
+//        JSONObject jSONObject = JSONObject.parseObject(post);
+//        ACCESS_TOKEN = jSONObject.getString("access_token");
+//        REFRESH_TOKEN = jSONObject.getString("refresh_token");
+//    }
 
     public String getAccessToken() {
-
-        if (StringUtils.isEmpty(ACCESS_TOKEN)) {
-            getNewAccessToken();
+        String token = null;
+        try {
+            token = singleValueRedis.get(SingleValueRedis.SingleKey.WalleToken);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
-        return ACCESS_TOKEN;
-    }
-
-
-    public void updateAccessToken() {
-        String REFRESH_TOKEN_URL = "%s?client_id=%s&grant_type=%s&refresh_token=%s";
-        String url = String.format(REFRESH_TOKEN_URL, walle.getAccessToken(), walle.getClientId(), walle.getRefreshGrantType(),
-                REFRESH_TOKEN);
+        if (token != null) return token;
+        String TOKEN_URL = "%s?client_id=%s&username=%s&password=%s&grant_type=%s";
+        String url = String.format(TOKEN_URL, walle.getAccessToken(), walle.getClientId(), walle.getUsername(), walle.getPassword(), walle.getGrantType());
         String post = null;
         try {
             post = HttpClientUtil.post(url, "");
-        } catch (URISyntaxException | IOException ex) {
-            LOGGER.error(ex.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
         JSONObject jSONObject = JSONObject.parseObject(post);
-        ACCESS_TOKEN = jSONObject.getString("access_token");
-        REFRESH_TOKEN = jSONObject.getString("refresh_token");
-    }
-
-    public void getNewAccessToken() {
-        String TOKEN_URL = "%s?client_id=%s&username=%s&password=%s&grant_type=%S";
-        String url = String.format(TOKEN_URL, walle.getClientId(), walle.getUsername(), walle.getPassword(), walle
-                .getGrantType());
-        String post = null;
-        try {
-            post = HttpClientUtil.post(url, "");
-        } catch (URISyntaxException | IOException ex) {
-            LOGGER.error(ex.getMessage());
-        }
-        JSONObject jSONObject = JSONObject.parseObject(post);
-        ACCESS_TOKEN = jSONObject.getString("access_token");
-        REFRESH_TOKEN = jSONObject.getString("refresh_token");
+        token = jSONObject.getString("access_token");
+        singleValueRedis.put(SingleValueRedis.SingleKey.WalleToken, token, Constants.DAY_MINUTES);
+        return token;
     }
 
 }

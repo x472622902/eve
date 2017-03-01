@@ -21,63 +21,44 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
- *
  * @author xsg
  */
 public interface TopicService {
 
     //update in 20151204
-    public List<Topic> readTopics(TopicQuery query);
-
-    public Pager count(TopicQuery query);
+    public PageResult<Topic> readTopics(TopicQuery query);
 
     /**
      * 发贴或者回复
-     *
-     * @param topic
-     * @param files 图片文件
-     * @return
      */
     public Topic createTopic(Topic topic, MultipartFile[] files);
 
     /**
      * 点赞
-     *
-     * @param query
      */
-    public void like(TopicQuery query);
+    public void like(Integer accountId, Integer topicId);
 
     /**
      * 踩
-     *
-     * @param query
      */
-    public void dislike(TopicQuery query);
+    public void dislike(Integer accountId, Integer topicId);
 
-    public List<Topic> readTimelines(TopicQuery query);
+    public PageResult<Topic> readTimelines(TopicQuery query);
 
     public void delete(TopicQuery query);
 
     /**
      * 置顶或者取消置顶
-     *
-     * @param topicId
      */
     public void setTop(Integer topicId);
 
     /**
      * 搜索贴
-     *
-     * @param query
-     * @return
      */
     public List<Topic> search(TopicQuery query);
 
     /**
      * 搜索发帖用户
-     *
-     * @param query
-     * @return
      */
     public List<AccountInfo> searchAccount(TopicQuery query);
 
@@ -85,27 +66,20 @@ public interface TopicService {
 
     /**
      * 标记印章
-     *
-     * @param query
      */
     public void setStamp(TopicQuery query);
 
     /**
      * 读取所有主题
-     *
-     * @param query
-     * @return
      */
     public PageResult<TopicTheme> readAllThemes(TopicQuery query);
 
     /**
      * 添加主题
-     *
-     * @param theme
      */
     public void addTheme(String theme);
 
-    public void createLiveTopic(Topic topic, MultipartFile[] files, String accounHashId);
+    public void createLiveTopic(Topic topic, MultipartFile[] files, String accountHashId);
 
     public void updateLiveStatus(Integer topicId);
 }

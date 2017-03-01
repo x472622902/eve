@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public JsonResult defaultErrorHandler(HttpServletRequest request, HttpServletResponse response, Exception e) throws Exception {
-        LOGGER.error("url: {},error: {}", request.getRequestURI(), e.toString());
+        LOGGER.error(e.getMessage(), e);
         return new JsonResult(ErrorCN.DEFAULT_SERVER_ERROR, false);
     }
 

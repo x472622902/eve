@@ -18,7 +18,7 @@ import dayan.eve.exception.ErrorCN;
 import dayan.eve.model.GuestBook;
 import dayan.eve.model.JsonResult;
 import dayan.eve.model.account.AccountInfo;
-import dayan.eve.model.query.GuestBookQuery;
+import dayan.eve.model.query.GuestbookQuery;
 import dayan.eve.repository.AccountInfoRepository;
 import dayan.eve.repository.SchoolFollowRepository;
 import dayan.eve.util.SchoolIdPlatformIdUtil;
@@ -62,7 +62,7 @@ public class GuestBookService {
         this.guestbookPutUrl = eveProperties.getWalle().getGuestbookPut();
     }
 
-    public Boolean sendGuestbook(Integer accountId, GuestBookQuery query) {
+    public Boolean sendGuestbook(Integer accountId, GuestbookQuery query) {
         AccountInfo accountInfo = accountInfoRepository.queryOneInfo(accountId);
         if (accountInfo == null) {
             accountInfo = new AccountInfo();
@@ -83,7 +83,7 @@ public class GuestBookService {
         return true;
     }
 
-    public String readGuestbook(GuestBookQuery query) throws Exception {
+    public String readGuestbook(GuestbookQuery query) throws Exception {
         LOGGER.info("guestbook read query info,{}", JSON.toJSONString(query, true));
         Map<String, String> params = new HashMap<>();
         params.put("schoolHashId", query.getSchoolHashId());

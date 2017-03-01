@@ -13,6 +13,7 @@ package dayan.eve.repository;
 import dayan.eve.model.query.HotRecommendQuery;
 import dayan.eve.model.school.HotRecommend;
 import dayan.eve.model.school.HotSchool;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ import java.util.List;
  *
  * @author
  */
+@Mapper
 public interface HotRecommendRepository {
 
     void multiInsert(List<HotRecommend> list);
