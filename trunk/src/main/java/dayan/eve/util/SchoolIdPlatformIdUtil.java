@@ -15,8 +15,6 @@ import com.alibaba.fastjson.JSONObject;
 import dayan.common.util.HttpClientUtil;
 import dayan.common.util.SchoolPlatformIdEncoder;
 import dayan.eve.config.EveProperties;
-import dayan.eve.config.RedisCacheConfig;
-import dayan.eve.redis.respository.SingleValueRedis;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,18 +35,15 @@ public class SchoolIdPlatformIdUtil {
     private final Logger LOGGER = LogManager.getLogger(SchoolIdPlatformIdUtil.class);
 
     @Autowired
-    WalleUtil walleUtil;
-    private final SingleValueRedis singleValueRedis;
+    private WalleUtil walleUtil;
     private String platformUrl;
     private static SchoolPlatformIdEncoder idEncoder = new SchoolPlatformIdEncoder();
 
     @Autowired
-    public SchoolIdPlatformIdUtil(EveProperties eveProperties, SingleValueRedis singleValueRedis) {
+    public SchoolIdPlatformIdUtil(EveProperties eveProperties) {
         this.platformUrl = eveProperties.getWalle().getPlatform();
-        this.singleValueRedis = singleValueRedis;
     }
 
-    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
     public JSONArray getWallePlatformList() {
         LOGGER.info("get platform list from walle");
         JSONArray jsonArray = new JSONArray();
@@ -65,7 +60,7 @@ public class SchoolIdPlatformIdUtil {
 
 
     //开通平台的学校map
-    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
+    @Cacheable(value = "schoolIdAndPlatformIdMap", cacheManager = "guavaCacheManager")
     public Map<Integer, Integer> getSchoolIdAndPlatformIdMap() {
         Map<Integer, Integer> schoolIdAndPlatformIdMap = new HashMap<>();
         getWallePlatformList().stream()
@@ -77,15 +72,19 @@ public class SchoolIdPlatformIdUtil {
         return schoolIdAndPlatformIdMap;
     }
 
-    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
+    @Cacheable(value = "platformIdAndSchoolIdMap", cacheManager = "guavaCacheManager")
     public Map<Integer, Integer> getPlatformIdAndSchoolIdMap() {
         Map<Integer, Integer> platformIdAndSchoolIdMap = new HashMap<>();
-        Map<Integer, Integer> schoolIdAndPlatformIdMap = getSchoolIdAndPlatformIdMap();
-        schoolIdAndPlatformIdMap.keySet().forEach(schoolId -> platformIdAndSchoolIdMap.put(schoolIdAndPlatformIdMap.get(schoolId), schoolId));
+        getWallePlatformList().stream()
+                .filter(obj -> ((JSONObject) obj).getBoolean("qa"))
+                .forEach(obj -> {
+                    JSONObject jsonObject = (JSONObject) obj;
+                    platformIdAndSchoolIdMap.put(jsonObject.getInteger("id"), jsonObject.getInteger("schoolId"));
+                });
         return platformIdAndSchoolIdMap;
     }
 
-    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
+    @Cacheable(value = "schoolCSMap", cacheManager = "guavaCacheManager")
     public Map<Integer, Integer> getSchoolCSMap() {
         Map<Integer, Integer> schoolCSMap = new HashMap<>();
         getWallePlatformList().stream()
@@ -98,7 +97,7 @@ public class SchoolIdPlatformIdUtil {
     }
 
 
-    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
+    @Cacheable(value = "allSchoolIdAndPlatformIdMap", cacheManager = "guavaCacheManager")
     public Map<Integer, Integer> getAllSchoolPlatformMap() {
         Map<Integer, Integer> allSchoolIdAndPlatformIdMap = new HashMap<>();
         getWallePlatformList()
@@ -109,11 +108,14 @@ public class SchoolIdPlatformIdUtil {
         return allSchoolIdAndPlatformIdMap;
     }
 
-    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
+    @Cacheable(value = "allPlatformIdAndSchoolIdMap", cacheManager = "guavaCacheManager")
     public Map<Integer, Integer> getAllPlatformSchoolMap() {
         Map<Integer, Integer> allPlatformIdAndSchoolIdMap = new HashMap<>();
-        Map<Integer, Integer> allSchoolPlatformMap = getAllSchoolPlatformMap();
-        allSchoolPlatformMap.keySet().forEach(schoolId -> allPlatformIdAndSchoolIdMap.put(allSchoolPlatformMap.get(schoolId), schoolId));
+        getWallePlatformList()
+                .forEach(obj -> {
+                    JSONObject jsonObject = (JSONObject) obj;
+                    allPlatformIdAndSchoolIdMap.put(jsonObject.getInteger("id"), jsonObject.getInteger("schoolId"));
+                });
         return allPlatformIdAndSchoolIdMap;
     }
 

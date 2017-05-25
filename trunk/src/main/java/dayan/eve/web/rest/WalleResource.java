@@ -24,10 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author leiky
  */
 @RestController
-@RequestMapping(value = "/api/v20/mobile/walle")
+@RequestMapping("/api/v20/mobile/walle")
 public class WalleResource {
 
     private static final Logger LOGGER = LogManager.getLogger(WalleResource.class);
@@ -56,20 +53,20 @@ public class WalleResource {
         this.requestService = requestService;
     }
 
-    @RequestMapping(value = "/getAnswer", method = RequestMethod.POST)
+    @PostMapping("/getAnswer")
     public JsonResult getAnswer(@RequestBody RobotQueryDTO queryDTO, HttpServletRequest request) {
         Integer accountId = requestService.getAccountId(request);
         return qaRobotService.getAnswer(queryDTO.getSchoolHashId(), queryDTO.getQuery(), accountId.toString());
     }
 
-    @RequestMapping(value = "/getHint", method = RequestMethod.POST)
+    @PostMapping("/getHint")
     public JsonResult getHint(@RequestBody RobotQueryDTO queryDTO) {
         Integer platformId = StringUtils.isEmpty(queryDTO.getSchoolHashId()) ? null : schoolIdPlatformIdUtil
                 .getPlatformIdBySchoolHashId(queryDTO.getSchoolHashId());
         return qaRobotService.getHint(platformId, queryDTO.getQuery());
     }
 
-    @RequestMapping(value = "/getGreeting", method = RequestMethod.POST)
+    @PostMapping("/getGreeting")
     public JsonResult getGreeting(@RequestBody RobotQueryDTO queryDTO) {
         Integer platformId = StringUtils.isEmpty(queryDTO.getSchoolHashId()) ? null : schoolIdPlatformIdUtil
                 .getPlatformIdBySchoolHashId(queryDTO.getSchoolHashId());
@@ -77,20 +74,20 @@ public class WalleResource {
     }
 
     //读取学校热门问题
-    @RequestMapping(value = "/readHotQuestion", method = RequestMethod.POST)
+    @PostMapping("/readHotQuestion")
     public JsonResult readHotQuestion(@RequestBody RobotQueryDTO queryDTO) {
         return new JsonResult(walleSchoolService.readHotQuestion(queryDTO.getSchoolHashId()));
 
     }
 
     //读取常见问题
-    @RequestMapping(value = "/readFreqQuestion", method = RequestMethod.POST)
+    @PostMapping("/readFreqQuestion")
     public JsonResult readFreqQuestion(@RequestBody FreqQuestionQueryDTO queryDTO) {
         return new JsonResult(walleSchoolService.readFreqQuestion(queryDTO.getSchoolHashId(), queryDTO.getRefresh(), null));
     }
 
     //问题答案反馈
-    @RequestMapping(value = "/feedback", method = RequestMethod.POST)
+    @PostMapping("/feedback")
     public JsonResult feedback(@RequestBody FeedbackDTO feedbackDTO) {
         qaRobotService.feedback(feedbackDTO.getAnswerId(), feedbackDTO.getAct());
         return new JsonResult();
@@ -102,7 +99,7 @@ public class WalleResource {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/createVisitor", method = RequestMethod.POST)
+    @PostMapping("/createVisitor")
     public JsonResult createVisitor(@RequestBody RobotQueryDTO queryDTO, HttpServletRequest request) {
         Integer accountId = requestService.getAccountId(request);
         visitorService.createVisitor(accountId.toString(), queryDTO.getSchoolHashId());

@@ -12,20 +12,15 @@ package dayan.eve.model;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import dayan.eve.model.enumeration.BannerType;
 import dayan.eve.model.topic.Topic;
 
 import java.util.Map;
 
 /**
- *
  * @author xsg
  */
 public class Banner {
-
-    public enum Type {
-
-        Topic, School, News, Unknown, Clock, Custom
-    }
 
     private Integer id;
     private Integer topicId;
@@ -39,7 +34,7 @@ public class Banner {
     private Map<String, String> androidParams;
     private String iosClassName;
     private Map<String, String> iosParams;
-    private Type type;
+    private BannerType type;
     private String androidParamsStr;
     private String iosParamsStr;
 
@@ -138,13 +133,6 @@ public class Banner {
         this.bannerUrl = bannerUrl;
     }
 
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
 
     public dayan.eve.model.School getSchool() {
         return school;
@@ -168,5 +156,13 @@ public class Banner {
 
     public void setNews(Information news) {
         this.news = news;
+    }
+
+    public BannerType getType() {
+        return type;
+    }
+
+    public void setType(BannerType type) {
+        this.type = type;
     }
 }

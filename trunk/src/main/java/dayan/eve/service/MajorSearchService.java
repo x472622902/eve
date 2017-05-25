@@ -19,7 +19,9 @@ import dayan.eve.model.major.Major;
 import dayan.eve.model.major.MoMajor;
 import dayan.eve.model.query.SearchQuery;
 import dayan.eve.repository.MajorRepository;
+import dayan.eve.service.cache.MajorCache;
 import dayan.eve.util.MoUtil;
+import dayan.eve.util.SearchPromptUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,17 +40,16 @@ public class MajorSearchService {
     private String allMajorNameString;
     private String[] allMajorNames;
     private static Map<String, MoMajor> majorMap = new HashMap<>();
-    private Integer SEARCH_PROMPT_NUM;
+
+    private final MajorRepository majorRepository;
+    private final MajorCache majorCache;
+    private final MoUtil moUtil;
 
     @Autowired
-    MajorRepository majorRepository;
-
-    @Autowired
-    MoUtil moUtil;
-
-    @Autowired
-    public MajorSearchService(EveProperties eveProperties) {
-        this.SEARCH_PROMPT_NUM = eveProperties.getSchool().getSearchPromptNum();
+    public MajorSearchService(EveProperties eveProperties, MoUtil moUtil, MajorRepository majorRepository, MajorCache majorCache) {
+        this.moUtil = moUtil;
+        this.majorRepository = majorRepository;
+        this.majorCache = majorCache;
     }
 
     public List<Major> convertToItems(List<MoMajor> list) {
@@ -67,39 +68,9 @@ public class MajorSearchService {
     }
 
 
-    private String getAllNameString() throws Exception {
-        if (allMajorNameString == null) {
-            List<MoMajor> array = getMajorListFromMo();
-            StringBuilder sb = new StringBuilder();
-            sb.append("|");
-            for (MoMajor major : array) {
-                majorMap.put(major.getMajorName(), major);
-                sb.append(major.getMajorName()).append("|");
-            }
-            allMajorNameString = sb.toString();
-        }
-        return allMajorNameString;
-    }
-
-    public List<String> getPrompts(String queryString) throws Exception {
-        queryString = queryString.replace(" ", "");
-        String allNameString = getAllNameString();
-        List<String> prompts = new ArrayList<>();
-        int middle;
-        int left;
-        int right = 0;
-        while (prompts.size() <= SEARCH_PROMPT_NUM) {
-            //提示个数上限20个
-            middle = allNameString.indexOf(queryString, right);
-            if (middle == -1) {
-                break;
-            }
-            right = allNameString.indexOf("|", middle);
-            left = allNameString.lastIndexOf("|", middle);
-
-            prompts.add(allNameString.substring(left + 1, right));
-        }
-        return prompts;
+    public List<String> getPrompts(String key) throws Exception {
+        key = key.replace(" ", "");
+        return SearchPromptUtil.getPrompt(majorCache.getAllMajorNames(), key);
     }
 
     public PageResult<Major> searchMajors(SearchQuery query) throws Exception {

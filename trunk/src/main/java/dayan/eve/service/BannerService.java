@@ -14,6 +14,7 @@ import dayan.eve.model.Banner;
 import dayan.eve.model.Information;
 import dayan.eve.model.PageResult;
 import dayan.eve.model.School;
+import dayan.eve.model.enumeration.BannerType;
 import dayan.eve.model.query.BannerQuery;
 import dayan.eve.model.query.InformationQuery;
 import dayan.eve.model.query.SearchQuery;
@@ -44,11 +45,11 @@ public class BannerService {
     public List<Banner> readBanners() {
         List<Banner> banners = bannerRepository.query(new BannerQuery());
         for (Banner banner : banners) {
-            if (banner.getType().equals(Banner.Type.Topic)) {
+            if (banner.getType().equals(BannerType.Topic)) {
                 setTopic(banner);
-            } else if (banner.getType().equals(Banner.Type.News)) {
+            } else if (banner.getType().equals(BannerType.News)) {
                 setNews(banner);
-            } else if (banner.getType().equals(Banner.Type.School)) {
+            } else if (banner.getType().equals(BannerType.School)) {
                 setSchool(banner);
             }
         }

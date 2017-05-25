@@ -36,7 +36,7 @@ import java.util.Map;
  * @author xsg
  */
 @RestController
-@RequestMapping(value = "/api/v20/mobile")
+@RequestMapping("/api/v20/mobile")
 public class IndexResource {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -61,7 +61,7 @@ public class IndexResource {
     }
 
     @ApiOperation("登录")
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @PostMapping("/login")
     public JsonResult login(@RequestBody LoginDTO loginDTO) throws Exception {
         LOGGER.debug("login: " + JSON.toJSONString(loginDTO, true));
         final Account loginAccount = accountService.login(loginDTO.getLoginType(), loginDTO
@@ -73,9 +73,8 @@ public class IndexResource {
     }
 
     @ApiOperation("注册")
-    @RequestMapping(value = "/reg", method = RequestMethod.POST)
-    public JsonResult reg(@RequestBody Account reqAccount, @RequestParam(required = false,
-            value = "files")
+    @PostMapping("/reg")
+    public JsonResult reg(@RequestBody Account reqAccount, @RequestParam(required = false, value = "files")
             MultipartFile file) throws Exception {
         Account account = accountService.register(reqAccount, file);
         JsonResult result = new JsonResult();
@@ -86,14 +85,14 @@ public class IndexResource {
     }
 
     @ApiOperation("更新密码")
-    @RequestMapping(value = "/updatePassword", method = RequestMethod.POST)
+    @PostMapping("/updatePassword")
     public JsonResult updatePassword(@RequestBody Account account) throws Exception {
         accountService.updatePassword(account);
         return new JsonResult();
     }
 
     @ApiOperation("读取省份列表")
-    @RequestMapping(value = "/getProvinces", method = RequestMethod.GET)
+    @GetMapping("/getProvinces")
     public JsonResult getProvinces() {
         List<Province> list = provinceService.read();
         JsonResult result = new JsonResult();
@@ -102,9 +101,7 @@ public class IndexResource {
     }
 
     @ApiOperation("读取省份列表jsonp格式")
-    @RequestMapping(value = "/getProvinces.jsonp"
-            , method = RequestMethod.GET
-            , produces = MediaType.APPLICATION_JSON_VALUE + CHARSET)
+    @GetMapping(value = "/getProvinces.jsonp", produces = MediaType.APPLICATION_JSON_VALUE + CHARSET)
     public JSONPObject getProvincesP(@RequestParam("callback") String callBack) {
         List<Province> list = provinceService.read();
         JsonResult result = new JsonResult();
@@ -113,7 +110,7 @@ public class IndexResource {
     }
 
     @ApiOperation("手机激活")
-    @RequestMapping(value = "/activate", method = RequestMethod.POST)
+    @PostMapping("/activate")
     public JsonResult activate(@RequestBody ActivateLogDTO activateLogDTO) {
         LOGGER.debug("login: " + JSON.toJSONString(activateLogDTO, true));
         String activate = activateService.activate(activateLogDTO);
@@ -123,7 +120,7 @@ public class IndexResource {
     }
 
     @ApiOperation("发送验证码")
-    @RequestMapping(value = "/sendSMS", method = RequestMethod.POST)
+    @PostMapping("/sendSMS")
     public JsonResult sendSMS(@RequestBody MobileDTO mobileDTO) throws Exception {
         go4BaseUtil.checkLoginAccount(mobileDTO.getMobile());
         go4BaseUtil.getVerificationCode(mobileDTO.getMobile());
@@ -131,7 +128,7 @@ public class IndexResource {
     }
 
     @ApiOperation("忘记密码--发送验证码")
-    @RequestMapping(value = "/sendSMSOfPwd", method = RequestMethod.POST)
+    @PostMapping("/sendSMSOfPwd")
     public JsonResult sendSMSOfPwd(@RequestBody MobileDTO mobileDTO) throws Exception {
         go4BaseUtil.getAccountDetailByLoginAccount(mobileDTO.getMobile());
         go4BaseUtil.getVerificationCode(mobileDTO.getMobile());
@@ -139,13 +136,13 @@ public class IndexResource {
     }
 
     @ApiOperation("首页轮播图")
-    @RequestMapping(value = "/readBanners", method = RequestMethod.POST)
+    @PostMapping("/readBanners")
     public JsonResult readBanners() {
         return new JsonResult(bannerService.readBanners());
     }
 
 
-//    @RequestMapping(value = "/getRecommendCount", method = RequestMethod.POST)
+//    @PostMapping("/getRecommendCount")
 //    public @ResponseBody
 //    JsonResult getRecommendCount(HttpServletRequest request) {
 //        try {
@@ -160,7 +157,7 @@ public class IndexResource {
 //    @Autowired
 //    WeiboDataV20Service weiboDataV20Service;
 //
-//    @RequestMapping(value = "/grebWeibo", method = RequestMethod.POST)
+//    @PostMapping("/grebWeibo")
 //    public
 //    @ResponseBody
 //    JsonResult grebWeibo(HttpServletRequest request) {
@@ -176,7 +173,7 @@ public class IndexResource {
     //    @Autowired
 //    Go4Service go4Service;
 //
-//    @RequestMapping(value = "/getAccountHashId", method = RequestMethod.POST)
+//    @PostMapping("/getAccountHashId")
 //    public @ResponseBody
 //    JsonResult getAccountHashId(HttpServletRequest request) {
 //        try {

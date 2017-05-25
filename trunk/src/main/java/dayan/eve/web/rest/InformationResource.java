@@ -18,10 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author xsg
@@ -40,7 +37,7 @@ public class InformationResource {
     }
 
     @ApiOperation("资讯列表")
-    @RequestMapping(value = "/read", method = RequestMethod.POST)
+    @PostMapping("/read")
     public JsonResultList readInformations(@RequestBody InformationQueryDTO queryDTO) {
         return new JsonResultList(informationService.read(buildInfoQuery(queryDTO)));
     }

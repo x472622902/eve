@@ -27,10 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author xsg
  */
 @RestController
-@RequestMapping(value = "/api/v20/mobile/major")
+@RequestMapping("/api/v20/mobile/major")
 @ApiModel("专业")
 public class MajorResource {
 
@@ -57,7 +54,7 @@ public class MajorResource {
     }
 
     @ApiOperation("搜索")
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    @PostMapping("/search")
     public JsonResultList search(@RequestBody MajorSearchQueryDTO queryDTO, HttpServletRequest request) throws Exception {
         SearchQuery query = new SearchQuery();
         query.setQueryStr(queryDTO.getQuery());
@@ -69,26 +66,26 @@ public class MajorResource {
     }
 
     @ApiOperation("搜索提示")
-    @RequestMapping(value = "/searchPrompt", method = RequestMethod.POST)
+    @PostMapping("/searchPrompt")
     public JsonResult searchPrompt(@RequestBody SearchPromptDTO queryDTO) throws Exception {
         return new JsonResult(majorSearchService.getPrompts(queryDTO.getQueryString()));
     }
 
     @ApiOperation("详情带相近专业")
-    @RequestMapping(value = "/readProfile", method = RequestMethod.POST)
+    @PostMapping("/readProfile")
     public JsonResult readMajorProfile(@RequestBody MajorProfileQueryDTO queryDTO) {
         Integer majorId = idEncoder.decode(queryDTO.getMajorHashId()).intValue();
         return new JsonResult(majorProfileService.readMajorProfile(majorId));
     }
 
     @ApiOperation("相关大学")
-    @RequestMapping(value = "/readSchool", method = RequestMethod.POST)
+    @PostMapping("/readSchool")
     public JsonResult readSchools(@RequestBody MajorProfileQueryDTO queryDTO) throws Exception {
         return JSONObject.parseObject(moUtil.getSchoolByMajorHashId(queryDTO.getMajorHashId()), JsonResult.class);
     }
 
     @ApiOperation("详情带学校排名")
-    @RequestMapping(value = "/readDetail", method = RequestMethod.POST)
+    @PostMapping("/readDetail")
     public JsonResult readDetail(@RequestBody MajorProfileQueryDTO queryDTO) throws Exception {
         return JSONObject.parseObject(moUtil.getMajorDetail(queryDTO.getMajorHashId()), JsonResult.class);
     }

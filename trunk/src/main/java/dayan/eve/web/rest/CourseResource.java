@@ -28,10 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.DateFormat;
@@ -57,7 +54,7 @@ public class CourseResource {
     }
 
     @ApiOperation("读取列表")
-    @RequestMapping(value = "/read", method = RequestMethod.POST)
+    @PostMapping("/read")
     public JsonResultList read(@RequestBody CourseQueryDTO queryDTO, HttpServletRequest request) {
         CourseQuery query = buildQuery(queryDTO);
         query.setAccountId(requestService.getAccountIdValue(request));
@@ -71,7 +68,7 @@ public class CourseResource {
     }
 
     @ApiOperation("读取自己的测试结果")
-    @RequestMapping(value = "/readMyTestResults", method = RequestMethod.POST)
+    @PostMapping("/readMyTestResults")
     public JsonResultList readMyTestResults(@RequestBody CourseQueryDTO queryDTO, HttpServletRequest request) {
         Integer accountId = requestService.getAccountId(request);
         JsonResultList result = new JsonResultList();
@@ -83,7 +80,7 @@ public class CourseResource {
     }
 
     @ApiOperation("兑换")
-    @RequestMapping(value = "/redeem", method = RequestMethod.POST)
+    @PostMapping("/redeem")
     public JsonResult buyCourse(@RequestBody CourseRedeemDTO queryDTO, HttpServletRequest request) {
         CourseQuery query = buildRedeemQuery(queryDTO);
         query.setAccountId(requestService.getAccountIdValue(request));
@@ -94,7 +91,7 @@ public class CourseResource {
     }
 
     @ApiOperation("购买")
-    @RequestMapping(value = "/buy", method = RequestMethod.POST)
+    @PostMapping("/buy")
     public JsonResult buy(HttpServletRequest request) {
         CourseTrade courseTrade = buildCourseTrade(request);
         courseService.buy(courseTrade);
@@ -102,7 +99,7 @@ public class CourseResource {
     }
 
     @ApiOperation("提交测试")
-    @RequestMapping(value = "/submitTest", method = RequestMethod.POST)
+    @PostMapping("/submitTest")
     public JsonResult submitTest(@RequestBody CourseTestDTO testDTO, HttpServletRequest request) {
         CourseTestResultQuery query = buildTestQuery(testDTO);
         query.setAccountId(requestService.getAccountIdValue(request));
@@ -113,14 +110,14 @@ public class CourseResource {
     }
 
     @ApiOperation("读取测试结果")
-    @RequestMapping(value = "/readTestResult", method = RequestMethod.POST)
+    @PostMapping("/readTestResult")
     public JsonResult readTestResult(@RequestBody CourseTestResultQueryDTO queryDTO, HttpServletRequest request) {
         return new JsonResult(courseTestResultService.readAnalysis(Integer.valueOf(queryDTO.getTestId())));
     }
 
     // TODO: 2/17/2017  后台功能：生成邀请码
 //
-//    @RequestMapping(value = "/getCDKey", method = RequestMethod.POST)
+//    @PostMapping( "/getCDKey")
 //    public JsonResult getCDKey(HttpServletRequest request) {
 //        try {
 //            CourseRequest mobileRequest = MobileRequestBaseUtil.getInstance().createMobileRequest(request, CourseRequest.class);

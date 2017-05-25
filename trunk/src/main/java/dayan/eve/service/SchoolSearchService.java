@@ -12,7 +12,6 @@ package dayan.eve.service;
 
 import dayan.common.util.SchoolPlatformIdEncoder;
 import dayan.eve.config.EveProperties;
-import dayan.eve.config.RedisCacheConfig;
 import dayan.eve.model.PageResult;
 import dayan.eve.model.Pager;
 import dayan.eve.model.School;
@@ -20,15 +19,20 @@ import dayan.eve.model.query.SearchQuery;
 import dayan.eve.model.school.PromptSchool;
 import dayan.eve.repository.SchoolAdvisoryRepository;
 import dayan.eve.repository.SchoolRepository;
+import dayan.eve.service.cache.SchoolCache;
 import dayan.eve.util.SchoolIdPlatformIdUtil;
+import dayan.eve.util.SearchPromptUtil;
 import dayan.eve.util.TagUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author xsg
@@ -42,14 +46,16 @@ public class SchoolSearchService {
     private final SchoolIdPlatformIdUtil schoolIdPlatformIdUtil;
     private final TagUtil tagUtil;
     private final String schoolLogoUrlPrefix;
+    private final SchoolCache schoolCache;
 
     @Autowired
-    public SchoolSearchService(SchoolIdPlatformIdUtil schoolIdPlatformIdUtil, TagUtil tagUtil, SchoolAdvisoryRepository schoolAdvisoryRepository, SchoolRepository schoolRepository, EveProperties eveProperties) {
+    public SchoolSearchService(SchoolIdPlatformIdUtil schoolIdPlatformIdUtil, TagUtil tagUtil, SchoolAdvisoryRepository schoolAdvisoryRepository, SchoolRepository schoolRepository, EveProperties eveProperties, SchoolCache schoolCache) {
         this.schoolIdPlatformIdUtil = schoolIdPlatformIdUtil;
         this.tagUtil = tagUtil;
         this.schoolAdvisoryRepository = schoolAdvisoryRepository;
         this.schoolRepository = schoolRepository;
         this.schoolLogoUrlPrefix = eveProperties.getSchool().getLogoPrefix();
+        this.schoolCache = schoolCache;
     }
 
 
@@ -82,44 +88,26 @@ public class SchoolSearchService {
         return list;
     }
 
-    public List<PromptSchool> getPrompts(String queryString) {
-        if ("|".equals(queryString)) {
-            return Collections.emptyList();
-        }
-        String allNameString = getAllSchoolNameStr();
-        Map<String, PromptSchool> schoolNameMap = getSchoolNameMap();
-        List<PromptSchool> prompts = new LinkedList<>();
-        int middle;
-        int left;
-        int right = 0;
-        while (prompts.size() < 21) {
-            //提示个数上限20个
-            middle = allNameString.indexOf(queryString, right);
-            if (middle == -1) {
-                break;
-            }
-            right = allNameString.indexOf("|", middle);
-            left = allNameString.lastIndexOf("|", middle);
-
-            String name = allNameString.substring(left + 1, right);
-            PromptSchool promptSchool = schoolNameMap.get(name);
-            if (promptSchool != null) {
-                prompts.add(promptSchool);
-            }
-        }
-        return prompts;
+    public List<PromptSchool> getPrompts(String key) {
+        return SearchPromptUtil.getPrompt(schoolCache.getAllSchoolNames(), key)
+                .stream()
+                .map(this::buildPrompt)
+                .collect(Collectors.toList());
     }
 
-    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
-    public String getAllSchoolNameStr() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("|");
-        schoolRepository.search(new SearchQuery())
-                .forEach(school -> sb.append(school.getName()).append("|"));
-        return sb.toString();
+    private PromptSchool buildPrompt(String promptStr) {
+        String[] split = promptStr.split("-");
+        Integer schoolId = Integer.valueOf(split[0]);
+        String schoolName = split[1];
+        PromptSchool ps = new PromptSchool();
+        ps.setId(schoolId);
+        ps.setName(schoolName);
+        ps.setIsHavingPlatformId(schoolIdPlatformIdUtil.getSchoolIdAndPlatformIdMap().containsKey(schoolId));
+        ps.setCs(schoolIdPlatformIdUtil.getSchoolCSMap().containsKey(schoolId));
+        return ps;
     }
 
-    @Cacheable(RedisCacheConfig.ONE_WEEK_CACHE)
+
     public Map<String, PromptSchool> getSchoolNameMap() {
         Map<String, PromptSchool> promptSchoolMap = new HashMap<>();
 

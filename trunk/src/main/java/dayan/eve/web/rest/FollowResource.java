@@ -32,10 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -46,7 +43,7 @@ import java.util.Map;
  * @author xsg
  */
 @RestController
-@RequestMapping(value = "/api/v20/mobile/follow")
+@RequestMapping("/api/v20/mobile/follow")
 public class FollowResource {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -69,13 +66,13 @@ public class FollowResource {
     }
 
     @ApiOperation("关注学校的用户列表")
-    @RequestMapping(value = "/readAccounts", method = RequestMethod.POST)
+    @PostMapping("/readAccounts")
     public JsonResultList readAccounts(@RequestBody FollowDTO followDTO) {
         return new JsonResultList(schoolFollowService.readAccounts(buildQueryOfSchool(followDTO)));
     }
 
     @ApiOperation("关注的学校列表")
-    @RequestMapping(value = "/readSchools", method = RequestMethod.POST)
+    @PostMapping("/readSchools")
     public JsonResult readSchools(HttpServletRequest request) {
         FollowQuery query = new FollowQuery();
         query.setAccountId(requestService.getAccountIdValue(request));
@@ -83,7 +80,7 @@ public class FollowResource {
     }
 
     @ApiOperation("walle学校向关注的用户推送消息")
-    @RequestMapping(value = "/callback", method = RequestMethod.POST)
+    @PostMapping("/callback")
     public JsonResult callback(HttpServletRequest request) {
 
         String notificationJson = request.getParameter(Constants.Key.Message);
@@ -106,7 +103,7 @@ public class FollowResource {
     }
 
     @ApiOperation("关注")
-    @RequestMapping(value = "/follow", method = RequestMethod.POST)
+    @PostMapping("/follow")
     public JsonResult follow(@RequestBody FollowSchoolQueryDTO queryDTO, HttpServletRequest request) {
         FollowQuery followQuery = buildQueryOfAccount(queryDTO);
         followQuery.setAccountId(requestService.getAccountId(request));
@@ -115,7 +112,7 @@ public class FollowResource {
     }
 
     @ApiOperation("取消关注")
-    @RequestMapping(value = "/cancel", method = RequestMethod.POST)
+    @PostMapping("/cancel")
     public JsonResult cancel(@RequestBody FollowSchoolQueryDTO queryDTO, HttpServletRequest request) {
         FollowQuery followQuery = buildQueryOfAccount(queryDTO);
         followQuery.setAccountId(requestService.getAccountId(request));

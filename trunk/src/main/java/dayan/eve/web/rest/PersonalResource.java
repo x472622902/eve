@@ -29,10 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -42,7 +39,7 @@ import java.util.List;
  */
 @ApiModel("个人中心")
 @RestController
-@RequestMapping(value = "/api/v20/mobile/personal")
+@RequestMapping("/api/v20/mobile/personal")
 public class PersonalResource {
 
     private static final Logger LOGGER = LogManager.getLogger(PersonalResource.class);
@@ -61,7 +58,7 @@ public class PersonalResource {
     }
 
     @ApiOperation("个人信息")
-    @RequestMapping(value = "/readInfo", method = RequestMethod.POST)
+    @PostMapping("/readInfo")
     public JsonResult readInfo(@RequestBody PersonalQueryDTO queryDTO, HttpServletRequest request) {
         FollowQuery query = new FollowQuery();
         query.setAccountId(StringUtils.isEmpty(queryDTO.getAccountId()) ?
@@ -77,11 +74,13 @@ public class PersonalResource {
     }
 
     @ApiOperation("讨论区动态")
-    @RequestMapping(value = "/readTopics", method = RequestMethod.POST)
+    @PostMapping("/readTopics")
     public JsonResultList readTopics(@RequestBody PersonalQueryDTO queryDTO, HttpServletRequest request) {
         TopicQuery query = new TopicQuery();
-        query.setAccountId(StringUtils.isEmpty(queryDTO.getAccountId()) ?
-                getAccountId(queryDTO.getAccountId(), request) : Integer.valueOf(queryDTO.getAccountId()));
+        query.setAccountId(
+                StringUtils.isEmpty(queryDTO.getAccountId()) ?
+                        getAccountId(queryDTO.getAccountId(), request) : Integer.valueOf(queryDTO.getAccountId())
+        );
         query.initPaging(queryDTO.getPaging());
         JsonResultList result = new JsonResultList();
         PageResult<Topic> pageResult = topicService.readTimelines(query);

@@ -32,8 +32,12 @@ public class ActivateService {
 
     private ExecutorService threadPool = Executors.newFixedThreadPool(2);
 
+    private final ActivateLogRepository activateLogRepository;
+
     @Autowired
-    ActivateLogRepository activateLogRepository;
+    public ActivateService(ActivateLogRepository activateLogRepository) {
+        this.activateLogRepository = activateLogRepository;
+    }
 
     public String activate(ActivateLogDTO activateLogDTO) {
         LOGGER.debug("IMEI:{}", activateLogDTO.getImei());
@@ -47,13 +51,7 @@ public class ActivateService {
         log.setOsVer(activateLogDTO.getOsVer());
         log.setProduct(activateLogDTO.getProduct());
         log.setRomType(activateLogDTO.getRomType());
-        threadPool.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                activateLogRepository.insert(log);
-            }
-        });
+        threadPool.execute(() -> activateLogRepository.insert(log));
         return deviceNumber;
     }
 

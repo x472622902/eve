@@ -921,13 +921,40 @@ public class EveProperties {
     }
 
     public static class Topic {
-        private Integer replyExp;
-        private Integer createExp;
-        private Integer likeExp;
+        private Integer replyExp;//回帖经验
+        private Integer createExp;//发帖经验
+        private Integer beLikedExp;//被点赞经验
+        private Integer beRepliedExp;//主贴被回复经验
         private Integer maxContentSize;
         private String likeNotificationMsg;
         private String topicReadUrlPrefix;
         private String topicCreateUrlPrefix;
+        private String noticeTitle;
+        private String messageTemplate;
+
+        public Integer getBeRepliedExp() {
+            return beRepliedExp;
+        }
+
+        public void setBeRepliedExp(Integer beRepliedExp) {
+            this.beRepliedExp = beRepliedExp;
+        }
+
+        public String getNoticeTitle() {
+            return noticeTitle;
+        }
+
+        public void setNoticeTitle(String noticeTitle) {
+            this.noticeTitle = noticeTitle;
+        }
+
+        public String getMessageTemplate() {
+            return messageTemplate;
+        }
+
+        public void setMessageTemplate(String messageTemplate) {
+            this.messageTemplate = messageTemplate;
+        }
 
         public Integer getReplyExp() {
             return replyExp;
@@ -945,12 +972,12 @@ public class EveProperties {
             this.createExp = createExp;
         }
 
-        public Integer getLikeExp() {
-            return likeExp;
+        public Integer getBeLikedExp() {
+            return beLikedExp;
         }
 
-        public void setLikeExp(Integer likeExp) {
-            this.likeExp = likeExp;
+        public void setBeLikedExp(Integer beLikedExp) {
+            this.beLikedExp = beLikedExp;
         }
 
         public Integer getMaxContentSize() {

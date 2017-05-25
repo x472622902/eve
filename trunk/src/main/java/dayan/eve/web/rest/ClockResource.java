@@ -19,10 +19,7 @@ import dayan.eve.web.dto.ClockDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author xsg
  */
 @RestController
-@RequestMapping(value = "/api/v20/mobile/clock")
+@RequestMapping("/api/v20/mobile/clock")
 public class ClockResource {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -44,7 +41,7 @@ public class ClockResource {
         this.requestService = requestService;
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @PostMapping("")
     public JsonResult clockIn(@RequestBody ClockDTO clockDTO, HttpServletRequest request) {
         ClockQuery query = new ClockQuery();
         query.setAccountId(requestService.getAccountId(request));
@@ -53,12 +50,12 @@ public class ClockResource {
         return new JsonResult();
     }
 
-    @RequestMapping(value = "/readStatus", method = RequestMethod.POST)
+    @PostMapping("/readStatus")
     public JsonResult check(HttpServletRequest request) {
         return new JsonResult(clockService.readStatus(requestService.getAccountId(request)));
     }
 
-    @RequestMapping(value = "/readRank", method = RequestMethod.POST)
+    @PostMapping("/readRank")
     public JsonResult readTodayClockRank(@RequestBody ClockDTO clockDTO, HttpServletRequest request) {
         ClockQuery query = new ClockQuery();
         query.setAccountId(requestService.getAccountIdValue(request));
@@ -69,7 +66,7 @@ public class ClockResource {
         return new JsonResult(clockService.readRank(query));
     }
 
-    @RequestMapping(value = "/readMyClocks", method = RequestMethod.POST)
+    @PostMapping("/readMyClocks")
     public JsonResultList readMyClocks(@RequestBody ClockDTO clockDTO, HttpServletRequest request) {
         ClockQuery query = new ClockQuery();
         query.setAccountId(requestService.getAccountId(request));

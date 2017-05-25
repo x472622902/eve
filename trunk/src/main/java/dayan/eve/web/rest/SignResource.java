@@ -22,9 +22,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author xsg
  */
 @Controller
-@RequestMapping(value = "/api/v20/mobile/sign")
+@RequestMapping("/api/v20/mobile/sign")
 public class SignResource {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -48,7 +48,7 @@ public class SignResource {
         this.requestService = requestService;
     }
 
-    @RequestMapping(value = "/sign", method = RequestMethod.POST)
+    @PostMapping("/sign")
     public JsonResult sign(@RequestBody ClockDTO clockDTO, HttpServletRequest request) throws Exception {
         SignQuery query = new SignQuery();
         query.setAccountId(requestService.getAccountId(request));
@@ -57,24 +57,24 @@ public class SignResource {
         return new JsonResult();
     }
 
-    @RequestMapping(value = "/check", method = RequestMethod.POST)
+    @PostMapping("/check")
     public JsonResult check(HttpServletRequest request) throws Exception {
         return new JsonResult(signService.check(requestService.getAccountId(request)));
     }
 
-    @RequestMapping(value = "/readAccounts", method = RequestMethod.POST)
+    @PostMapping("/readAccounts")
     public JsonResultList readAccounts(@RequestBody ClockDTO clockDTO) throws Exception {
         SignQuery query = new SignQuery();
         query.initPaging(clockDTO.getPaging());
         return new JsonResultList(signService.readAccounts(query));
     }
 
-    @RequestMapping(value = "/readDays", method = RequestMethod.POST)
+    @PostMapping("/readDays")
     public JsonResult readDays() throws Exception {
         return new JsonResult(signService.readDays());
     }
 
-    @RequestMapping(value = "/clockIn", method = RequestMethod.POST)
+    @PostMapping("/clockIn")
     public JsonResult clockIn(@RequestBody ClockDTO clockDTO, HttpServletRequest request) {
         ClockQuery query = new ClockQuery();
         query.setAccountId(requestService.getAccountId(request));

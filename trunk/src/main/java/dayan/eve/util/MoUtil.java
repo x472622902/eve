@@ -14,8 +14,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import dayan.common.util.HttpClientUtil;
 import dayan.common.util.MD5Util;
+import dayan.eve.config.CacheConfig;
 import dayan.eve.config.EveProperties;
-import dayan.eve.config.RedisCacheConfig;
 import dayan.eve.model.Constants;
 import dayan.eve.model.MoPageResult;
 import dayan.eve.model.query.HolPersonalityQuery;
@@ -76,32 +76,32 @@ public class MoUtil {
         return jsonResultString;
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getMajorBySchoolHashId(String schoolHashId) throws Exception {
         String url = moProperties.getSchoolMajor() + schoolHashId;
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getSchoolByMajorHashId(String majorHashId) throws Exception {
         String url = moProperties.getSchoolList() + "?majorHashId=" + majorHashId;
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getMajorDetail(String majorHashId) throws Exception {
         String url = moProperties.getMajorDetail() + majorHashId;
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getSchoolDetail(String schoolHashId) throws Exception {
         String url = moProperties.getSchoolDetail() + schoolHashId;
         return getResult(url);
     }
 
     // TODO: 2/28/2017 这种缓存形式不行 ，缓存配置有问题
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public MoPageResult getMajorList(String queryStr) throws Exception {
         SearchQuery query = JSON.parseObject(queryStr, SearchQuery.class);
         String url = moProperties.getMajorList() + "?page=" + query.getPage() + "&size=" + query.getSize();
@@ -116,13 +116,13 @@ public class MoUtil {
         return result.getObject("data", MoPageResult.class);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getHolQuestion(boolean isSimplified) throws Exception {
         String url = moProperties.getHolQuestion() + "?isSimplified=" + (isSimplified ? 1 : 0);
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getHolPersonality(HolPersonalityQuery query) throws Exception {
         String urlTemplate = moProperties.getHolPersonality() + "?A=%s&C=%s&E=%s&I=%s&R=%s&S=%s";
         String url = String.format(urlTemplate, query.getNumOfA(), query.getNumOfC(), query.getNumOfE(), query
@@ -130,21 +130,21 @@ public class MoUtil {
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getHolJobClass(String code, int page, int size) throws Exception {
         String urlTemplate = moProperties.getHolJobClass() + "?jobClassCode=%s&page=%s&size=%s";
         String url = String.format(urlTemplate, code, page, size);
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getHolMajorType(String code, int page, int size) throws Exception {
         String urlTemplate = moProperties.getHolMajorType() + "?jobClassCode=%s&page=%s&size=%s";
         String url = String.format(urlTemplate, code, page, size);
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getHolMajors(String code, int page, int size) throws Exception {
 
         String urlTemplate = moProperties.getHolMajors() + "?majorTypeCode=%s&page=%s&size=%s";
@@ -152,25 +152,25 @@ public class MoUtil {
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getSchoolPlan(String schoolHashId) throws Exception {
         String url = moProperties.getSchoolPlan() + "?schoolHashId=" + schoolHashId;
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getSchoolSumPlan(String schoolHashId) throws Exception {
         String url = moProperties.getSchoolSumPlan() + "?schoolHashId=" + schoolHashId;
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getSchoolNames(String schoolHashId) throws Exception {
         String url = moProperties.getSchoolNames() + "?schoolHashId=" + schoolHashId;
         return getResult(url);
     }
 
-    @Cacheable(RedisCacheConfig.ONE_DAY_CACHE)
+    @Cacheable(CacheConfig.ONE_DAY_CACHE)
     public String getSchoolScore(ScoreQuery query) throws Exception {
         String urlTemplate = moProperties.getSchoolScore() +
                 "?schoolHashId=%s&provinceId=%s&subjectTypeId=%s&page=1&size=100";

@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,7 +37,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author xsg
  */
 @RestController
-@RequestMapping(value = "/api/v20/mobile/topic")
+@RequestMapping("/api/v20/mobile/topic")
 @ApiModel("讨论区")
 public class TopicResource {
 
@@ -54,8 +53,7 @@ public class TopicResource {
     }
 
     @ApiOperation("看帖")
-    @RequestMapping(value = "/readTopics", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/readTopics")
     public JsonResultList readTopics(@RequestBody TopicQueryDTO topicQueryDTO, HttpServletRequest request) {
         TopicQuery query = buildQuery(topicQueryDTO);
         query.setAccountId(requestService.getAccountIdValue(request));
@@ -63,19 +61,19 @@ public class TopicResource {
     }
 
     @ApiOperation("查看自己发的贴")
-    @RequestMapping(value = "/readMyTopics", method = RequestMethod.POST)
+    @PostMapping("/readMyTopics")
     public JsonResultList readMyTopics(@RequestBody PaginationQueryDTO queryDTO, HttpServletRequest
             request) {
         Integer accountId = requestService.getAccountId(request);
         TopicQuery query = new TopicQuery();
         query.setAccountId(accountId);
-        query.setMyTopic(true);
+        query.setIsMyTopic(true);
         query.initPaging(queryDTO.getPaging());
         return new JsonResultList(topicService.readTopics(query));
     }
 
     @ApiOperation("查看自己的回复")
-    @RequestMapping(value = "/readMyReplies", method = RequestMethod.POST)
+    @PostMapping("/readMyReplies")
     public JsonResultList readMyReplies(@RequestBody PaginationQueryDTO queryDTO, HttpServletRequest request) {
         Integer accountId = requestService.getAccountId(request);
         TopicQuery query = new TopicQuery();
@@ -85,7 +83,7 @@ public class TopicResource {
     }
 
     @ApiOperation("发帖")
-    @RequestMapping(value = "/createTopic", method = RequestMethod.POST)
+    @PostMapping("/createTopic")
     public JsonResult createTopic(@RequestBody TopicCreateDTO topicCreateDTO, HttpServletRequest request,
                                   @RequestParam(required = false, value = "files") MultipartFile... files) {
         Integer accountId = requestService.getAccountId(request);
@@ -113,7 +111,7 @@ public class TopicResource {
     }
 
     @ApiOperation("赞")
-    @RequestMapping(value = "/like", method = RequestMethod.POST)
+    @PostMapping("/like")
     public JsonResult like(@RequestBody TopicLikeDTO topicLikeDTO, HttpServletRequest request) {
         Integer accountId = requestService.getAccountId(request);
         topicService.like(accountId, Integer.valueOf(topicLikeDTO.getTopicId()));
@@ -121,14 +119,14 @@ public class TopicResource {
     }
 
     @ApiOperation("踩")
-    @RequestMapping(value = "/dislike", method = RequestMethod.POST)
+    @PostMapping("/dislike")
     public JsonResult dislike(@RequestBody TopicLikeDTO topicLikeDTO, HttpServletRequest request) {
         topicService.dislike(requestService.getAccountId(request), Integer.valueOf(topicLikeDTO.getTopicId()));
         return new JsonResult();
     }
 
     @ApiOperation("删帖")
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @PostMapping("/delete")
     public JsonResult delete(@RequestBody TopicLikeDTO topicLikeDTO, HttpServletRequest request) {
         Integer accountId = requestService.getAccountId(request);
         TopicQuery query = new TopicQuery();
@@ -139,7 +137,7 @@ public class TopicResource {
     }
 
     @ApiOperation("查看主题")
-    @RequestMapping(value = "/readAllThemes", method = RequestMethod.POST)
+    @PostMapping("/readAllThemes")
     public JsonResultList readAllThemes(@RequestBody TopicThemeQueryDTO queryDTO) {
         TopicQuery query = new TopicQuery();
         query.initPaging(queryDTO.getPaging());
@@ -163,7 +161,7 @@ public class TopicResource {
             } else {
                 query.setTopicId(1);
             }
-            query.setMyTopic(data.getMyTopic());
+            query.setIsMyTopic(data.getMyTopic());
         } else {
             if (!StringUtils.isEmpty(data.getTopicId())) {
                 query.setTopicId(Integer.valueOf(data.getTopicId()));
@@ -173,10 +171,10 @@ public class TopicResource {
             }
         }
         if (data.getPopular() != null) {
-            query.setPopular(data.getPopular());
+            query.setIsPopular(data.getPopular());
         }
         if (data.getLive() != null) {
-            query.setLive(data.getLive());
+            query.setIsLive(data.getLive());
         }
         query.initPaging(data.getPaging());
         return query;

@@ -58,7 +58,7 @@ public class AccountResource {
     }
 
     @ApiOperation("个人信息")
-    @RequestMapping(value = "/info", method = RequestMethod.GET)
+    @PostMapping("/info")
     public JsonResult info(HttpServletRequest request) {
         JsonResult jsonResult = new JsonResult();
         AccountQuery query = new AccountQuery();
@@ -68,7 +68,7 @@ public class AccountResource {
     }
 
     @ApiOperation("更新个人信息")
-    @RequestMapping(value = "/updateInfo", method = RequestMethod.POST)
+    @PostMapping("/updateInfo")
     public JsonResult updateInfo(@RequestBody InfoUpdateDTO infoUpdateDTO, HttpServletRequest request) throws Exception {
         AccountInfo accountInfo = buildAccountInfo(infoUpdateDTO);
         accountInfo.setAccountId(requestService.getAccountId(request));
@@ -77,14 +77,14 @@ public class AccountResource {
     }
 
     @ApiOperation("更新分享")
-    @RequestMapping(value = "/updateShared", method = RequestMethod.POST)
+    @PostMapping("/updateShared")
     public JsonResult updateShared(HttpServletRequest request) {
         accountInfoService.updateShared(requestService.getAccountId(request));
         return new JsonResult();
     }
 
     @ApiOperation("发送短信")
-    @RequestMapping(value = "/sendSMS", method = RequestMethod.POST)
+    @PostMapping("/sendSMS")
     public JsonResult sendSMS(@RequestBody MobileDTO mobileDTO) throws Exception {
         go4BaseUtil.getVerificationCode(mobileDTO.getMobile());
         return new JsonResult();
@@ -92,27 +92,27 @@ public class AccountResource {
     }
 
     @ApiOperation("读取个人信息")
-    @RequestMapping(value = "/readInfo", method = RequestMethod.POST)
+    @PostMapping("/readInfo")
     public JsonResult readInfo(HttpServletRequest request) throws Exception {
         return new JsonResult(accountInfoService.readInfo(requestService.getAccountId(request)));
 
     }
 
     @ApiOperation("根据环信读用户")
-    @RequestMapping(value = "/readAccountByEasemob", method = RequestMethod.POST)
+    @PostMapping("/readAccountByEasemob")
     public JsonResult readByEasemob(@RequestBody InfoReadQueryDTO queryDTO) {
         return new JsonResult(accountInfoService.readAccountByEasemob(queryDTO.getEasemobUsername()));
     }
 
     @ApiOperation("根据环信读用户列表")
-    @RequestMapping(value = "/readAccountsByEasemob", method = RequestMethod.POST)
+    @PostMapping("/readAccountsByEasemob")
     public JsonResult readAccountsByEasemob(@RequestBody InfoReadQueryDTO queryDTO) {
         return new JsonResult(accountInfoService.readAccountListByEasemob(queryDTO.getEasemobUsernames()));
     }
 
 
     @ApiOperation("更新头像")
-    @RequestMapping(value = "/updateAvatar", method = RequestMethod.POST)
+    @PostMapping("/updateAvatar")
     public JsonResult updateAvatar(HttpServletRequest request, @RequestParam(value = "files")
             MultipartFile file) throws Exception {
         Integer accountId = requestService.getAccountId(request);
@@ -120,7 +120,7 @@ public class AccountResource {
     }
 
     @ApiOperation("统计经验值")
-    @RequestMapping(value = "/countExp", method = RequestMethod.POST)
+    @PostMapping("/countExp")
     public JsonResult countExp() {
         accountInfoService.countExp();
         return new JsonResult();

@@ -149,9 +149,12 @@ eve:
     topicCreateUrlPrefix: d:/usr/tomcat-8881-monitor/webapps/image/topic/
     replyExp: 5
     createExp: 10
-    likeExp: 2
+    beLikedExp: 2
+    beRepliedxp: 2
     maxContentSize: 1024
     likeNotificationMsg: 给你点了个赞
+    noticeTitle: 您的帖子已有回复
+    messageTemplate: 您的帖子：[%s]已有回复，快去查看吧！
   async:
     corePoolSize: 2
     maxPoolSize: 50
