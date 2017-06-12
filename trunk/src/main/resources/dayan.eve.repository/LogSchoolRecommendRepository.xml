@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.LogSchoolRecommendRepository">
+    <insert id="insertLog">
+        INSERT INTO
+            log_school_recommend
+            (
+                account_id,
+                score,
+                rank,
+                province_id,
+                subject_type,
+                major_code,
+                filter,
+                request_ip,
+                gmt_create,
+                gmt_date
+            )
+            VALUE
+            (
+                #{accountId},
+                #{score},
+                #{rank},
+                #{provinceId},
+                #{subjectType},
+                #{majorCode},
+                #{filter},
+                #{requestIp},
+                NOW(),
+                NOW()
+            )
+    </insert>
+    <!--<insert id="insertRecommendCount">-->
+        <!--INSERT INTO tmp_recommend_count (-->
+        <!--school_id,-->
+        <!--province_id,-->
+        <!--subject_type,-->
+        <!--count,-->
+        <!--gmt_create-->
+        <!--) VALUES-->
+        <!--<foreach collection="list" item="recommendCount" index="index" separator=",">-->
+            <!--(-->
+                <!--#{recommendCount.schoolId},-->
+                  <!--#{recommendCount.provinceId},-->
+                  <!--#{recommendCount.subjectType},-->
+                <!--#{recommendCount.count},-->
+                <!--NOW()-->
+            <!--)-->
+        <!--</foreach>-->
+    <!--</insert>-->
+    <update id="updateLog">
+        UPDATE
+            log_school_recommend
+        SET
+            is_dealed = 1
+        WHERE
+            province_id = #{provinceId}
+            AND subject_type = #{subjectType}
+    </update>
+    <select id="queryLogs" resultType="dayan.eve.model.school.SchoolRecommendLog">
+        SELECT
+            id,
+            filter
+        FROM
+            log_school_recommend
+        WHERE
+            province_id = #{provinceId}
+            AND subject_type = #{subjectType}
+            AND major_code IS NULL
+        ORDER BY id
+    </select>
+</mapper>

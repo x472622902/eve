@@ -8,17 +8,17 @@
  * Proprietary and confidential
  * *****************************************************
  */
-package dayan.eve.service;
+package dayan.eve.service.school;
 
 import dayan.common.util.SchoolPlatformIdEncoder;
 import dayan.eve.config.EveProperties;
 import dayan.eve.model.PageResult;
-import dayan.eve.model.Pager;
 import dayan.eve.model.School;
 import dayan.eve.model.SchoolTag;
 import dayan.eve.model.account.AccountInfo;
 import dayan.eve.model.query.FollowQuery;
 import dayan.eve.repository.SchoolFollowRepository;
+import dayan.eve.service.HotRecommendService;
 import dayan.eve.util.SchoolIdPlatformIdUtil;
 import dayan.eve.util.TagUtil;
 import dayan.eve.util.WalleUtil;
@@ -91,7 +91,7 @@ public class SchoolFollowService {
         if (query.getAccountId() != null) {
             count = schoolFollowRepository.countSchool(query);
         }
-        PageResult<School> result = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        PageResult<School> result = new PageResult<>(count, query.getPage(), query.getSize());
         if (count > 0) {
             result.setList(assign(schoolFollowRepository.querySchools(query)));
         }
@@ -100,7 +100,7 @@ public class SchoolFollowService {
 
     public PageResult<AccountInfo> readAccounts(FollowQuery query) {
         Integer count = schoolFollowRepository.countAccount(query);
-        PageResult<AccountInfo> result = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        PageResult<AccountInfo> result = new PageResult<>(count, query.getPage(), query.getSize());
         if (count > 0) {
             result.setList(schoolFollowRepository.queryAccounts(query));
         }

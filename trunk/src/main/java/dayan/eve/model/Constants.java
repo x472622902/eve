@@ -85,4 +85,6 @@ public class Constants {
         public static final int DeliveryMan = 3;
         public static final int MallAdmin = 3;
     }
+
+    public static final String GO4 = "go4";
 }

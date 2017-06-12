@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.WeiboUserRepository">
+    <insert id="insert">
+        INSERT INTO eve_weibo_user (
+            school_id,
+            screen_name,
+            gmt_create
+        ) VALUE
+            (
+                #{schoolId},
+                #{screenName},
+                NOW()
+            )
+    </insert>
+    <select id="queryBySchool" resultType="dayan.eve.model.WeiboUser">
+        SELECT
+            school_id,
+            screen_name
+        FROM
+            eve_weibo_user
+        WHERE 1=1
+            <if test="schoolId != null">
+                and school_id = #{schoolId}
+            </if>
+
+    </select>
+</mapper>

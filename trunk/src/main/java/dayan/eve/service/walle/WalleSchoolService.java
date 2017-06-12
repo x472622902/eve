@@ -30,7 +30,7 @@ import dayan.eve.model.walle.WalleCs;
 import dayan.eve.repository.AccountInfoRepository;
 import dayan.eve.repository.AccountRepository;
 import dayan.eve.service.AccountInfoService;
-import dayan.eve.service.SchoolSearchService;
+import dayan.eve.service.school.SchoolSearchService;
 import dayan.eve.util.Go4BaseUtil;
 import dayan.eve.util.SchoolIdPlatformIdUtil;
 import dayan.eve.util.WalleUtil;
@@ -219,7 +219,7 @@ public class WalleSchoolService {
 
         Integer page = query.getPage();
         Integer size = query.getSize();
-        PageResult<CS> result = new PageResult<>(new Pager(0, page, size));
+        PageResult<CS> result = new PageResult<>(0, page, size);
 
         if (!csOnlineCache.containsKey(KEY)) {
             try {
@@ -303,7 +303,7 @@ public class WalleSchoolService {
     private CS getCsByWalleCs(WalleCs walleCs) {
         School school = getSchoolByPlatformId(walleCs.getPlatformId());
 
-        String platform = school == null ? ConstantKeys.EVE_PLATFORM : school.getName();
+        String platform = school == null ? ConstantKeys.EVE_PLATFORM_CN : school.getName();
         if (platform == null) {
             return null;
         }
@@ -312,7 +312,7 @@ public class WalleSchoolService {
             return null;
         }
 
-        if (!ConstantKeys.EVE_PLATFORM.equals(platform)) {
+        if (!ConstantKeys.EVE_PLATFORM_CN.equals(platform)) {
             accountInfo.getExt().setSchoolName(platform);
         }
 
@@ -340,7 +340,9 @@ public class WalleSchoolService {
             Integer schoolId = schoolIdPlatformIdUtil.getAllPlatformSchoolMap().get(platformId);
             if (schoolId != null) {
                 try {
-                    school = schoolSearchService.readSingleSchool(new SearchQuery(schoolId));
+                    SearchQuery query = new SearchQuery();
+                    query.setSchoolId(schoolId);
+                    school = schoolSearchService.readSingleSchool(query);
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage());
                 }

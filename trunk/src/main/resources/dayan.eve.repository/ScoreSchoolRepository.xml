@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.ScoreSchoolRepository">
+    <sql id="where">
+        and a.school_id = #{schoolId}
+        and a.is_deleted = 0
+        <if test="year != null">
+            and a.year = #{year}
+        </if>
+        and a.province_id = #{provinceId}
+        and a.subject_type = #{subjectType}
+        <if test="batch != null">
+            and a.batch = #{batch}
+            ORDER BY a.year desc
+            LIMIT 4
+        </if>
+
+    </sql>
+
+    <!--<select id="querySchoolScore" parameterType="ScoreQuery" resultType="SchoolScore">-->
+    <!--SELECT-->
+    <!--a.avg_score "avgScore",-->
+    <!--a.min_score "minScore",-->
+    <!--a.control_line "controlLine" ,-->
+    <!--a.batch,-->
+    <!--a.year-->
+    <!--FROM-->
+    <!--cu_score_school_mix a-->
+    <!--WHERE-->
+    <!--1=1-->
+    <!--<include refid="where"/>-->
+    <!--</select>-->
+
+    <select id="queryBatch" resultType="dayan.eve.model.school.BatchScore">
+        SELECT
+        a.batch ,
+        a.control_line controlLine
+        FROM
+        cu_score_school_mix a
+        WHERE
+        1=1
+        <include refid="where"/>
+        GROUP BY a.batch
+        ORDER BY a.control_line DESC
+    </select>
+</mapper>

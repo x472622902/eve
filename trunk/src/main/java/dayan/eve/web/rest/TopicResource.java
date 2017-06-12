@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author xsg
  */
+//@Aspect
 @RestController
 @RequestMapping("/api/v20/mobile/topic")
 @ApiModel("讨论区")

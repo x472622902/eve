@@ -20,7 +20,7 @@ import dayan.eve.model.query.TopicQuery;
 import dayan.eve.model.topic.Topic;
 import dayan.eve.service.AccountInfoService;
 import dayan.eve.service.RequestService;
-import dayan.eve.service.SchoolFollowService;
+import dayan.eve.service.school.SchoolFollowService;
 import dayan.eve.service.TopicService;
 import dayan.eve.web.dto.PersonalQueryDTO;
 import io.swagger.annotations.ApiModel;
@@ -28,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +38,7 @@ import java.util.List;
 /**
  * @author xsg
  */
+@Aspect
 @ApiModel("个人中心")
 @RestController
 @RequestMapping("/api/v20/mobile/personal")

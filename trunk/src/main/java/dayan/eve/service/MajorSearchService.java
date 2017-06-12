@@ -14,7 +14,6 @@ import com.alibaba.fastjson.JSON;
 import dayan.eve.config.EveProperties;
 import dayan.eve.model.MoPageResult;
 import dayan.eve.model.PageResult;
-import dayan.eve.model.Pager;
 import dayan.eve.model.major.Major;
 import dayan.eve.model.major.MoMajor;
 import dayan.eve.model.query.SearchQuery;
@@ -28,7 +27,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author xsg
@@ -80,7 +82,7 @@ public class MajorSearchService {
             query.setQueryStr(null);
         }
 
-        PageResult<Major> result = new PageResult<>(new Pager(0, query.getPage(), query.getSize()));
+        PageResult<Major> result = new PageResult<>(0, query.getPage(), query.getSize());
         MoPageResult moPageResult = moUtil.getMajorList(JSON.toJSONString(query));
         result.setList(coverToMajor(moPageResult.getList()));
         result.setPager(moPageResult.getPager());

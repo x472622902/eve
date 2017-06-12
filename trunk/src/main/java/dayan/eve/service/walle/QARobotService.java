@@ -23,6 +23,7 @@ import dayan.eve.model.JsonResult;
 import dayan.eve.repository.AccountInfoRepository;
 import dayan.eve.util.SchoolIdPlatformIdUtil;
 import dayan.eve.util.WalleUtil;
+import dayan.eve.web.dto.RobotQueryDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -169,4 +170,51 @@ public class QARobotService {
         }
     }
 
+    public String accessCS(RobotQueryDTO queryDTO, String userNumber) {
+        try {
+            Integer platformId;
+            if ("0".equals(queryDTO.getPlatformHashId()) || StringUtils.isEmpty(queryDTO.getPlatformHashId())) {
+                platformId = walle.getEvePlatformId();
+            } else {
+                platformId = new SchoolPlatformIdEncoder().decode(queryDTO.getPlatformHashId()).intValue();
+            }
+            JSONObject params = new JSONObject();
+            params.put("platformId", String.valueOf(platformId));
+            params.put("query", queryDTO.getQuery());
+            params.put("channelId", String.valueOf(Constants.Channel.APP));
+            params.put("jsessionid", userNumber);
+
+            Map<String, String> urlParams = new HashMap<>();
+            urlParams.put("callback", "callback");
+
+            String result = HttpClientUtil.post(buildURLParams(walle.getCsAsk(), urlParams), params.toJSONString());
+            return result.substring("callback(".length(), result.length() - 1);
+        } catch (URISyntaxException | IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    public String closeCS(String userNumber, Long platformId) throws Exception {
+        Map<String, String> urlParams = new HashMap<>();
+        urlParams.put("callback", "callback");
+        urlParams.put("jsessionid", userNumber);
+        urlParams.put("platformId", String.valueOf(platformId));
+
+        String result = HttpClientUtil.get(buildURLParams(walle.getCsClose(), urlParams));
+        return result.substring("callback(".length(), result.length() - 1);
+    }
+
+    private String buildURLParams(String url, Map<String, String> params) {
+        if (params.size() > 0) {
+            StringBuilder urlBuilder = new StringBuilder(url);
+            urlBuilder.append("?");
+
+            for (String key : params.keySet()) {
+                urlBuilder.append(key).append("=").append(params.get(key)).append("&");
+            }
+            return urlBuilder.toString();
+        }
+        return url;
+    }
 }

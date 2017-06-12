@@ -17,7 +17,7 @@ public final class ConstantKeys {
 
 //    public static final String[] JOBTYPES=["Clerk","Intern","Leafleteer","Promotion","Receptionist","Tutor","Waiter","Others"];
 
-    public final static Integer[] ADVISORYSCHOOLIDS = {162, 148, 161, 158};//当前app首页默认四所可以咨询的学校
+    public final static Integer[] ADVISORY_SCHOOL_IDS = {162, 148, 161, 158};//当前app首页默认四所可以咨询的学校
 
     public static final String GAOKAODATE = "2016-06-08";
 
@@ -26,7 +26,7 @@ public final class ConstantKeys {
     public static final String AVATAR_START = "/open/avatar/";
     public static final String AVATAR_END = "/img";
 
-    public static final String EVE_PLATFORM = "小言高考";
+    public static final String EVE_PLATFORM_CN = "小言高考";
 
     public static final String[] SUBJECT_TYPES = {"文科", "理科"};
 
@@ -49,7 +49,7 @@ public final class ConstantKeys {
 
     public static class SchoolDetail {
 
-        public final static String[] SchoolTypes = {"综合类", "理工类", "财经类", "农林类", "林业类",
+        public final static String[] SCHOOL_TYPES = {"综合类", "理工类", "财经类", "农林类", "林业类",
                 "医药类", "师范类", "体育类", "语文类", "政法类", "艺术类", "民族类", "军事类", "商学类", "语言类"};
 
         //学校概况--详情

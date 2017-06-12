@@ -8,12 +8,11 @@
  * Proprietary and confidential
  * *****************************************************
  */
-package dayan.eve.service;
+package dayan.eve.service.school;
 
 import dayan.common.util.SchoolPlatformIdEncoder;
 import dayan.eve.config.EveProperties;
 import dayan.eve.model.PageResult;
-import dayan.eve.model.Pager;
 import dayan.eve.model.School;
 import dayan.eve.model.query.SearchQuery;
 import dayan.eve.model.school.PromptSchool;
@@ -142,9 +141,12 @@ public class SchoolSearchService {
     }
 
     public PageResult<School> searchSchools(SearchQuery query) {
-        List<School> list = getSchools(query);
         Integer count = schoolRepository.count(query);
-        return new PageResult<>(assign(list), new Pager(count, query.getPage(), query.getSize()));
+        PageResult<School> pageResult = new PageResult<>(count, query.getPage(), query.getSize());
+        if (count > 0) {
+            pageResult.setList(assign(getSchools(query)));
+        }
+        return pageResult;
     }
 
     public School readSingleSchool(SearchQuery query) {

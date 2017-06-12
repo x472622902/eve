@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.AdsRepository">
+    <insert id="insert" parameterType="Advertisement">
+        INSERT INTO eve_ads (
+            image_url,
+            url,
+            is_startpage,
+            is_popup,
+            province_id,
+            min_score,
+            max_score,
+            subject_type_id,
+            type,
+            gmt_create
+        ) VALUES
+            (
+                #{imageUrl},
+                #{url},
+                ${isStartpage ? 1 : 0},
+                ${isPopup ? 1 : 0},
+                #{provinceId},
+                #{minScore},
+                #{maxScore},
+                #{subjectTypeId},
+                #{type},
+                NOW()
+            )
+    </insert>
+
+    <update id="updateReadTimes" parameterType="Integer">
+        UPDATE eve_ads
+        SET read_times = read_times + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="update" parameterType="Advertisement">
+        UPDATE
+            eve_ads
+        SET
+            image_url       = #{imageUrl},
+            url             = #{url},
+            is_startpage    = ${isStartpage},
+            province_id     = #{provinceId},
+            subject_type_id = #{subjectTypeId},
+            gmt_modify      = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="query" resultType="dayan.eve.model.Advertisement">
+        SELECT
+        id,
+        image_url imageUrl,
+        url,
+        is_startpage isStartpage,
+        is_popup isPopup,
+        min_score minScore,
+        max_score maxScore
+        FROM
+        eve_ads
+        WHERE is_deleted = 0
+        <if test="isStartpage !=null ">
+            And is_startpage=#{isStartpage}
+        </if>
+        <if test="isPopup !=null ">
+            And is_popup=#{isPopup}
+        </if>
+        ORDER BY is_startpage DESC
+    </select>
+
+    <select id="queryRandomOne" parameterType="AdsQuery" resultType="dayan.eve.model.Advertisement">
+        SELECT
+        a.id,
+        a.image_url imageUrl,
+        a.url
+        FROM
+        eve_ads a
+        WHERE 1=1
+        <if test="isStartpage !=null ">
+            And is_startpage=#{isStartpage}
+        </if>
+        <if test="isPopup !=null ">
+            And is_popup=#{isPopup}
+        </if>
+        <if test="provinceId !=null and type !=null and subjectTypeId !=null">
+            AND (a.type = #{type} OR a.type IS NULL )
+            AND (a.province_id = #{provinceId} OR a.province_id IS NULL )
+            AND (a.subject_type_id = #{subjectTypeId} OR a.subject_type_id IS NULL )
+        </if>
+        <if test="score !=null">
+            AND (a.min_score IS NULL OR #{score} > a.min_score)
+            AND (a.max_score IS NULL OR a.max_score > #{score})
+        </if>
+        AND a.is_deleted = 0
+        ORDER BY RAND()
+        LIMIT 1
+    </select>
+
+    <sql id="where">
+        AND is_deleted = 0
+    </sql>
+
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+
+    <update id="delete" parameterType="Integer">
+        UPDATE
+            eve_ads
+        SET
+            is_deleted = 1
+        WHERE
+            id = #{id}
+    </update>
+</mapper>

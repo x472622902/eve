@@ -131,7 +131,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public PageResult<Topic> readTopics(TopicQuery query) {
         Integer count = count(query);
-        PageResult<Topic> pageResult = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        PageResult<Topic> pageResult = new PageResult<>(count, query.getPage(), query.getSize());
         if (count > 0) {
             List<Topic> topics = topicRepository.queryTopics(query);
             //配置直播贴
@@ -175,13 +175,13 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public void dislike(Integer accountId, Integer topicId) {
         if (!topicDislikeRepository.queryExisted(accountId, topicId)) {
-     LOGGER.info("topic dislike ,accountId: {},topicId: {}", accountId, topicId);
-     topicDislikeRepository.insert(accountId, topicId);
-     topicRepository.updateDislikeNum(topicId);
-     }
-     }
+            LOGGER.info("topic dislike ,accountId: {},topicId: {}", accountId, topicId);
+            topicDislikeRepository.insert(accountId, topicId);
+            topicRepository.updateDislikeNum(topicId);
+        }
+    }
 
-     /**
+    /**
      * 设置贴子的图片（缩略图、中图和大图）
      */
     private void setImage(List<TopicImage> images, Topic topic) {
@@ -339,7 +339,7 @@ public class TopicServiceImpl implements TopicService {
                 .isMyTopic(true)
                 .build();
         EasemobRequest easemobRequest = new EasemobRequest();
-        easemobRequest.setFrom(ConstantKeys.EVE_PLATFORM);
+        easemobRequest.setFrom(ConstantKeys.EVE_PLATFORM_CN);
         easemobRequest.setTarget(getEasemobUserIds(noticeAccounts));
         easemobRequest.setTarget_type(EasemobRequest.TargetType.users);
         easemobRequest.setMsg(new EasemobRequest.Msg(buildMsg(action, topic)));
@@ -454,7 +454,7 @@ public class TopicServiceImpl implements TopicService {
     public PageResult<Topic> readTimelines(TopicQuery query) {
 
         Integer count = count(query);
-        PageResult<Topic> pageResult = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        PageResult<Topic> pageResult = new PageResult<>(count, query.getPage(), query.getSize());
         if (count > 0) {
             List<Topic> topics = topicRepository.queryMyTopic(query);
             setOriginTopic(topics);

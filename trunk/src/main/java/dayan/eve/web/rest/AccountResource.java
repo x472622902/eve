@@ -16,7 +16,7 @@ import dayan.eve.model.query.AccountQuery;
 import dayan.eve.service.AccountInfoService;
 import dayan.eve.service.AccountService;
 import dayan.eve.service.RequestService;
-import dayan.eve.service.SchoolFollowService;
+import dayan.eve.service.school.SchoolFollowService;
 import dayan.eve.util.Go4BaseUtil;
 import dayan.eve.web.dto.account.InfoReadQueryDTO;
 import dayan.eve.web.dto.account.InfoUpdateDTO;
@@ -26,6 +26,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author xsg
  */
+@Aspect
 @RestController
 @RequestMapping(value = "/api/v20/mobile/account")
 @ApiModel("用户")

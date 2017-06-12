@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.SchoolRecommendRepository">
+
+
+    <sql id="where">
+        AND a.province_id = #{provinceId}
+        AND a.subject_type = #{subjectType}
+        AND a.ref_score + 20 >= #{score}
+        AND #{score} >= a.min_score -10
+        AND a.is_deleted = 0
+        <if test='isAdvisory !=null'>
+            AND b.is_advisory = #{isAdvisory}
+        </if>
+        <if test='cs != null and cs == true'>
+            AND b.cs = 1
+        </if>
+        <if test='schoolTypes != null '>
+            AND b.school_type in
+            <foreach item="schoolTypes" index="index" collection="schoolTypes"
+                     open="(" separator="," close=")">
+                #{schoolTypes}
+            </foreach>
+        </if>
+        <if test='provinceIds != null '>
+            AND b.province_id in
+            <foreach item="provinceIds" index="index" collection="provinceIds"
+                     open="(" separator="," close=")">
+                #{provinceIds}
+            </foreach>
+        </if>
+        <if test='tagsValue != null'>
+            AND c.tags &amp; #{tagsValue}  = #{tagsValue}
+        </if>
+        <if test='schoolIds != null'>
+            AND a.school_id in
+            <foreach item="schoolIds" index="index" collection="schoolIds"
+                     open="(" separator="," close=")">
+                #{schoolIds}
+            </foreach>
+        </if>
+    </sql>
+
+
+    <select id="query" resultType="dayan.eve.model.school.EligibleSchool">
+        SELECT
+        a.school_id "schoolId",
+        b.name "schoolName",
+        b.address,
+        b.city,
+        b.cs,
+        c.tags "tagsValue",
+        a.school_rank "schoolRank",
+        a.avg_score_difference "avgScoreDifference",
+        a.subject_type "subjectType",
+        a.batch,
+        a.ref_score "refScore",
+        a.min_score "minRecommend",
+        a.control_line "controlLineOne",
+        a.guess_control_line "guessControlLine",
+        a.refer_probability "referScoreProbability"
+        FROM
+        cu_adm_ref_school a
+        LEFT JOIN cu_school b ON a.school_id=b.id
+        LEFT JOIN cu_school_tag c ON a.school_id=c.school_id
+        WHERE
+        1=1
+        <include refid="where"/>
+    </select>
+
+    <select id="queryBySchool" resultType="dayan.eve.model.school.EligibleSchool">
+        SELECT
+        a.batch,
+        a.ref_score "refScore",
+        a.min_score "minRecommend",
+        a.control_line "controlLineOne",
+        a.guess_control_line "guessControlLine",
+        a.school_rank "schoolRank",
+        a.refer_probability "referScoreProbability"
+        FROM
+        cu_adm_ref_school a
+        WHERE
+        a.school_id=#{schoolId}
+        AND a.province_id = #{provinceId}
+        AND a.subject_type = #{subjectType}
+        <if test='batch != null'>
+            AND a.batch = #{batch}
+        </if>
+        ORDER BY ref_score DESC
+    </select>
+
+    <select id="queryBatch" resultType="dayan.eve.model.school.BatchScore">
+        SELECT
+            a.batch,
+            a.control_line       controlLineOne,
+            a.guess_control_line guessControlLine
+        FROM
+            cu_adm_ref_school a
+        WHERE 1 = 1
+              AND a.school_id = #{schoolId}
+              AND a.province_id = #{provinceId}
+              AND a.subject_type = #{subjectType}
+        GROUP BY a.batch
+        ORDER BY a.control_line DESC
+    </select>
+</mapper>

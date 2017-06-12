@@ -17,11 +17,6 @@ public class PageResult<T> implements Serializable {
     public PageResult() {
     }
 
-    public PageResult(Pager pager) {
-        this.pager = pager;
-        this.list = Collections.emptyList();
-    }
-
     public PageResult(List<T> list, Pager pager) {
         this.list = list;
         this.pager = pager;

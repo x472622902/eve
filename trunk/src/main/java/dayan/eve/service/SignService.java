@@ -12,7 +12,6 @@ package dayan.eve.service;
 
 import com.alibaba.fastjson.JSON;
 import dayan.eve.model.PageResult;
-import dayan.eve.model.Pager;
 import dayan.eve.model.Sign;
 import dayan.eve.model.account.AccountInfo;
 import dayan.eve.model.query.SignQuery;
@@ -112,7 +111,7 @@ public class SignService {
     public PageResult<Sign> readAccounts(SignQuery query) throws ParseException {
         query.setLimitDate(getDate(new Date(), START_TIME));
         Integer count = signRepository.countToday();
-        PageResult<Sign> result = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        PageResult<Sign> result = new PageResult<>(count, query.getPage(), query.getSize());
         if (count > 0) {
             List<Sign> accounts = signRepository.queryByTime(query);
             setRank(accounts);

@@ -25,7 +25,6 @@ import dayan.eve.repository.AccountRepository;
 import dayan.eve.repository.CodeRepository;
 import dayan.eve.service.AccountInfoService;
 import dayan.eve.service.AccountService;
-import dayan.eve.service.EasemobService;
 import dayan.eve.util.Go4BaseUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,24 +43,21 @@ import java.util.List;
 public class AccountServiceImpl implements AccountService {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    private final AccountRepository accountRepository;
+    private final CodeRepository codeMapper;
+    private final AccountInfoService accountInfoService;
+    private final AccountInfoRepository accountInfoRepository;
+    private final Go4BaseUtil go4BaseUtil;
 
     @Autowired
-    AccountRepository accountRepository;
+    public AccountServiceImpl(CodeRepository codeMapper, AccountInfoService accountInfoService, AccountInfoRepository accountInfoRepository, Go4BaseUtil go4BaseUtil, AccountRepository accountRepository) {
+        this.codeMapper = codeMapper;
+        this.accountInfoService = accountInfoService;
+        this.accountInfoRepository = accountInfoRepository;
+        this.go4BaseUtil = go4BaseUtil;
+        this.accountRepository = accountRepository;
+    }
 
-    @Autowired
-    CodeRepository codeMapper;
-
-    @Autowired
-    AccountInfoService accountInfoService;
-
-    @Autowired
-    EasemobService easemobService;
-
-    @Autowired
-    Go4BaseUtil go4BaseUtil;
-
-    @Autowired
-    AccountInfoRepository accountInfoRepository;
 
     @Override
     public Account login(LoginType loginType, AccountBase loginData) throws Exception {
@@ -93,7 +89,7 @@ public class AccountServiceImpl implements AccountService {
         JSONObject loginInfo = new JSONObject();
         loginInfo.put("loginAccount", mobile);
         loginInfo.put("password", password);
-        AccountInfo go4Info = go4BaseUtil.checkLogin("go4", loginInfo);
+        AccountInfo go4Info = go4BaseUtil.checkLogin(Constants.GO4, loginInfo);
         codeMapper.setCode(Constants.EMOJI_CODE);
         return checkInfoAndUpdate(go4Info);
     }

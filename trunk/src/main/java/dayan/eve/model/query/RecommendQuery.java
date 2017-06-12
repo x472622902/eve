@@ -15,6 +15,7 @@ import dayan.eve.model.enumeration.SortType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author xsg
@@ -28,7 +29,7 @@ public class RecommendQuery extends Pagination {
     private String subjectType;
     private Integer majorId;
     private List<String> schoolTypes;
-    private Integer isAdvisory;
+    private Boolean isAdvisory;
     private Integer tagsValue;
     private List<Integer> refTypeIds;
     private List<Integer> provinceIds;//学校所在省份
@@ -56,12 +57,12 @@ public class RecommendQuery extends Pagination {
         this.schoolTypes = schoolTypes;
     }
 
-    public Integer getIsAdvisory() {
+    public Boolean getAdvisory() {
         return isAdvisory;
     }
 
-    public void setIsAdvisory(Integer isAdvisory) {
-        this.isAdvisory = isAdvisory;
+    public void setAdvisory(Boolean advisory) {
+        isAdvisory = advisory;
     }
 
     public Integer getProvinceId() {
@@ -120,11 +121,7 @@ public class RecommendQuery extends Pagination {
         if (refTypeIds == null || refTypeIds.isEmpty()) {
             this.refTypeIds = null;
         } else {
-            List<Integer> list = new ArrayList<>();
-            for (String IdStr : refTypeIds) {
-                list.add(Integer.valueOf(IdStr));
-            }
-            this.refTypeIds = list;
+            this.refTypeIds = refTypeIds.stream().map(Integer::valueOf).collect(Collectors.toList());
         }
     }
 

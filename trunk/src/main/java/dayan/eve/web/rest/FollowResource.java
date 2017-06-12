@@ -23,7 +23,7 @@ import dayan.eve.repository.SchoolFollowRepository;
 import dayan.eve.repository.SchoolRepository;
 import dayan.eve.service.EasemobService;
 import dayan.eve.service.RequestService;
-import dayan.eve.service.SchoolFollowService;
+import dayan.eve.service.school.SchoolFollowService;
 import dayan.eve.util.SchoolIdPlatformIdUtil;
 import dayan.eve.web.dto.FollowDTO;
 import dayan.eve.web.dto.FollowSchoolQueryDTO;
@@ -31,6 +31,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,7 @@ import java.util.Map;
 /**
  * @author xsg
  */
+@Aspect
 @RestController
 @RequestMapping("/api/v20/mobile/follow")
 public class FollowResource {

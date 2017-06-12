@@ -14,10 +14,12 @@ package dayan.eve.model.query;
 import dayan.eve.model.Pagination;
 import dayan.eve.model.topic.Topic;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author xuesg
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class TopicQuery extends Pagination {
 

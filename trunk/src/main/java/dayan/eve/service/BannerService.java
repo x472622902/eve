@@ -22,6 +22,7 @@ import dayan.eve.model.query.TopicQuery;
 import dayan.eve.model.topic.Topic;
 import dayan.eve.repository.BannerRepository;
 import dayan.eve.repository.InformationRepository;
+import dayan.eve.service.school.SchoolSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

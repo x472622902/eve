@@ -21,6 +21,8 @@ import java.util.Collection;
 @ComponentScan
 @SpringBootApplication(scanBasePackages = "dayan.eve")
 @EnableConfigurationProperties({EveProperties.class})
+//todo resolve admin会影响swagger的运行 新建一个admin项目，不要写在eve项目里
+//@EnableAdminServer
 public class EveApplication implements CommandLineRunner {
 
     private static final org.apache.logging.log4j.Logger log = LogManager.getLogger();

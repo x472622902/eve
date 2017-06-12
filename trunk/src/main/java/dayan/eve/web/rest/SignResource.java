@@ -20,6 +20,7 @@ import dayan.eve.service.SignService;
 import dayan.eve.web.dto.ClockDTO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author xsg
  */
+@Aspect
 @Controller
 @RequestMapping("/api/v20/mobile/sign")
 public class SignResource {

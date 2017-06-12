@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.WeiboRepository">
+    <sql id="where">
+        <if test="schoolId != null">
+            AND a.school_id =#{schoolId}
+        </if>
+        <if test="weiboId == null">
+            AND a.origin_id IS NULL
+        </if>
+        <if test="weiboId != null">
+            AND a.weibo_id =#{weiboId}
+        </if>
+    </sql>
+    <sql id="limit">
+        <if test="limit != null">
+            LIMIT
+            <if test="start != null">
+                #{start},
+            </if>
+            #{limit}
+        </if>
+    </sql>
+    <insert id="multiInsert">
+        INSERT INTO eve_weibo (
+        weibo_id,
+        origin_id,
+        username,
+        portrait_url,
+        images_str,
+        create_time,
+        text ,
+        <!--            source_name,
+                    source_url,-->
+        reposts_count,
+        comments_count,
+        thumbnailpic_url,
+        originalpic_url,
+        middlepic_url,
+        school_id,
+        gmt_create
+        ) VALUES
+        <foreach collection="list" item="weiboTimeline" index="index" separator=",">
+            (
+            #{weiboTimeline.id},
+            #{weiboTimeline.originId},
+            #{weiboTimeline.username},
+            #{weiboTimeline.portraitUrl},
+            #{weiboTimeline.imageUrlsStr},
+            #{weiboTimeline.createTime},
+            #{weiboTimeline.text},
+            <!--            #{weiboTimeline.source.name},
+                        #{weiboTimeline.source.url},-->
+            #{weiboTimeline.repostsCount},
+            #{weiboTimeline.commentsCount},
+            #{weiboTimeline.thumbnailPicUrl},
+            #{weiboTimeline.originalPicUrl},
+            #{weiboTimeline.middlePicUrl},
+            #{weiboTimeline.schoolId},
+            NOW()
+            )
+        </foreach>
+    </insert>
+    <select id="query" resultType="dayan.eve.model.school.WeiboTimeline">
+        SELECT
+        a.weibo_id id,
+        a.create_time createTime,
+        a.text ,
+        a.username ,
+        a.portrait_url portraitUrl ,
+        a.text ,
+        a.source_name "source.name",
+        a.source_url "source.url",
+        a.reposts_count repostsCount,
+        a.comments_count commentsCount,
+        a.images_str imageUrlsStr,
+        b.weibo_id "retweetedTimeline.id",
+        b.create_time "retweetedTimeline.createTime",
+        b.text "retweetedTimeline.text",
+        b.username "retweetedTimeline.username",
+        b.portrait_url "retweetedTimeline.portraitUrl",
+        b.images_str "retweetedTimeline.imageUrlsStr"
+        FROM
+        eve_weibo a
+        LEFT JOIN eve_weibo b ON a.weibo_id = b.origin_id
+        WHERE 1=1
+        <include refid="where"/>
+        ORDER BY a.create_time DESC
+        <include refid="limit"/>
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        SELECT count(a.id)
+        FROM eve_weibo a
+        WHERE 1=1
+        <include refid="where"/>
+    </select>
+    <select id="queryId" resultType="java.lang.String">
+        SELECT
+        weibo_id
+        FROM
+        eve_weibo
+        WHERE 1=1
+        ORDER BY create_time DESC
+        <include refid="limit"/>
+    </select>
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.FeedbackRepository">
+    <insert id="insert">
+        INSERT INTO
+            cu_adm_feedback
+            (
+                account_id,
+                province_id,
+                score,
+                rank,
+                subject_type,
+                major_code,
+                star_level,
+                content,
+                gmt_create
+            )
+            VALUE
+            (
+                #{accountId},
+                #{provinceId},
+                #{score},
+                #{rank},
+                #{subjectType},
+                #{majorCode},
+                #{starLevel},
+                #{content},
+                NOW()
+            )
+    </insert>
+</mapper>

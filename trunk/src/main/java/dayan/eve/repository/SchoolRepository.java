@@ -14,6 +14,7 @@ import dayan.eve.model.School;
 import dayan.eve.model.query.SchoolQuery;
 import dayan.eve.model.query.SearchQuery;
 import dayan.eve.model.school.RecommendSchool;
+import dayan.eve.web.dto.school.SchoolAdmissionDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -62,7 +63,7 @@ public interface SchoolRepository {
      * @param schoolId
      * @return
      */
-    public School queryAdmission(Integer schoolId);
+    public SchoolAdmissionDTO queryAdmission(Integer schoolId);
 
     /**
      * 搜索学校

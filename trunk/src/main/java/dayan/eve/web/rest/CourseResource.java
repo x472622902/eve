@@ -27,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +38,7 @@ import java.text.SimpleDateFormat;
 /**
  * @author xsg
  */
+@Aspect
 @RestController
 @RequestMapping(value = "/api/v20/mobile/course")
 public class CourseResource {

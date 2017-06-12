@@ -47,32 +47,25 @@ import java.util.Map;
 public class HotRecommendService {
 
     private static final Logger LOGGER = LogManager.getLogger(HotRecommendService.class);
-    @Autowired
-    SchoolFollowRepository schoolFollowRepository;
-
-    @Autowired
-    HotRecommendRepository hotRecommendRepository;
-
-    @Autowired
-    AccountInfoRepository accountInfoRepository;
-
-    @Autowired
-    ProvinceRepository provinceRepository;
-
-    @Autowired
-    RankScoreTransformService rankScoreTransformService;
-
-    @Autowired
-    TagUtil tagUtil;
-
-    @Autowired
-    SchoolIdPlatformIdUtil schoolIdPlatformIdUtil;
-
+    private final SchoolFollowRepository schoolFollowRepository;
+    private final HotRecommendRepository hotRecommendRepository;
+    private final AccountInfoRepository accountInfoRepository;
+    private final ProvinceRepository provinceRepository;
+    private final RankScoreTransformService rankScoreTransformService;
+    private final TagUtil tagUtil;
+    private final SchoolIdPlatformIdUtil schoolIdPlatformIdUtil;
     private String schoolLogoUrlPrefix;
 
     @Autowired
-    public HotRecommendService(EveProperties eveProperties) {
+    public HotRecommendService(EveProperties eveProperties, ProvinceRepository provinceRepository, RankScoreTransformService rankScoreTransformService, AccountInfoRepository accountInfoRepository, SchoolIdPlatformIdUtil schoolIdPlatformIdUtil, HotRecommendRepository hotRecommendRepository, TagUtil tagUtil, SchoolFollowRepository schoolFollowRepository) {
         this.schoolLogoUrlPrefix = eveProperties.getSchool().getLogoPrefix();
+        this.provinceRepository = provinceRepository;
+        this.rankScoreTransformService = rankScoreTransformService;
+        this.accountInfoRepository = accountInfoRepository;
+        this.schoolIdPlatformIdUtil = schoolIdPlatformIdUtil;
+        this.hotRecommendRepository = hotRecommendRepository;
+        this.tagUtil = tagUtil;
+        this.schoolFollowRepository = schoolFollowRepository;
     }
 
     public void createHotRecommend() {

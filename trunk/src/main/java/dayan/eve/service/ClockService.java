@@ -241,7 +241,7 @@ public class ClockService {
         if (query.getAccountId() != null) {
             count = clockRepository.countClock(query);
         }
-        PageResult<ClockTimer> pageResult = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        PageResult<ClockTimer> pageResult = new PageResult<>(count, query.getPage(), query.getSize());
         if (count > 0) {
             pageResult.setList(clockRepository.queryClocks(query));
         }

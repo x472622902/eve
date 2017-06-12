@@ -64,7 +64,7 @@ public class CourseService {
             }
         }
         Integer count = courseRepository.count(query);
-        PageResult<Course> pageResult = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        PageResult<Course> pageResult = new PageResult<>(count, query.getPage(), query.getSize());
         if (count > 0) {
             List<Course> list = courseRepository.query(query);
             if (!StringUtils.isEmpty(query.getCdkey())) {
@@ -80,7 +80,7 @@ public class CourseService {
         if (query.getAccountId() != null) {
             count = courseRepository.count(query);
         }
-        PageResult<Course> pageResult = new PageResult<>(new Pager(count, query.getPage(), query.getSize()));
+        PageResult<Course> pageResult = new PageResult<>(count, query.getPage(), query.getSize());
         if (count > 0) {
             pageResult.setList(courseRepository.queryMy(query));
         }

@@ -22,6 +22,7 @@ import dayan.eve.web.dto.account.MobileDTO;
 import io.swagger.annotations.ApiOperation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.aspectj.lang.annotation.Aspect;
 import org.codehaus.jackson.map.util.JSONPObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -35,6 +36,7 @@ import java.util.Map;
 /**
  * @author xsg
  */
+@Aspect
 @RestController
 @RequestMapping("/api/v20/mobile")
 public class IndexResource {

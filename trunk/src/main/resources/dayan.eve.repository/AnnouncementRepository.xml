@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dayan.eve.repository.AnnouncementRepository">
+    <insert id="insert">
+        INSERT INTO eve_announcement (
+            tag,
+            url,
+            content,
+            android_class_name,
+            ios_class_name,
+            android_params,
+            ios_params,
+            gmt_create
+        ) VALUES
+            (
+                #{announcement.tag},
+                #{announcement.url},
+                #{announcement.content},
+                #{announcement.androidClassName},
+                #{announcement.iosClassName},
+                #{androidParams},
+                #{iosParams},
+                NOW()
+            )
+    </insert>
+    <update id="delete">
+        UPDATE eve_announcement
+        SET is_deleted = 1
+        WHERE id = #{id}
+    </update>
+    <select id="query" resultType="dayan.eve.model.Announcement">
+        SELECT
+            id,
+            tag,
+            content,
+            url,
+            android_class_name,
+            ios_class_name,
+            android_params,
+            ios_params
+        FROM
+            eve_announcement
+        WHERE is_deleted = 0
+    </select>
+</mapper>

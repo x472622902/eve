@@ -3,12 +3,12 @@
 <mapper namespace="dayan.eve.repository.SchoolRepository">
     <select id="queryById" resultType="dayan.eve.model.school.RecommendSchool">
         SELECT
-            a.id            "schoolId",
-            a.name          "schoolName",
-            a.`school_tags` "tags",
-            a.`address`     "address"
+            a.id          "schoolId",
+            a.name        "schoolName",
+            a.school_tags "tags",
+            a.address     "address"
         FROM
-            `cu_school` a
+            cu_school a
         WHERE
             a.id = #{schoolId}
     </select>
@@ -16,7 +16,7 @@
     <select id="queryName" resultType="String">
         SELECT a.name "schoolName"
         FROM
-            `cu_school` a
+            cu_school a
         WHERE
             a.id = #{schoolId}
     </select>
@@ -24,76 +24,67 @@
 
     <select id="queryByName" resultType="dayan.eve.model.school.RecommendSchool">
         SELECT
-            a.`id`          "schoolId",
-            a.name          "schoolName",
-            a.`school_tags` "tags",
-            a.`address`     "address"
+            a.id          "schoolId",
+            a.name        "schoolName",
+            a.school_tags "tags",
+            a.address     "address"
         FROM
-            `cu_school` a
+            cu_school a
         WHERE
             a.name = #{schoolName}
     </select>
 
     <select id="queryProfile" resultType="dayan.eve.model.School">
         SELECT
-            a.id                "id",
-            a.`name`,
-            c.`school_intro`    "intro",
-            a.`found_date`      "foundDate",
-            a.`belong`,
-            a.`student_num`     "studentNum",
-            a.`cae_num`         "caeNum",
-            a.`key_subject_num` "keySubjectNum",
-            a.`school_type`     "type",
-            a.`ddg_num`         "ddgNum",
-            a.`mdg_num`         "mdgNum",
-            a.`address`,
-            a.`cs`,
-            a.`gender_ratio`    "genderRatioStr",
-            a.`student_source`  "studentSourceStr",
-            a.`tuition`,
-            b.`tags`            "tagsValue",
-            a.`employment`
+            a.id              "id",
+            a.name,
+            c.school_intro    "intro",
+            a.found_date      "foundDate",
+            a.belong,
+            a.student_num     "studentNum",
+            a.cae_num         "caeNum",
+            a.key_subject_num "keySubjectNum",
+            a.school_type     "type",
+            a.ddg_num         "ddgNum",
+            a.mdg_num         "mdgNum",
+            a.address,
+            a.cs,
+            a.gender_ratio    "genderRatioStr",
+            a.student_source  "studentSourceStr",
+            a.tuition,
+            b.tags            "tagsValue",
+            a.employment
         FROM
-            `cu_school` a
-            LEFT JOIN
-            `cu_school_intro` c
-                ON
-                    a.`id` = c.`school_id`
-            LEFT JOIN
-            `cu_school_tag` b
-                ON
-                    a.`id` = b.`school_id`
+            cu_school a
+            LEFT JOIN cu_school_intro c ON a.id = c.school_id
+            LEFT JOIN cu_school_tag b ON a.id = b.school_id
         WHERE
             a.id = #{schoolId}
     </select>
 
-    <select id="queryAdmission" resultType="dayan.eve.model.School">
+    <select id="queryAdmission" resultType="dayan.eve.web.dto.school.SchoolAdmissionDTO">
         SELECT
-            a.url,
+            a.url schoolUrl,
             a.address,
-            a.`admissions_phone` "admissionsPhone",
-            a.`admissions_url`   "admissionsUrl"
+            a.admissions_phone,
+            a.admissions_url
         FROM
-            `cu_school` a
+            cu_school a
         WHERE
             a.id = #{schoolId}
     </select>
 
     <select id="search" resultType="dayan.eve.model.School">
         SELECT
-            a.`id`,
-            a.`name`,
-            a.`address`,
-            a.`city`,
-            a.`cs`,
-            b.`tags` "tagsValue"
+        a.id,
+        a.name,
+        a.address,
+        a.city,
+        a.cs,
+        b.tags "tagsValue"
         FROM
-          `cu_school` a
-        LEFT JOIN
-          `cu_school_tag` b
-        ON
-          a.id = b.school_id
+        cu_school a
+        LEFT JOIN cu_school_tag b ON a.id = b.school_id
         WHERE 1 = 1
         <include refid="where"/>
         GROUP BY a.id
@@ -108,10 +99,10 @@
 
     <select id="count" resultType="java.lang.Integer">
         SELECT
-          COUNT(a.`id`)
+        COUNT(a.id)
         FROM
-          `cu_school` a
-            LEFT JOIN `cu_school_tag` b ON a.id = b.school_id
+        cu_school a
+        LEFT JOIN cu_school_tag b ON a.id = b.school_id
         WHERE 1 = 1
 
         <include refid="where"/>
@@ -140,13 +131,13 @@
             </foreach>
         </if>
         <if test='queryStr != null '>
-            AND a.name like CONCAT('%',#{queryStr},'%')
+            AND a.name like CONCAT('%', #{queryStr}, '%')
         </if>
         <if test='schoolId != null'>
             AND a.id = #{schoolId}
         </if>
         <if test='tagsValue != null'>
-            AND b.tags &amp; #{tagsValue}  = #{tagsValue}
+            AND b.tags &amp;  #{tagsValue}  = #{tagsValue}
         </if>
         <if test='isAdvisory != null'>
             AND a.is_advisory = #{isAdvisory}
@@ -159,65 +150,57 @@
 
     <select id="queryAllNames" resultType="String">
         SELECT
-            DISTINCT a.`name`
+            DISTINCT a.name
         FROM
-            `cu_school` a
+            cu_school a
         WHERE a.is_deleted = 0
     </select>
 
     <update id="updateAdvisory">
         UPDATE
-          `cu_school` a
+        cu_school a
         SET
-          is_advisory = 1
+        is_advisory = 1
         where
-            a.id in
-            <foreach item="schoolIds" index="index" collection="schoolIds"
-                     open="(" separator="," close=")">
-                #{schoolIds}
-            </foreach>
+        a.id in
+        <foreach item="schoolIds" index="index" collection="schoolIds"
+                 open="(" separator="," close=")">
+            #{schoolIds}
+        </foreach>
     </update>
 
     <update id="updateCs">
-        UPDATE
-          `cu_school` a
-        SET
-          cs = 1
-        where
-            a.id in
-            <foreach item="schoolIds" index="index" collection="schoolIds"
-                     open="(" separator="," close=")">
-                #{schoolIds}
-            </foreach>
+        UPDATE cu_school
+        SET cs = 1
+        where id in
+        <foreach item="schoolIds" index="index" collection="schoolIds"
+                 open="(" separator="," close=")">
+            #{schoolIds}
+        </foreach>
     </update>
 
     <update id="clearCs">
-        UPDATE
-            `cu_school` a
-        SET
-            cs = 0
+        UPDATE cu_school
+        SET cs = 0
     </update>
 
     <update id="cleanAdvisory">
-        UPDATE
-            `cu_school` a
-        SET
-            is_advisory = 0
+        UPDATE cu_school
+        SET is_advisory = 0
     </update>
 
     <select id="query" resultType="dayan.eve.model.School">
         SELECT
-            a.id,
-            a.name
-        FROM
-          `cu_school` a
+        id,
+         name
+        FROM cu_school
         WHERE
-          a.is_deleted = 0
+        is_deleted = 0
         <if test="schoolId != null">
-            AND a.id = #{schoolId}
+            AND  id = #{schoolId}
         </if>
         <if test="schoolName != null">
-            AND a.name = #{schoolName}
+            AND  name = #{schoolName}
         </if>
 
     </select>
